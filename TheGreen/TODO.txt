@@ -1,0 +1,8 @@
+﻿TODO:
+Fix Damaged tile sprite or change it's logic completely
+projectiles
+walls
+handle collisions
+Add Collision for enemy and player item.
+water
+

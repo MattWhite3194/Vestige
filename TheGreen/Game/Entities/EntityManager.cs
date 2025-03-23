@@ -1,0 +1,345 @@
+﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using System;
+using System.Collections.Generic;
+using TheGreen.Game.Items;
+using TheGreen.Game.Tiles;
+using TheGreen.Game.WorldGeneration;
+
+namespace TheGreen.Game.Entities
+{
+    /// <summary>
+    /// Handles collision detection between entities
+    /// </summary>
+    public class EntityManager
+    {
+        private Player _player;
+
+        private List<Entity> _entities = new List<Entity>();
+        private List<Enemy> _enemies = new List<Enemy>();
+        private List<ItemDrop> _itemDrops = new List<ItemDrop>();
+        private List<Rectangle> _intersections;
+
+        private static EntityManager _instance;
+        private EntityManager()
+        {
+
+        }
+
+        public static EntityManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new EntityManager();
+                }
+                return _instance;
+            }
+        }
+
+        public void Update(double delta)
+        {
+
+            //Handle tile collisions
+            foreach (Entity entity in _entities)
+            {
+                //Update Entities
+                entity.Update(delta);
+
+                //update enemies positions that don't collide with tiles
+                if (!entity.CollidesWithTiles)
+                {
+                    entity.Position += entity.Velocity * (float)delta;
+                    continue;
+                }
+
+                int distanceFactor = (int)Math.Min(entity.Size.X, Globals.TILESIZE);
+
+                Vector2 minPos = Vector2.Zero;
+                Vector2 maxPos = new(WorldGen.Instance.WorldSize.X * Globals.TILESIZE - entity.Size.X, WorldGen.Instance.WorldSize.Y * Globals.TILESIZE - entity.Size.Y);
+                int tileWidth = (int)entity.Size.X / Globals.TILESIZE;
+                int tileHeight = (int)entity.Size.Y / Globals.TILESIZE;
+                float distanceX = entity.Velocity.X * (float)delta;
+                int horizontalCollisionDirection = 0;
+                List<float> horizontalDistances = new List<float>();
+                for (int i = 0; i < Math.Floor(distanceX / (distanceFactor - 1)); i++)
+                {
+                    horizontalDistances.Add((distanceFactor - 1));
+                }
+                horizontalDistances.Add(distanceX % (distanceFactor - 1));
+                foreach (float distance in horizontalDistances)
+                {
+                    entity.Position.X += distance;
+                    entity.Position.X = float.Clamp(entity.Position.X, minPos.X, maxPos.X);
+                    _intersections = GetHorizontalCollisions(entity);
+                    List<Rectangle> horizontalCollisions = new();
+
+
+                    foreach (var rect in _intersections)
+                    {
+                        //temporary check for smaller map size, bigger map and bounds will resolve this
+                        if (rect.X >= 0 && rect.X < WorldGen.Instance.WorldSize.X && rect.Y >= 0 && rect.Y < WorldGen.Instance.WorldSize.Y)
+                        {
+                            if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(rect.X, rect.Y), TileProperty.Solid))
+                            {
+                                Rectangle collision = new Rectangle(
+                                    rect.X * Globals.TILESIZE,
+                                    rect.Y * Globals.TILESIZE,
+                                    Globals.TILESIZE,
+                                    Globals.TILESIZE
+                                );
+                                if (rect.X * Globals.TILESIZE < entity.Position.X && entity.Velocity.X < 0.0f)
+                                {
+                                    horizontalCollisionDirection = -1;
+                                    entity.Position.X = collision.Right;
+                                }
+                                else if (rect.X * Globals.TILESIZE > entity.Position.X && entity.Velocity.X > 0.0f)
+                                {
+                                    horizontalCollisionDirection = 1;
+                                    entity.Position.X = collision.Left - entity.Size.X;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if (horizontalCollisionDirection != 0)
+                        break;
+                }
+
+                distanceFactor = (int)Math.Min(entity.Size.Y, Globals.TILESIZE);
+                float distanceY = entity.Velocity.Y * (float)delta;
+                List<float> verticalDistances = new List<float>();
+                for (int i = 0; i < Math.Floor(distanceY / (distanceFactor - 1)); i++)
+                {
+                    verticalDistances.Add(distanceFactor - 1);
+                }
+                verticalDistances.Add(distanceY % (distanceFactor - 1));
+                foreach (float distance in verticalDistances)
+                {
+                    entity.Position.Y += distance;
+                    entity.Position.Y = float.Clamp(entity.Position.Y, minPos.Y, maxPos.Y);
+                    _intersections = GetVerticalCollisions(entity);
+                    bool floorCollision = false;
+                    bool ceilingCollision = false;
+
+
+                    foreach (var rect in _intersections)
+                    {
+                        //temporary check for smaller map size, bigger map and bounds will resolve this
+                        if (rect.X >= 0 && rect.X < WorldGen.Instance.WorldSize.X && rect.Y >= 0 && rect.Y < WorldGen.Instance.WorldSize.Y)
+                        {
+                            if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(rect.X, rect.Y), TileProperty.Solid))
+                            {
+                                Rectangle collision = new Rectangle(
+                                    rect.X * Globals.TILESIZE,
+                                    rect.Y * Globals.TILESIZE,
+                                    Globals.TILESIZE,
+                                    Globals.TILESIZE
+                                );
+
+                                if (rect.Y * Globals.TILESIZE > entity.Position.Y && entity.Velocity.Y > 0.0f)
+                                {
+                                    entity.Position.Y = collision.Top - entity.Size.Y;
+                                    floorCollision = true;
+                                    entity.Velocity.Y = 0.0f;
+                                }
+                                else if (rect.Y * Globals.TILESIZE < entity.Position.Y && entity.Velocity.Y < 0.0f)
+                                {
+                                    entity.Position.Y = collision.Bottom;
+                                    ceilingCollision = true;
+                                    entity.Velocity.Y = 0.0f;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    entity.IsOnCeiling = ceilingCollision;
+                    entity.IsOnFloor = floorCollision;
+
+                    if (ceilingCollision || floorCollision)
+                    {
+                        break;
+                    }
+                }
+
+                if (horizontalCollisionDirection != 0) 
+                {
+                    if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.Position / Globals.TILESIZE).ToPoint(), tileWidth, tileHeight, horizontalCollisionDirection))
+                    {
+                        entity.Position.Y -= Globals.TILESIZE;
+                        entity.Position.X += 2 * Math.Sign(entity.Velocity.X);
+                    }
+                    else
+                    {
+                        entity.Velocity.X = 0.0f;
+                    }
+                }
+            }
+
+            //handle enemy collisions with player
+            for (int i = 0; i < _enemies.Count; i++)
+            {
+                if (_enemies[i].GetBounds().Intersects(_player.GetBounds()))
+                {
+                    _player.OnCollision(_enemies[i]);
+                }
+            }
+
+            //handle itemDrop collisions with player
+            for (int i = 0; i < _itemDrops.Count; i++)
+            {
+                if (_itemDrops[i].GetBounds().Intersects(_player.GetBounds()))
+                {
+                    _player.OnCollision(_itemDrops[i]);
+                }
+            }
+        }
+
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            foreach (Entity entity in _entities)
+            {
+                entity.Draw(spriteBatch);
+            }
+        }
+
+        private List<Rectangle> GetHorizontalCollisions(Entity entity)
+        {
+            List<Rectangle> intersections = new();
+            int tileWidth = (int)(entity.Size.X) / Globals.TILESIZE;
+            int tileHeight = (int)(entity.Size.Y) / Globals.TILESIZE;
+            for (int y = 0; y <= tileHeight; y++)
+            {
+                intersections.Add(new Rectangle(
+                    (int)(entity.Position.X / Globals.TILESIZE),
+                    (int)((entity.Position.Y + y * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    Globals.TILESIZE,
+                    Globals.TILESIZE
+                ));
+
+                intersections.Add(new Rectangle(
+                    (int)((entity.Position.X + entity.Size.X) / Globals.TILESIZE),
+                    (int)((entity.Position.Y + y * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    Globals.TILESIZE,
+                    Globals.TILESIZE
+                ));
+            }
+            intersections.Add(new Rectangle(
+                (int)(entity.Position.X / Globals.TILESIZE),
+                (int)((entity.Position.Y + entity.Size.Y - 1) / Globals.TILESIZE),
+                Globals.TILESIZE,
+                Globals.TILESIZE
+            ));
+            intersections.Add(new Rectangle(
+                (int)((entity.Position.X + entity.Size.X) / Globals.TILESIZE),
+                (int)((entity.Position.Y + entity.Size.Y - 1) / Globals.TILESIZE),
+                Globals.TILESIZE,
+                Globals.TILESIZE
+            ));
+
+            return intersections;
+        }
+
+        private List<Rectangle> GetVerticalCollisions(Entity entity)
+        {
+            List<Rectangle> intersections = new();
+            int tileWidth = (int)(entity.Size.X) / Globals.TILESIZE;
+            int tileHeight = (int)(entity.Size.Y) / Globals.TILESIZE;
+
+            for (int x = 0; x <= tileWidth; x++)
+            {
+                intersections.Add(new Rectangle(
+                    (int)((entity.Position.X + x * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    (int)(entity.Position.Y / Globals.TILESIZE),
+                    Globals.TILESIZE,
+                    Globals.TILESIZE
+                ));
+
+                intersections.Add(new Rectangle(
+                    (int)((entity.Position.X + x * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    (int)((entity.Position.Y + entity.Size.Y) / Globals.TILESIZE),
+                    Globals.TILESIZE,
+                    Globals.TILESIZE
+                ));
+            }
+            intersections.Add(new Rectangle(
+                (int)((entity.Position.X + entity.Size.X - 1) / Globals.TILESIZE),
+                (int)(entity.Position.Y / Globals.TILESIZE),
+                Globals.TILESIZE,
+                Globals.TILESIZE
+            ));
+            intersections.Add(new Rectangle(
+                (int)((entity.Position.X + entity.Size.X - 1) / Globals.TILESIZE),
+                (int)((entity.Position.Y + entity.Size.Y) / Globals.TILESIZE),
+                Globals.TILESIZE,
+                Globals.TILESIZE
+            ));
+
+            return intersections;
+        }
+
+        public void SetPlayer(Player player)
+        {
+            _player = player;
+            _entities.Add(player);
+        }
+
+        public Player GetPlayer()
+        {
+            return _player;
+        }
+
+        //Change this to spawn by enemy ID
+        public void CreateEnemy(int enemyID, Vector2 Position)
+        {
+            Enemy enemy = EnemyDatabase.InstantiateEnemyByID(enemyID);
+            enemy.Position = Position;
+            _enemies.Add(enemy);
+            _entities.Add(enemy);
+        }
+
+        public void AddItemDrop(Item item, Vector2 position, Vector2 velocity = default)
+        {
+
+            ItemDrop itemDrop = new ItemDrop(item, position);
+            itemDrop.Velocity = velocity == default ? Vector2.Zero : velocity;
+            _itemDrops.Add(itemDrop);
+            _entities.Add(itemDrop);
+        }
+
+        public void RemoveItemDrop(ItemDrop itemDrop)
+        {
+            _itemDrops.Remove(itemDrop);
+            _entities.Remove(itemDrop);
+        }
+
+        public void RemoveEntity(Entity entity)
+        {
+            _entities.Remove(entity);
+        }
+
+        public List<Entity> GetEntities()
+        {
+            return _entities;
+        }
+
+        private bool CanEntityHop(Entity entity, Point tilePoint, int tileWidth, int tileHeight, int direction)
+        {
+            if (!entity.IsOnFloor || entity.Velocity.X == 0)
+                return false;
+            for (int x = 0; x <= tileWidth; x++)
+            {
+                if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(tilePoint.X + x, tilePoint.Y - 1), TileProperty.Solid))
+                    return false;
+            }
+            int tilesInFrontOffset = direction == -1 ? -1 : tileWidth + 1;
+            for (int y = -1; y < tileHeight; y++)
+            {
+                if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(tilePoint.X + tilesInFrontOffset, tilePoint.Y + y), TileProperty.Solid))
+                    return false;
+            }
+            return true;
+        }
+    }
+}
