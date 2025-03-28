@@ -1,39 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
 using System;
 
-namespace TheGreen.Game.Entities
+namespace TheGreen.Game.Entities.Enemies.EnemyBehaviors
 {
-    public class Enemy : Entity
-    {
-        public int ID;
-        public string Name;
-        private IEnemyBehavior _behavior;
-        private int health;
-        public Enemy(int id, string name, Texture2D image, Vector2 size, bool collidesWithTiles, IEnemyBehavior behavior, List<(int, int)> animationFrames = null) : base(image, default, size: size, animationFrames: animationFrames)
-        {
-            this.ID = id;
-            this.Name = name;
-            this.CollidesWithTiles = collidesWithTiles;
-            this._behavior = behavior;
-            
-        }
-        public override void Update(double delta)
-        {
-            _behavior?.AI(delta, this);
-            base.Update(delta);
-        }
-    }
-
-    /// <summary>
-    /// Interface defining the methods required for an enemy movement pattern
-    /// </summary>
-    public interface IEnemyBehavior
-    {
-        void AI(double delta, Enemy enemy);
-    }
-
     /// <summary>
     /// Defined movement pattern for a mutant cricket
     /// </summary>
@@ -47,7 +16,7 @@ namespace TheGreen.Game.Entities
         private Player _player;
         public void AI(double delta, Enemy enemy)
         {
-            _player = EntityManager.Instance.GetPlayer();
+            _player = Main.EntityManager.GetPlayer();
             Vector2 newVelocity = enemy.Velocity;
             newVelocity.Y += Globals.GRAVITY * (float)delta;
             _elapsedTime += delta;
@@ -63,14 +32,14 @@ namespace TheGreen.Game.Entities
                     newVelocity.X += _acceleration * _directionX * (float)delta;
                 if (MathF.Abs(enemy.Velocity.X) > _maxSpeed)
                     newVelocity.X = _maxSpeed * _directionX;
-                if (MathF.Abs((enemy.Position.X + enemy.Origin.X) - (_player.Position.X + _player.Origin.X)) < 32)
+                if (MathF.Abs(enemy.Position.X + enemy.Origin.X - (_player.Position.X + _player.Origin.X)) < 32)
                     newVelocity.X = 0.0f;
                 if (_elapsedTime >= _nextJumpTime)
                 {
-                    _nextJumpTime = GameManager.Random.NextDouble() * 2.0 + 2.0;
+                    _nextJumpTime = Main.Random.NextDouble() * 2.0 + 2.0;
                     _elapsedTime = 0.0;
-                    newVelocity.Y = _maxSpeed * GameManager.Random.Next(-4, -3);
-                    newVelocity.X = _maxSpeed * _directionX * GameManager.Random.Next(2, 5);
+                    newVelocity.Y = _maxSpeed * Main.Random.Next(-4, -3);
+                    newVelocity.X = _maxSpeed * _directionX * Main.Random.Next(2, 5);
                     enemy.Animation.SetCurrentAnimation(1);
                 }
             }

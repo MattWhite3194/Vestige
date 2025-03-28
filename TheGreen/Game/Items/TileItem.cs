@@ -22,9 +22,9 @@ namespace TheGreen.Game.Items
         public override bool UseItem()
         {
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Globals.TILESIZE, Globals.TILESIZE);
-            if (WorldGen.Instance.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
+            if (WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
             {
-                if (WorldGen.Instance.SetTile(mouseTilePosition.X, mouseTilePosition.Y, _tileID))
+                if (WorldGen.World.SetTile(mouseTilePosition.X, mouseTilePosition.Y, _tileID))
                 {
                     return true;
                 }

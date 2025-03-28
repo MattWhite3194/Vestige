@@ -25,9 +25,9 @@ namespace TheGreen.Game.Items
         {
             
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Globals.TILESIZE, Globals.TILESIZE);
-            if (WorldGen.Instance.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
+            if (WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
                 return false;
-            WorldGen.Instance.DamageTile(mouseTilePosition, _minePower);
+            WorldGen.World.DamageTile(mouseTilePosition, _minePower);
             return true;
         }
     }

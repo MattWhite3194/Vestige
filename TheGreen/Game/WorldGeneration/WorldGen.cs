@@ -2,30 +2,28 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using TheGreen.Game.Entities;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
+using TheGreen.Game.WorldGeneration.WorldUpdaters;
 
 namespace TheGreen.Game.WorldGeneration
 {
     public class WorldGen
     {
-        private static WorldGen _instance;
+        private static WorldGen _world = null;
         private WorldGen()
         {
 
         }
-
-        public static WorldGen Instance
+        public static WorldGen World
         {
             get
             {
-                if (_instance == null)
+                if (_world == null)
                 {
-                    _instance = new WorldGen();
+                    _world = new WorldGen();
                 }
-                return _instance;
+                return _world;
             }
         }
         private Tile[] _tiles;
@@ -50,13 +48,16 @@ namespace TheGreen.Game.WorldGeneration
         /// <summary>
         /// Quick access to surrounding tile points
         /// </summary>
-        private Point[] _surroundingTiles = { new Point(0, -1), new Point(0, 1), new Point(-1, 0), new Point(1, 0) };
+        public readonly Point[] SurroundingTiles = { new Point(0, -1), new Point(0, 1), new Point(-1, 0), new Point(1, 0) };
 
         /// <summary>
         /// Stores the location and damage information of any tiles that are actively being mined by the player
         /// </summary>
         private Dictionary<Point, DamagedTile> _minedTiles = new Dictionary<Point, DamagedTile>();
-        private Queue<Point> _liquidUpdateQueue = new Queue<Point>();
+        
+        private List<WorldUpdater> _worldUpdaters;
+        private LiquidUpdater _liquidUpdater;
+        private OverlayTileUpdater _overlayTileUpdater;
         public class DamagedTile
         {
             /// <summary>
@@ -219,9 +220,22 @@ namespace TheGreen.Game.WorldGeneration
             //get size from file
             _tiles = new Tile[0];
         }
-
+        /// <summary>
+        /// Called when a player starts a world. Use this to start any frame or tick updates.
+        /// </summary>
+        public void InitializeGameUpdates()
+        {
+            _worldUpdaters = new List<WorldUpdater>();
+            _liquidUpdater = new LiquidUpdater(0.01);
+            _overlayTileUpdater = new OverlayTileUpdater(1);
+            _worldUpdaters.AddRange([ _liquidUpdater, _overlayTileUpdater]);
+        }
         public void Update(double delta)
         {
+            foreach (WorldUpdater worldUpdater in _worldUpdaters)
+            {
+                worldUpdater.Update(delta);
+            }
             foreach (Point point in _minedTiles.Keys)
             {
                 DamagedTile damagedTileData = _minedTiles[point];
@@ -233,14 +247,7 @@ namespace TheGreen.Game.WorldGeneration
                 else
                     _minedTiles[point] = damagedTileData;
             }
-
-            int numLiquidsUpdated = 0;
-            while (_liquidUpdateQueue.Count != 0 && numLiquidsUpdated < 3)
-            {
-                numLiquidsUpdated++;
-                Point queuedLiquidPoint = _liquidUpdateQueue.Dequeue();
-                SettleLiquid(queuedLiquidPoint.X, queuedLiquidPoint.Y);
-            }
+            
         }
 
         /// <summary>
@@ -267,51 +274,7 @@ namespace TheGreen.Game.WorldGeneration
                 _minedTiles[coordinates] = damagedTileData;
             }
         }
-
-        public void QueueLiquidUpdate(int x, int y)
-        {
-            _liquidUpdateQueue.Enqueue(new Point(x, y));
-        }
-        private void SettleLiquid(int x, int y)
-        {
-            int minMass = 5;
-            int remainingMass = GetLiquid(x, y);
-            if (remainingMass < minMass) {
-                SetLiquid(x, y, 0);
-                return;
-            }
-
-            if (IsTileInBounds(x, y + 1) && !TileDatabase.TileHasProperty(GetTileID(x, y + 1), TileProperty.Solid))
-            {
-                int flow = Math.Min(255 - GetLiquid(x, y + 1), remainingMass);
-                SetLiquid(x, y, (byte)(GetLiquid(x, y) - flow));
-                SetLiquid(x, y + 1, (byte)(GetLiquid(x, y + 1) + flow));
-                remainingMass -= flow;
-            }
-            if (remainingMass <= 0)
-                return;
-
-            if (IsTileInBounds(x - 1, y) && !TileDatabase.TileHasProperty(GetTileID(x - 1, y), TileProperty.Solid))
-            {
-                int flow = (GetLiquid(x, y) - GetLiquid(x - 1, y)) / 4;
-                flow = int.Clamp(flow, 0, remainingMass);
-
-                SetLiquid(x, y, (byte)(GetLiquid(x, y) - flow));
-                SetLiquid(x - 1, y, (byte)(GetLiquid(x - 1, y) + flow));
-                remainingMass -= flow;
-            }
-            if (remainingMass <= 0)
-                return;
-            if (IsTileInBounds(x + 1, y) && !TileDatabase.TileHasProperty(GetTileID(x + 1, y), TileProperty.Solid))
-            {
-                int flow = (GetLiquid(x, y) - GetLiquid(x + 1, y)) / 4;
-                flow = int.Clamp(flow, 0, remainingMass);
-
-                SetLiquid(x, y, (byte)(GetLiquid(x, y) - flow));
-                SetLiquid(x + 1, y, (byte)(GetLiquid(x + 1, y) + flow));
-                remainingMass -= flow;
-            }
-        }
+        
         private void CalculateInitialLighting()
         {
             //TODO: possibly change this nightmare to the recursive algorithm, same as dynamic light calculations
@@ -429,7 +392,7 @@ namespace TheGreen.Game.WorldGeneration
             if (GetTileLight(x, y) == 255)
                 return;
             int light = GetTileLight(x, y);
-            foreach (Point point in _surroundingTiles)
+            foreach (Point point in SurroundingTiles)
             {
                 if (!IsTileInBounds(x + point.X, y + point.Y))
                 {
@@ -616,6 +579,7 @@ namespace TheGreen.Game.WorldGeneration
 
         public bool SetTile(int x, int y, ushort ID)
         {
+            //verify the tile first to ensure its being set at a valid position
             if (ID != 0 && TileDatabase.VerifyTile(ID, x, y) != 1)
                 return false;
             _tiles[y * WorldSize.X + x].ID = ID;
@@ -624,19 +588,29 @@ namespace TheGreen.Game.WorldGeneration
             {
                 for (int j = -1; j <= 1; j++)
                 {
+                    if (GetLiquid(x + i, y + j) != 0)
+                    {
+                        _liquidUpdater.QueueLiquidUpdate(x + i, y + j);
+                    }
+
                     ushort tileID = GetTileID(x + i, y + j);
+
                     if (TileDatabase.VerifyTile(tileID, x + i, y + j) == -1)
                     {
                         RemoveTile(x + i, y + j);
+                        continue;
                     }
-                    if (GetLiquid(x + i, y + j) != 0)
-                    {
-                        QueueLiquidUpdate(x + i, y + j);
-                    }
+
                     byte state = TileDatabase.GetUpdatedTileState(tileID, x + i, y + j);
-                    if (state == 255 && TileDatabase.TileHasProperty(tileID, TileProperty.Overlay))
-                        _tiles[(y + j) * WorldSize.X + (x + i)].ID = TileDatabase.GetTileBaseID(tileID);
                     SetTileState(x + i, y + j, state);
+
+                    if (TileDatabase.TileHasProperty(tileID, TileProperty.Overlay))
+                    {
+                        if (state == 255)
+                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = TileDatabase.GetTileBaseID(tileID);
+                        else
+                            _overlayTileUpdater.EnqueueOverlayTile(x + i, y + j, tileID);
+                    }
                 }
             }
             return true;
@@ -660,7 +634,7 @@ namespace TheGreen.Game.WorldGeneration
             Item item = ItemDatabase.GetItemByTileID(GetTileID(x, y));
             if (item != null)
             {
-                EntityManager.Instance.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);
+                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);
             }
             SetTile(x, y, 0);
         }
@@ -718,8 +692,8 @@ namespace TheGreen.Game.WorldGeneration
         }
         public void SetLiquid(int x, int y, byte amount)
         {
-            if (amount > 0 && GetLiquid(x, y) != amount)
-                QueueLiquidUpdate(x, y);
+            if (amount > 0)
+                _liquidUpdater.QueueLiquidUpdate(x, y);
             _tiles[y * WorldSize.X + x].Liquid = amount;
         }
     }

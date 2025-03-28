@@ -133,9 +133,9 @@ namespace TheGreen.Game.Input
         }
         public static Point GetMouseWorldPosition()
         {
-            Vector2 mousePosition = GetMouseWindowPosition();
-            Point translation = GameManager.GetTranslation();
-            return new Point(Math.Abs(translation.X) + (int)mousePosition.X, Math.Abs(translation.Y) + (int)mousePosition.Y);
+            Point mousePosition = GetMouseWindowPosition().ToPoint();
+            Point translation = Main.GetCameraPosition().ToPoint();
+            return mousePosition + translation;
         }
         public static Rectangle GetMouseWindowBounds()
         {

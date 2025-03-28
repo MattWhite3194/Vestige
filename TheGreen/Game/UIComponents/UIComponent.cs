@@ -139,5 +139,14 @@ namespace TheGreen.Game.UIComponents
         {
             return new Rectangle((int)_drawPosition.X, (int)_drawPosition.Y, (int)_size.X, (int)_size.Y);
         }
+
+        //TODO: implement something like this and add it to a global window resize delegate or something similar
+        public void OnWindowResize(Point oldResolution, Point newResolution)
+        {
+            Vector2 newPosition;
+            newPosition.X = (int)(Position.X * (newResolution.X / (float)oldResolution.X));
+            newPosition.Y = (int)(Position.Y * (newResolution.Y / (float)oldResolution.Y));
+            Position = newPosition;
+        }
     }
 }

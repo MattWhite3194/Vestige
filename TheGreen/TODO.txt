@@ -1,8 +1,11 @@
 ﻿TODO:
+Add Collision for enemy and player item.
+walls
+Improve lighting algorithm, takes up most of runtime. possibly change method of drawing light, instead of using a texture
+finalize water (make it flow better)
+Add Window resizing
 Fix Damaged tile sprite or change it's logic completely
 projectiles
-walls
 handle collisions
-Add Collision for enemy and player item.
-water
+
 

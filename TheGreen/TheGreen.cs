@@ -16,7 +16,7 @@ namespace TheGreen
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private GameManager _gameManager;
+        private Main _gameManager;
         private MainMenu _mainMenu;
         public static Matrix ScreenScaleMatrix;
 
@@ -43,9 +43,14 @@ namespace TheGreen
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ContentLoader.Load(Content);
-            CreateStartMenu();
 
             base.LoadContent();
+        }
+        protected override void BeginRun()
+        {
+            _mainMenu = new MainMenu(this, GraphicsDevice);
+            UIManager.RegisterContainer(_mainMenu);
+            InputManager.RegisterHandler(_mainMenu);
         }
         protected override void Update(GameTime gameTime)
         {
@@ -86,19 +91,13 @@ namespace TheGreen
             _graphics.SynchronizeWithVerticalRetrace = false;
             _graphics.ApplyChanges();
         }
-        private void CreateStartMenu()
-        {
-            _mainMenu = new MainMenu(this, GraphicsDevice);
-            UIManager.RegisterContainer(_mainMenu);
-            InputManager.RegisterHandler(_mainMenu);
-        }
         public void StartNewWorld(Point size)
         {
             _mainMenu = null;
-            WorldGen.Instance.GenerateWorld(size.X, size.Y);
             InventoryManager inventory = new InventoryManager(5, 8);
-            Player player = new Player(ContentLoader.PlayerTexture, (WorldGen.Instance.SpawnTile.ToVector2() - new Vector2(0, 5)) * Globals.TILESIZE, inventory, 100);
-            _gameManager = new GameManager(player, GraphicsDevice);
+            WorldGen.World.GenerateWorld(size.X, size.Y);
+            Player player = new Player(ContentLoader.PlayerTexture, (WorldGen.World.SpawnTile.ToVector2() - new Vector2(0, 5)) * Globals.TILESIZE, inventory, 100);
+            _gameManager = new Main(player, GraphicsDevice);
             InputManager.RegisterHandler(inventory);
             UIManager.RegisterContainer(inventory);
         }

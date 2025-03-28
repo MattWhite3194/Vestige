@@ -15,11 +15,13 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
-                    if (i >= 0 && i < WorldGen.Instance.WorldSize.X && j >= 0 && j < WorldGen.Instance.WorldSize.Y)
+                    if (i >= 0 && i < WorldGen.World.WorldSize.X && j >= 0 && j < WorldGen.World.WorldSize.Y)
                     {
+                        if (WorldGen.World.GetTileLight(i, j) == 0)
+                            continue;
                         //TEMPORARY
-                        if (WorldGen.Instance.GetWallID(i, j) != 0)
-                            TileDatabase.DrawWall(spriteBatch, WorldGen.Instance.GetWallID(i, j), WorldGen.Instance.GetWallState(i, j), i, j);
+                        if (WorldGen.World.GetWallID(i, j) != 0)
+                            TileDatabase.DrawWall(spriteBatch, WorldGen.World.GetWallID(i, j), WorldGen.World.GetWallState(i, j), i, j);
                     }
                 }
             }
@@ -31,11 +33,11 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
-                    ushort tileID = WorldGen.Instance.GetTileID(i, j);
+                    ushort tileID = WorldGen.World.GetTileID(i, j);
                     //Draw all tiles that are not solid in the wall layer
                     if (TileDatabase.TileHasProperty(tileID, TileProperty.Solid) || tileID == 0)
                         continue;
-                    TileDatabase.DrawTile(spriteBatch, tileID, WorldGen.Instance.GetTileState(i, j), i, j);
+                    TileDatabase.DrawTile(spriteBatch, tileID, WorldGen.World.GetTileState(i, j), i, j);
                 }
             }
         }
@@ -46,13 +48,15 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
-                    ushort tileID = WorldGen.Instance.GetTileID(i, j);
+                    ushort tileID = WorldGen.World.GetTileID(i, j);
                     if (!TileDatabase.TileHasProperty(tileID, TileProperty.Solid))
                         continue;
-                    TileDatabase.DrawTile(spriteBatch, tileID, WorldGen.Instance.GetTileState(i, j), i, j);
+                    if (WorldGen.World.GetTileLight(i, j) == 0)
+                        continue;
+                    TileDatabase.DrawTile(spriteBatch, tileID, WorldGen.World.GetTileState(i, j), i, j);
                 }
             }
-            foreach (Point crackPoint in WorldGen.Instance.GetMinedTiles().Keys)
+            foreach (Point crackPoint in WorldGen.World.GetMinedTiles().Keys)
             {
                 spriteBatch.Draw(ContentLoader.Cracks, crackPoint.ToVector2() * Globals.TILESIZE, Color.White);
             }
@@ -64,7 +68,7 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
-                    if (WorldGen.Instance.GetLiquid(i, j) != 0)
+                    if (WorldGen.World.GetLiquid(i, j) != 0)
                         spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Globals.TILESIZE, j * Globals.TILESIZE),  Color.White);
                 }
             }
@@ -80,8 +84,8 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = 0; j < _drawBoxMax.Y - _drawBoxMin.Y; j++)
                 {
-                    if (WorldGen.Instance.GetLiquid(i + _drawBoxMin.X, j + _drawBoxMin.Y) != 0)
-                        spriteBatch.DrawString(ContentLoader.GameFont, WorldGen.Instance.GetLiquid(i + _drawBoxMin.X, j + _drawBoxMin.Y) + "", new Vector2(i, j) * Globals.TILESIZE, Color.White, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0.0f);
+                    if (WorldGen.World.GetLiquid(i + _drawBoxMin.X, j + _drawBoxMin.Y) != 0)
+                        spriteBatch.DrawString(ContentLoader.GameFont, WorldGen.World.GetLiquid(i + _drawBoxMin.X, j + _drawBoxMin.Y) + "", new Vector2(i, j) * Globals.TILESIZE, Color.White, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0.0f);
                 }
             }
         }

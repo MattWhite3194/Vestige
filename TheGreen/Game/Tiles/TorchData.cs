@@ -11,19 +11,19 @@ namespace TheGreen.Game.Tiles
         }
         public override int VerifyTile(ushort tileID, int x, int y)
         {
-            ushort right = WorldGen.Instance.GetTileID(x + 1, y);
-            ushort bottom = WorldGen.Instance.GetTileID(x, y + 1);
-            ushort left = WorldGen.Instance.GetTileID(x - 1, y);
-            ushort wall = WorldGen.Instance.GetWallID(x, y);
+            ushort right = WorldGen.World.GetTileID(x + 1, y);
+            ushort bottom = WorldGen.World.GetTileID(x, y + 1);
+            ushort left = WorldGen.World.GetTileID(x - 1, y);
+            ushort wall = WorldGen.World.GetWallID(x, y);
             if (Math.Sign(wall) == 1 || TileDatabase.TileHasProperty(right, TileProperty.Solid) || TileDatabase.TileHasProperty(bottom, TileProperty.Solid) || TileDatabase.TileHasProperty(left, TileProperty.Solid))
                 return 1;
             return -1;
         }
         public override byte GetUpdatedTileState(ushort tileID, int x, int y)
         {
-            ushort bottom = WorldGen.Instance.GetTileID(x, y + 1);
-            ushort left = WorldGen.Instance.GetTileID(x - 1, y);
-            ushort right = WorldGen.Instance.GetTileID(x + 1, y);
+            ushort bottom = WorldGen.World.GetTileID(x, y + 1);
+            ushort left = WorldGen.World.GetTileID(x - 1, y);
+            ushort right = WorldGen.World.GetTileID(x + 1, y);
 
             if (TileDatabase.TileHasProperty(bottom, TileProperty.Solid))
                 return 0;

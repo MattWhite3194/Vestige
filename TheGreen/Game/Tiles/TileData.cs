@@ -30,11 +30,11 @@ namespace TheGreen.Game.Tiles
         /// <returns>An integer representing the tiles verifcation state. -1: tile should be removed, 0: tile is not verified for placing, 1: tile is verified</returns>
         public virtual int VerifyTile(ushort tileID, int x, int y)
         {
-            ushort top = WorldGen.Instance.GetTileID(x, y - 1);
-            ushort right = WorldGen.Instance.GetTileID(x + 1, y);
-            ushort bottom = WorldGen.Instance.GetTileID(x, y + 1);
-            ushort left = WorldGen.Instance.GetTileID(x - 1, y);
-            ushort wall = WorldGen.Instance.GetWallID(x, y);
+            ushort top = WorldGen.World.GetTileID(x, y - 1);
+            ushort right = WorldGen.World.GetTileID(x + 1, y);
+            ushort bottom = WorldGen.World.GetTileID(x, y + 1);
+            ushort left = WorldGen.World.GetTileID(x - 1, y);
+            ushort wall = WorldGen.World.GetWallID(x, y);
 
 
             return Math.Sign(top + right + bottom + left + wall);
@@ -42,15 +42,15 @@ namespace TheGreen.Game.Tiles
         public virtual byte GetUpdatedTileState(ushort tileID, int x, int y)
         {
             if (tileID == 0) return 0;
-            if (TileDatabase.TileHasProperty(tileID, TileProperty.StaticTileState)) return WorldGen.Instance.GetTileState(x, y);
-            ushort top = WorldGen.Instance.GetTileID(x, y - 1);
-            ushort right = WorldGen.Instance.GetTileID(x + 1, y);
-            ushort bottom = WorldGen.Instance.GetTileID(x, y + 1);
-            ushort left = WorldGen.Instance.GetTileID(x - 1, y);
-            ushort tl = WorldGen.Instance.GetTileID(x - 1, y - 1);
-            ushort tr = WorldGen.Instance.GetTileID(x + 1, y - 1);
-            ushort bl = WorldGen.Instance.GetTileID(x - 1, y + 1);
-            ushort br = WorldGen.Instance.GetTileID(x + 1, y + 1);
+            if (TileDatabase.TileHasProperty(tileID, TileProperty.StaticTileState)) return WorldGen.World.GetTileState(x, y);
+            ushort top = WorldGen.World.GetTileID(x, y - 1);
+            ushort right = WorldGen.World.GetTileID(x + 1, y);
+            ushort bottom = WorldGen.World.GetTileID(x, y + 1);
+            ushort left = WorldGen.World.GetTileID(x - 1, y);
+            ushort tl = WorldGen.World.GetTileID(x - 1, y - 1);
+            ushort tr = WorldGen.World.GetTileID(x + 1, y - 1);
+            ushort bl = WorldGen.World.GetTileID(x - 1, y + 1);
+            ushort br = WorldGen.World.GetTileID(x + 1, y + 1);
             if (!TileDatabase.TileHasProperty(top, TileProperty.Solid))
             {
                 tl = 0;

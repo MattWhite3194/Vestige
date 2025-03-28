@@ -1,13 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using TheGreen.Game.Entities;
 using TheGreen.Game.Input;
-using TheGreen.Game.Inventory;
 using TheGreen.Game.UIComponents;
-using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen.Game.Menus
 {
@@ -25,6 +21,7 @@ namespace TheGreen.Game.Menus
 
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
+        //TODO: export each menu to its own class so this doesn't become a nightmare file
         public MainMenu(TheGreen game, GraphicsDevice graphicsDevice) : base(graphicsDevice:  graphicsDevice)
         {
             _game = game;
@@ -40,6 +37,10 @@ namespace TheGreen.Game.Menus
             _newGameButton = new Button(Globals.ScreenCenter.ToVector2(), "New Game", new Vector2(0, 5), borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
             _newGameButton.OnButtonPress += () => AddSubMenu(_createWorldMenu);
             _startMenu.AddUIComponent(_newGameButton);
+
+            _loadGameButton = new Button(Globals.ScreenCenter.ToVector2() + new Vector2(0, 20), "Load Game", new Vector2(0, 5), borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            _loadGameButton.OnButtonPress += LoadGame;
+            _startMenu.AddUIComponent(_loadGameButton);
 
             _backButton = new Button(new Vector2(200, Globals.NativeResolution.Y - 200), "Back", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
             _backButton.OnButtonPress += () => RemoveSubMenu();
@@ -69,7 +70,7 @@ namespace TheGreen.Game.Menus
             _menus.Peek().Update(delta);
         }
         private void LoadGame() {
-            Debug.WriteLine("Load Game");
+            Debug.WriteLine("You probably want to implement this at some point... (for future reference)");
         }
         private void AddSubMenu(UIComponentContainer menu)
         {

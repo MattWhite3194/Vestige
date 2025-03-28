@@ -111,7 +111,7 @@ namespace TheGreen.Game.Inventory
             {
                 if (_dragItem.Item == null)
                     return;
-                EntityManager.Instance.AddItemDrop(_dragItem.Item, InputManager.GetMouseWorldPosition().ToVector2());
+                Main.EntityManager.AddItemDrop(_dragItem.Item, InputManager.GetMouseWorldPosition().ToVector2());
                 _dragItem.Item = null;
                 InputManager.IsEventHandled(@event);
             }

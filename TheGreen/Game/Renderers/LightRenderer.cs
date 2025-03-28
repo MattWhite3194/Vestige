@@ -41,36 +41,36 @@ namespace TheGreen.Game.Renderers
             {
                 for (int y = 0; y < Globals.DrawDistance.Y; y++)
                 {
-                    _lightColorMap[y * Globals.DrawDistance.X + x] = new Color((byte)0, (byte)0, (byte)0, (byte)(255 - (int)(WorldGen.Instance.GetTileLight(x + drawBoxMin.X, y + drawBoxMin.Y) / 255.0f * Globals.GlobalLight)));
-                    if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(x + drawBoxMin.X, y + drawBoxMin.Y), TileProperty.LightEmitting))
-                        _dynamicLights.Enqueue((x, y, 0, TileDatabase.GetTileMapColor(WorldGen.Instance.GetTileID(x + drawBoxMin.X, y + drawBoxMin.Y)))); //TODO: change this depending on the tiles light value
+                    _lightColorMap[y * Globals.DrawDistance.X + x] = new Color((byte)0, (byte)0, (byte)0, (byte)(255 - (int)(WorldGen.World.GetTileLight(x + drawBoxMin.X, y + drawBoxMin.Y) / 255.0f * Globals.GlobalLight)));
+                    if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x + drawBoxMin.X, y + drawBoxMin.Y), TileProperty.LightEmitting))
+                        _dynamicLights.Enqueue((x, y, 0, TileDatabase.GetTileMapColor(WorldGen.World.GetTileID(x + drawBoxMin.X, y + drawBoxMin.Y)))); //TODO: change this depending on the tiles light value
                 }
             }
 
             //Dynamic Lights
             while (_dynamicLights.Count > 0)
             {
-                (int, int, int, Color) dynamicLight = _dynamicLights.Dequeue();
+                (int x, int y, int light, Color color) = _dynamicLights.Dequeue();
                 
-                if (_lightColorMap[dynamicLight.Item2 * Globals.DrawDistance.X + dynamicLight.Item1].A <= dynamicLight.Item3)
+                if (_lightColorMap[y * Globals.DrawDistance.X + x].A <= light)
                     continue;
-                if (dynamicLight.Item3 >= 255)
+                if (light >= 255)
                     continue;
-                int absorption = WorldGen.Instance.WallLightAbsorption;
-                if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(dynamicLight.Item1 + drawBoxMin.X, dynamicLight.Item2 + drawBoxMin.Y), TileProperty.Solid))
-                    absorption = WorldGen.Instance.TileLightAbsorption;
-                Color currentColor = _lightColorMap[dynamicLight.Item2 * Globals.DrawDistance.X + dynamicLight.Item1];
-                _lightColorMap[dynamicLight.Item2 * Globals.DrawDistance.X + dynamicLight.Item1].R = (byte)((255 - dynamicLight.Item3) / 255.0f * (dynamicLight.Item4.R / 8));
-                _lightColorMap[dynamicLight.Item2 * Globals.DrawDistance.X + dynamicLight.Item1].G = (byte)((255 - dynamicLight.Item3) / 255.0f * (dynamicLight.Item4.G / 8));
-                _lightColorMap[dynamicLight.Item2 * Globals.DrawDistance.X + dynamicLight.Item1].B = (byte)((255 - dynamicLight.Item3) / 255.0f * (dynamicLight.Item4.B / 8));
-                _lightColorMap[dynamicLight.Item2 * Globals.DrawDistance.X + dynamicLight.Item1].A = (byte)dynamicLight.Item3;
+                int absorption = WorldGen.World.WallLightAbsorption;
+                if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x + drawBoxMin.X, y + drawBoxMin.Y), TileProperty.Solid))
+                    absorption = WorldGen.World.TileLightAbsorption;
+                Color currentColor = _lightColorMap[y * Globals.DrawDistance.X + x];
+                _lightColorMap[y * Globals.DrawDistance.X + x].R = (byte)((255 - light) / 255.0f * (color.R / 8));
+                _lightColorMap[y * Globals.DrawDistance.X + x].G = (byte)((255 - light) / 255.0f * (color.G / 8));
+                _lightColorMap[y * Globals.DrawDistance.X + x].B = (byte)((255 - light) / 255.0f * (color.B / 8));
+                _lightColorMap[y * Globals.DrawDistance.X + x].A = (byte)light;
                 for (int  i = 0; i < 4; i++)
                 {
-                    int x = dynamicLight.Item1 + _surroundingCoordsX[i];
-                    int y = dynamicLight.Item2 + _surroundingCoordsY[i];
-                    if (x < 0 || x >= Globals.DrawDistance.X || y < 0 || y >= Globals.DrawDistance.Y)
+                    int nextX = x + _surroundingCoordsX[i];
+                    int nextY = y + _surroundingCoordsY[i];
+                    if (nextX < 0 || nextX >= Globals.DrawDistance.X || nextY < 0 || nextY >= Globals.DrawDistance.Y)
                         continue;
-                    _dynamicLights.Enqueue((x, y, dynamicLight.Item3 + absorption, dynamicLight.Item4));
+                    _dynamicLights.Enqueue((nextX, nextY, light + absorption, color));
                 }
             }
         }

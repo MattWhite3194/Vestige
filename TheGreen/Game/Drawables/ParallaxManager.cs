@@ -9,24 +9,6 @@ namespace TheGreen.Game.Drawables
     {
         private static List<ParallaxBackground> _parallaxBackgrounds = new List<ParallaxBackground>();
 
-        private static ParallaxManager _instance;
-        private ParallaxManager()
-        {
-
-        }
-
-        public static ParallaxManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new ParallaxManager();
-                }
-                return _instance;
-            }
-        }
-
         public void AddParallaxBackground(ParallaxBackground parallaxBackground)
         {
             _parallaxBackgrounds.Add(parallaxBackground);

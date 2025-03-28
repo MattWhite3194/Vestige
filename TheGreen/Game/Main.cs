@@ -13,9 +13,8 @@ namespace TheGreen.Game
     /// <summary>
     /// The instance of the game itself.
     /// </summary>
-    public class GameManager
+    public class Main
     {
-        public GameManager() { }
         private GraphicsDevice _graphicsDevice;
         private static Matrix _translation;
         private TileRenderer _tileRenderer;
@@ -24,30 +23,37 @@ namespace TheGreen.Game
         private RenderTarget2D _foregroundTarget;
         private RenderTarget2D _entityRenderTarget;
         public static readonly Random Random = new Random();
+        public static EntityManager EntityManager = null;
+        public static ParallaxManager ParallaxManager = null;
 
 
-        public GameManager(Player player, GraphicsDevice graphicsDevice)
+
+        public Main(Player player, GraphicsDevice graphicsDevice)
         {
+
             Globals.StartGameClock(10, 30);
+            WorldGen.World.InitializeGameUpdates();
             _graphicsDevice = graphicsDevice;
-            EntityManager.Instance.SetPlayer(player);
+            EntityManager = new EntityManager();
+            ParallaxManager = new ParallaxManager();
+            EntityManager.SetPlayer(player);
             InputManager.RegisterHandler(player);
             _tileRenderer = new TileRenderer();
             _lightRenderer = new LightRenderer(_graphicsDevice);
             _backgroundTarget = new RenderTarget2D(_graphicsDevice, Globals.NativeResolution.X, Globals.NativeResolution.Y);
             _foregroundTarget = new RenderTarget2D(_graphicsDevice, Globals.NativeResolution.X, Globals.NativeResolution.Y, false, SurfaceFormat.Color, DepthFormat.None);
             _entityRenderTarget = new RenderTarget2D(_graphicsDevice, Globals.NativeResolution.X * 2, Globals.NativeResolution.Y * 2, false, SurfaceFormat.Color, DepthFormat.None);
-            ParallaxManager.Instance.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.Instance.GetPlayer().Position, 300 * Globals.TILESIZE, 50 * Globals.TILESIZE));
-            ParallaxManager.Instance.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.Instance.GetPlayer().Position, 250 * Globals.TILESIZE, 140 * Globals.TILESIZE));
-            ParallaxManager.Instance.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), EntityManager.Instance.GetPlayer().Position, 250 * Globals.TILESIZE, 140 * Globals.TILESIZE));
-            ParallaxManager.Instance.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), EntityManager.Instance.GetPlayer().Position, 250 * Globals.TILESIZE, 140 * Globals.TILESIZE));
+            ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, 300 * Globals.TILESIZE, 50 * Globals.TILESIZE));
+            ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position, 250 * Globals.TILESIZE, 140 * Globals.TILESIZE));
+            ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), EntityManager.GetPlayer().Position, 250 * Globals.TILESIZE, 140 * Globals.TILESIZE));
+            ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), EntityManager.GetPlayer().Position, 250 * Globals.TILESIZE, 140 * Globals.TILESIZE));
         }
         public void Update(double delta)
         {
             Globals.UpdateGameTime(delta);
-            ParallaxManager.Instance.Update(delta, GetCameraPosition());
-            EntityManager.Instance.Update(delta);
-            WorldGen.Instance.Update(delta);
+            ParallaxManager.Update(delta, GetCameraPosition());
+            EntityManager.Update(delta);
+            WorldGen.World.Update(delta);
             
             CalculateTranslation();
         }
@@ -66,7 +72,7 @@ namespace TheGreen.Game
             float normalizedGlobalLight = (Globals.GlobalLight - 50) / 205.0f;
             _graphicsDevice.Clear(new Color((int)(100 * normalizedGlobalLight), (int)(149 * normalizedGlobalLight), (int)(237 * normalizedGlobalLight)));
             spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp);
-            ParallaxManager.Instance.Draw(spriteBatch, new Color(Globals.GlobalLight, Globals.GlobalLight, Globals.GlobalLight));
+            ParallaxManager.Draw(spriteBatch, new Color(Globals.GlobalLight, Globals.GlobalLight, Globals.GlobalLight));
             spriteBatch.End();
 
 
@@ -75,7 +81,7 @@ namespace TheGreen.Game
             _graphicsDevice.SetRenderTarget(_entityRenderTarget);
             _graphicsDevice.Clear(Color.Transparent);
             spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f));
-            EntityManager.Instance.Draw(spriteBatch);
+            EntityManager.Draw(spriteBatch);
             spriteBatch.End();
 
             //draw foreground elements to foreground render target
@@ -91,7 +97,7 @@ namespace TheGreen.Game
             spriteBatch.Draw(_entityRenderTarget, new Rectangle(Point.Zero, Globals.NativeResolution), Color.White);
             spriteBatch.End();
             //draw tiles and lighting above entities and walls
-            spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.LinearClamp, transformMatrix: _translation);
+            spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation);
             _tileRenderer.DrawTiles(spriteBatch);
             _tileRenderer.DrawLiquids(spriteBatch);
             _lightRenderer.Draw(spriteBatch, drawBoxMin, drawBoxMax);
@@ -105,24 +111,20 @@ namespace TheGreen.Game
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, transformMatrix: TheGreen.ScreenScaleMatrix, effect: ContentLoader.LightShader);
             spriteBatch.Draw(_foregroundTarget, Vector2.Zero, Color.White);
-            _tileRenderer.DrawDebug(spriteBatch);
+            //_tileRenderer.DrawDebug(spriteBatch);
             spriteBatch.End();
         }
-        private Vector2 GetCameraPosition()
+        public static Vector2 GetCameraPosition()
         {
             return new Vector2(Math.Abs(_translation.Translation.X), Math.Abs(_translation.Translation.Y));
         }
-        public static Point GetTranslation()
-        {
-            return new Point((int)_translation.Translation.X, (int)_translation.Translation.Y);
-        }
         private void CalculateTranslation()
         {
-            Player player = EntityManager.Instance.GetPlayer();
+            Player player = EntityManager.GetPlayer();
             int dx = (int)(Globals.NativeResolution.X / 2 - player.Position.X);
-            dx = MathHelper.Clamp(dx, -WorldGen.Instance.WorldSize.X * Globals.TILESIZE + Globals.NativeResolution.X, 0);
+            dx = MathHelper.Clamp(dx, -WorldGen.World.WorldSize.X * Globals.TILESIZE + Globals.NativeResolution.X, 0);
             int dy = (int)(Globals.NativeResolution.Y / 2 - player.Position.Y);
-            dy = MathHelper.Clamp(dy, -WorldGen.Instance.WorldSize.Y * Globals.TILESIZE + Globals.NativeResolution.Y, 0);
+            dy = MathHelper.Clamp(dy, -WorldGen.World.WorldSize.Y * Globals.TILESIZE + Globals.NativeResolution.Y, 0);
             _translation = Matrix.CreateTranslation(dx, dy, 0f);
         }
     }

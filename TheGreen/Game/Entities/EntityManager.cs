@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using TheGreen.Game.Entities.Enemies;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration;
@@ -19,24 +20,6 @@ namespace TheGreen.Game.Entities
         private List<Enemy> _enemies = new List<Enemy>();
         private List<ItemDrop> _itemDrops = new List<ItemDrop>();
         private List<Rectangle> _intersections;
-
-        private static EntityManager _instance;
-        private EntityManager()
-        {
-
-        }
-
-        public static EntityManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new EntityManager();
-                }
-                return _instance;
-            }
-        }
 
         public void Update(double delta)
         {
@@ -57,7 +40,7 @@ namespace TheGreen.Game.Entities
                 int distanceFactor = (int)Math.Min(entity.Size.X, Globals.TILESIZE);
 
                 Vector2 minPos = Vector2.Zero;
-                Vector2 maxPos = new(WorldGen.Instance.WorldSize.X * Globals.TILESIZE - entity.Size.X, WorldGen.Instance.WorldSize.Y * Globals.TILESIZE - entity.Size.Y);
+                Vector2 maxPos = new(WorldGen.World.WorldSize.X * Globals.TILESIZE - entity.Size.X, WorldGen.World.WorldSize.Y * Globals.TILESIZE - entity.Size.Y);
                 int tileWidth = (int)entity.Size.X / Globals.TILESIZE;
                 int tileHeight = (int)entity.Size.Y / Globals.TILESIZE;
                 float distanceX = entity.Velocity.X * (float)delta;
@@ -79,9 +62,9 @@ namespace TheGreen.Game.Entities
                     foreach (var rect in _intersections)
                     {
                         //temporary check for smaller map size, bigger map and bounds will resolve this
-                        if (rect.X >= 0 && rect.X < WorldGen.Instance.WorldSize.X && rect.Y >= 0 && rect.Y < WorldGen.Instance.WorldSize.Y)
+                        if (rect.X >= 0 && rect.X < WorldGen.World.WorldSize.X && rect.Y >= 0 && rect.Y < WorldGen.World.WorldSize.Y)
                         {
-                            if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(rect.X, rect.Y), TileProperty.Solid))
+                            if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(rect.X, rect.Y), TileProperty.Solid))
                             {
                                 Rectangle collision = new Rectangle(
                                     rect.X * Globals.TILESIZE,
@@ -127,9 +110,9 @@ namespace TheGreen.Game.Entities
                     foreach (var rect in _intersections)
                     {
                         //temporary check for smaller map size, bigger map and bounds will resolve this
-                        if (rect.X >= 0 && rect.X < WorldGen.Instance.WorldSize.X && rect.Y >= 0 && rect.Y < WorldGen.Instance.WorldSize.Y)
+                        if (rect.X >= 0 && rect.X < WorldGen.World.WorldSize.X && rect.Y >= 0 && rect.Y < WorldGen.World.WorldSize.Y)
                         {
-                            if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(rect.X, rect.Y), TileProperty.Solid))
+                            if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(rect.X, rect.Y), TileProperty.Solid))
                             {
                                 Rectangle collision = new Rectangle(
                                     rect.X * Globals.TILESIZE,
@@ -330,13 +313,13 @@ namespace TheGreen.Game.Entities
                 return false;
             for (int x = 0; x <= tileWidth; x++)
             {
-                if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(tilePoint.X + x, tilePoint.Y - 1), TileProperty.Solid))
+                if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(tilePoint.X + x, tilePoint.Y - 1), TileProperty.Solid))
                     return false;
             }
             int tilesInFrontOffset = direction == -1 ? -1 : tileWidth + 1;
             for (int y = -1; y < tileHeight; y++)
             {
-                if (TileDatabase.TileHasProperty(WorldGen.Instance.GetTileID(tilePoint.X + tilesInFrontOffset, tilePoint.Y + y), TileProperty.Solid))
+                if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(tilePoint.X + tilesInFrontOffset, tilePoint.Y + y), TileProperty.Solid))
                     return false;
             }
             return true;

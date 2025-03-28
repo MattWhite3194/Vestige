@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using TheGreen.Game.Drawables;
+using TheGreen.Game.Entities.Enemies;
 using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 using TheGreen.Game.Items;
@@ -144,7 +145,7 @@ namespace TheGreen.Game.Entities
             {
                 if (_inventory.AddItem(itemDrop.GetItem()) <= 0)
                 {
-                    EntityManager.Instance.RemoveItemDrop(itemDrop);
+                    Main.EntityManager.RemoveItemDrop(itemDrop);
                 }
             }
             else if (entity is Enemy enemy)

@@ -1,13 +1,14 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using TheGreen.Game.Entities.Enemies.EnemyBehaviors;
 
-namespace TheGreen.Game.Entities
+namespace TheGreen.Game.Entities.Enemies
 {
     public static class EnemyDatabase
     {
 
-        private static Dictionary<int, object[]> _enemies = new Dictionary<int, object[]> 
+        private static Dictionary<int, object[]> _enemies = new Dictionary<int, object[]>
         {
             {0, [0, "Mutant Cricket", ContentLoader.EnemyTextures[0], new Vector2(69, 34), true, new MutantCricketBehavior(), new List<(int, int)> { (0, 3), (4, 4)}]}
         };
