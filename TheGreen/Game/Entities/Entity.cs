@@ -5,6 +5,9 @@ using TheGreen.Game.Drawables;
 
 namespace TheGreen.Game.Entities
 {
+    /// <summary>
+    /// Defines a basic entity, something that moves and collides in the world
+    /// </summary>
     public abstract class Entity : Sprite
     {
         public Vector2 Velocity;

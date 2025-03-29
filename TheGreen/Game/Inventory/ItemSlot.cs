@@ -45,14 +45,5 @@ namespace TheGreen.Game.Inventory
         {
             _quantityLabel.Position = Position + new Vector2(Size.X/2, Size.Y - 10);
         }
-
-        public void Refresh()
-        {
-            _quantityLabel.SetText(_item?.Quantity.ToString() ?? "");
-            if (_item?.Quantity <= 0)
-                _item = null;
-            if (_item == null) return;
-            _itemImagePosition = Position + new Vector2((int)(Size.X - _item.Image.Width) / 2, (int)(Size.Y - _item.Image.Height) / 2);
-        }
     }
 }

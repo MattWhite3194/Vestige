@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
+using System.Diagnostics;
 
 namespace TheGreen.Game.Entities.Enemies.EnemyBehaviors
 {

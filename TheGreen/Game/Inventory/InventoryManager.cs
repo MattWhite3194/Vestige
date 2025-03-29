@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using TheGreen.Game.Entities;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.UIComponents;
@@ -66,10 +65,6 @@ namespace TheGreen.Game.Inventory
 
         public override void Update(double delta)
         {
-            if (GetSelected()?.Update(delta) ?? false)
-            {
-                ItemsChanged([selected]);
-            }
             _activeMenu.Update(delta);
             _dragItem.Update(delta);
             
@@ -83,7 +78,8 @@ namespace TheGreen.Game.Inventory
         public override void HandleInput(InputEvent @event)
         {
             //accept input for middle mouse events
-            if (@event.InputButton == InputButton.MiddleMouse && (!GetSelected()?.Active ?? true))
+            if (Main.EntityManager.GetPlayer().ItemCollider.Active) return;
+            if (@event.InputButton == InputButton.MiddleMouse)
             {
                 if (@event.EventType == InputEventType.MouseButtonUp)
                 {
@@ -114,24 +110,6 @@ namespace TheGreen.Game.Inventory
                 Main.EntityManager.AddItemDrop(_dragItem.Item, InputManager.GetMouseWorldPosition().ToVector2());
                 _dragItem.Item = null;
                 InputManager.IsEventHandled(@event);
-            }
-        }
-
-        //update inventory gui when the items in the array change
-        private void ItemsChanged(int[] indices)
-        {
-            _dragItem.Refresh();
-            foreach (int index in indices)
-            {
-                if ((_inventoryItems[index]?.Stackable ?? false) && _inventoryItems[index].Quantity <= 0)
-                    _inventoryItems[index] = null;
-                if (index < _hotbarItemSlots.Length)
-                {
-                    _hotbarItemSlots[index].Item = _inventoryItems[index];
-                    _hotbarItemSlots[index].Refresh();
-                }
-                _inventoryItemSlots[index].Item = _inventoryItems[index];
-                _inventoryItemSlots[index].Refresh();
             }
         }
 
@@ -173,14 +151,15 @@ namespace TheGreen.Game.Inventory
         public void SetSelected(int index)
         {
             _hotbarItemSlots[selected].SetColor(new Color(34, 139, 34, 200));
-            if (_inventoryItems[selected] != null)
-                _inventoryItems[selected].Active = false;
             selected = index;
             _hotbarItemSlots[selected].SetColor(Color.Yellow);
         }
 
         private void SetItem(Item item, int index) {
             _inventoryItems[index] = item;
+            _inventoryItemSlots[index].Item = item;
+            if (index < _hotbarItemSlots.Length)
+                _hotbarItemSlots[index].Item = item;
         }
 
         /// <summary>
@@ -208,8 +187,7 @@ namespace TheGreen.Game.Inventory
                     remainingQuantity = int.Clamp(newQuantity - 30, 0, 30);
                     newQuantity -= remainingQuantity;
                     
-                    _inventoryItems[i].Quantity = newQuantity;
-                    ItemsChanged([i]);
+                    SetItemQuantity(i, newQuantity);
                 }
             }
             item.Quantity = remainingQuantity;
@@ -217,7 +195,6 @@ namespace TheGreen.Game.Inventory
             {
                 SetItem(item, emptyIndex);
                 remainingQuantity = 0;
-                ItemsChanged([emptyIndex]);
             }
             return remainingQuantity;
         }
@@ -240,7 +217,7 @@ namespace TheGreen.Game.Inventory
             }
             else if (_inventoryItems[index].ID == _dragItem.Item.ID && _inventoryItems[index].Stackable)
             {
-                _inventoryItems[index].Quantity += _dragItem.Item.Quantity;
+                SetItemQuantity(index, _inventoryItems[index].Quantity + _dragItem.Item.Quantity);
                 _dragItem.Item = null;
             }
             else
@@ -249,7 +226,6 @@ namespace TheGreen.Game.Inventory
                 SetItem(_dragItem.Item, index);
                 _dragItem.Item = temp;
             }
-            ItemsChanged([index]);
         }
 
         private void SplitItem(int index)
@@ -263,7 +239,7 @@ namespace TheGreen.Game.Inventory
                     Item splitItem = ItemDatabase.GetItemByID(_inventoryItems[index].ID);
                     splitItem.Quantity = (int)Math.Ceiling(_inventoryItems[index].Quantity / 2.0f);
                     _dragItem.Item = splitItem;
-                    _inventoryItems[index].Quantity = _inventoryItems[index].Quantity - splitItem.Quantity;
+                    SetItemQuantity(index, _inventoryItems[index].Quantity - splitItem.Quantity);
                 }
                 else
                 {
@@ -271,7 +247,31 @@ namespace TheGreen.Game.Inventory
                     SetItem(null, index);
                     
                 }
-                ItemsChanged([index]);
+            }
+        }
+
+        public void SetItemQuantity(int index, int quantity)
+        {
+            _inventoryItems[index].Quantity = quantity;
+            SetItem(_inventoryItems[index], index);
+            if (quantity <= 0)
+            {
+                SetItem(null, index);
+            }
+        }
+
+        public void SetSelectedQuantity(int quantity)
+        {
+            if (InventoryVisible())
+            {
+                GetSelected().Quantity -= 1;
+                _dragItem.Item = GetSelected();
+                if (_dragItem.Item.Quantity <= 0)
+                    _dragItem.Item = null;
+            }
+            else
+            {
+                SetItemQuantity(selected, quantity);
             }
         }
 

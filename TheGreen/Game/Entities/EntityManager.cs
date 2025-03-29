@@ -25,8 +25,9 @@ namespace TheGreen.Game.Entities
         {
 
             //Handle tile collisions
-            foreach (Entity entity in _entities)
+            for (int i = 0; i < _entities.Count; i++)
             {
+                Entity entity = _entities[i];
                 //Update Entities
                 entity.Update(delta);
 
@@ -46,7 +47,7 @@ namespace TheGreen.Game.Entities
                 float distanceX = entity.Velocity.X * (float)delta;
                 int horizontalCollisionDirection = 0;
                 List<float> horizontalDistances = new List<float>();
-                for (int i = 0; i < Math.Floor(distanceX / (distanceFactor - 1)); i++)
+                for (int _ = 0; _ < Math.Floor(distanceX / (distanceFactor - 1)); _++)
                 {
                     horizontalDistances.Add((distanceFactor - 1));
                 }
@@ -93,7 +94,7 @@ namespace TheGreen.Game.Entities
                 distanceFactor = (int)Math.Min(entity.Size.Y, Globals.TILESIZE);
                 float distanceY = entity.Velocity.Y * (float)delta;
                 List<float> verticalDistances = new List<float>();
-                for (int i = 0; i < Math.Floor(distanceY / (distanceFactor - 1)); i++)
+                for (int _ = 0; _ < Math.Floor(distanceY / (distanceFactor - 1)); _++)
                 {
                     verticalDistances.Add(distanceFactor - 1);
                 }
@@ -163,10 +164,15 @@ namespace TheGreen.Game.Entities
             //handle enemy collisions with player
             for (int i = 0; i < _enemies.Count; i++)
             {
+                //check if player item hit enemy
+                if (_enemies[i].GetBounds().Intersects(_player.ItemCollider.GetBounds())) {
+                    
+                }
                 if (_enemies[i].GetBounds().Intersects(_player.GetBounds()))
                 {
                     _player.OnCollision(_enemies[i]);
                 }
+                //TODO: check friendly projectiles
             }
 
             //handle itemDrop collisions with player
@@ -280,6 +286,11 @@ namespace TheGreen.Game.Entities
             enemy.Position = Position;
             _enemies.Add(enemy);
             _entities.Add(enemy);
+        }
+        public void RemoveEnemy(Enemy enemy)
+        {
+            _entities.Remove(enemy);
+            _enemies.Remove(enemy);
         }
 
         public void AddItemDrop(Item item, Vector2 position, Vector2 velocity = default)
