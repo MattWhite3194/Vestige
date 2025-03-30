@@ -13,6 +13,9 @@ namespace TheGreen.Game.Entities
         public Vector2 Velocity;
         public bool IsOnFloor = false, IsOnCeiling = false;
         public bool CollidesWithTiles;
+        public bool Active = true;
+        public CollisionLayer Layer;
+        public CollisionLayer CollidesWith;
 
         protected Entity(Texture2D image, Vector2 position, Vector2 size = default, List<(int, int)> animationFrames = null) : base(image, position, size, animationFrames)
         {

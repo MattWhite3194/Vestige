@@ -11,8 +11,9 @@ namespace TheGreen.Game.Entities.Enemies
     {
         public int ID;
         public string Name;
-        private IEnemyBehavior _behavior;
         private int _health = 100;
+        private int _damage;
+        private IEnemyBehavior _behavior;
         private Timer _invincibilityTimer;
         private bool invincible = false;
         public Enemy(int id, string name, Texture2D image, Vector2 size, bool collidesWithTiles, Type behaviorType, List<(int, int)> animationFrames = null) : base(image, default, size: size, animationFrames: animationFrames)
@@ -26,6 +27,8 @@ namespace TheGreen.Game.Entities.Enemies
             }
             _invincibilityTimer = new Timer(100);
             _invincibilityTimer.Elapsed += OnInvincibleTimeout;
+            this.Layer = CollisionLayer.Enemy;
+            this.CollidesWith = CollisionLayer.Player | CollisionLayer.ItemCollider;
         }
         public override void Update(double delta)
         {

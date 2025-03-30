@@ -77,8 +77,9 @@ namespace TheGreen.Game.Inventory
         }
         public override void HandleInput(InputEvent @event)
         {
-            //accept input for middle mouse events
-            if (Main.EntityManager.GetPlayer().ItemCollider.Active) return;
+            //Don't accept any input if the player is using an item to prevent any weird bugs if the player decides to press random buttons while using the item
+            //TODO: maybe want to make this a little less dependent and spaghetti-ish
+            if (Main.EntityManager.GetPlayer().ItemCollider.ItemActive) return;
             if (@event.InputButton == InputButton.MiddleMouse)
             {
                 if (@event.EventType == InputEventType.MouseButtonUp)
@@ -138,30 +139,6 @@ namespace TheGreen.Game.Inventory
                 }
             }
         }
-
-        public Item GetSelected()
-        {
-            if (InventoryVisible())
-            {
-                return _dragItem.Item;
-            }
-            return _inventoryItems[selected];
-        }
-
-        public void SetSelected(int index)
-        {
-            _hotbarItemSlots[selected].SetColor(new Color(34, 139, 34, 200));
-            selected = index;
-            _hotbarItemSlots[selected].SetColor(Color.Yellow);
-        }
-
-        private void SetItem(Item item, int index) {
-            _inventoryItems[index] = item;
-            _inventoryItemSlots[index].Item = item;
-            if (index < _hotbarItemSlots.Length)
-                _hotbarItemSlots[index].Item = item;
-        }
-
         /// <summary>
         /// Attempts to add the item to the inventory.
         /// </summary>
@@ -249,7 +226,27 @@ namespace TheGreen.Game.Inventory
                 }
             }
         }
-
+        public Item GetSelected()
+        {
+            if (InventoryVisible())
+            {
+                return _dragItem.Item;
+            }
+            return _inventoryItems[selected];
+        }
+        public void SetSelected(int index)
+        {
+            _hotbarItemSlots[selected].SetColor(new Color(34, 139, 34, 200));
+            selected = index;
+            _hotbarItemSlots[selected].SetColor(Color.Yellow);
+        }
+        private void SetItem(Item item, int index)
+        {
+            _inventoryItems[index] = item;
+            _inventoryItemSlots[index].Item = item;
+            if (index < _hotbarItemSlots.Length)
+                _hotbarItemSlots[index].Item = item;
+        }
         public void SetItemQuantity(int index, int quantity)
         {
             _inventoryItems[index].Quantity = quantity;
@@ -259,7 +256,6 @@ namespace TheGreen.Game.Inventory
                 SetItem(null, index);
             }
         }
-
         public void SetSelectedQuantity(int quantity)
         {
             if (InventoryVisible())

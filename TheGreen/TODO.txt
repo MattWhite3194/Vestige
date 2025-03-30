@@ -1,4 +1,5 @@
 ﻿TODO:
+Fix tile culling not accounting for dynamic light
 Add Collision for enemy and player item.
 walls
 Improve lighting algorithm, takes up most of runtime. possibly change method of drawing light, instead of using a texture

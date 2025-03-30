@@ -161,26 +161,18 @@ namespace TheGreen.Game.Entities
                 }
             }
 
-            //handle enemy collisions with player
-            for (int i = 0; i < _enemies.Count; i++)
+            for (int i = 0; i < _entities.Count; i++)
             {
-                //check if player item hit enemy
-                if (_enemies[i].GetBounds().Intersects(_player.ItemCollider.GetBounds())) {
-                    
-                }
-                if (_enemies[i].GetBounds().Intersects(_player.GetBounds()))
+                for (int j = i + 1; j < _entities.Count; j++)
                 {
-                    _player.OnCollision(_enemies[i]);
-                }
-                //TODO: check friendly projectiles
-            }
-
-            //handle itemDrop collisions with player
-            for (int i = 0; i < _itemDrops.Count; i++)
-            {
-                if (_itemDrops[i].GetBounds().Intersects(_player.GetBounds()))
-                {
-                    _player.OnCollision(_itemDrops[i]);
+                    if ((_entities[i].CollidesWith & _entities[j].Layer) == 0 && (_entities[j].CollidesWith & _entities[i].Layer) == 0)
+                        continue;
+                    if (!_entities[i].GetBounds().Intersects(_entities[j].GetBounds()))
+                        continue;
+                    if ((_entities[j].CollidesWith & _entities[i].Layer) != 0)
+                        _entities[j].OnCollision(_entities[i]);
+                    if ((_entities[i].CollidesWith & _entities[j].Layer) != 0)
+                        _entities[i].OnCollision(_entities[j]);
                 }
             }
         }
@@ -272,6 +264,7 @@ namespace TheGreen.Game.Entities
         {
             _player = player;
             _entities.Add(player);
+            _player.InitializeGameUpdates();
         }
 
         public Player GetPlayer()
@@ -284,13 +277,7 @@ namespace TheGreen.Game.Entities
         {
             Enemy enemy = EnemyDatabase.InstantiateEnemyByID(enemyID);
             enemy.Position = Position;
-            _enemies.Add(enemy);
             _entities.Add(enemy);
-        }
-        public void RemoveEnemy(Enemy enemy)
-        {
-            _entities.Remove(enemy);
-            _enemies.Remove(enemy);
         }
 
         public void AddItemDrop(Item item, Vector2 position, Vector2 velocity = default)
@@ -298,26 +285,20 @@ namespace TheGreen.Game.Entities
 
             ItemDrop itemDrop = new ItemDrop(item, position);
             itemDrop.Velocity = velocity == default ? Vector2.Zero : velocity;
-            _itemDrops.Add(itemDrop);
             _entities.Add(itemDrop);
         }
-
-        public void RemoveItemDrop(ItemDrop itemDrop)
+        public void AddEntity(Entity entity)
         {
-            _itemDrops.Remove(itemDrop);
-            _entities.Remove(itemDrop);
+            _entities.Add(entity);
         }
-
         public void RemoveEntity(Entity entity)
         {
             _entities.Remove(entity);
         }
-
         public List<Entity> GetEntities()
         {
             return _entities;
         }
-
         private bool CanEntityHop(Entity entity, Point tilePoint, int tileWidth, int tileHeight, int direction)
         {
             if (!entity.IsOnFloor || entity.Velocity.X == 0)

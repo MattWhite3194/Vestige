@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using TheGreen.Game.Entities.Enemies;
 using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 
@@ -26,7 +25,14 @@ namespace TheGreen.Game.Entities
             this._inventory = inventory;
             CollidesWithTiles = true;
             _health = health;
-            ItemCollider = new ItemCollider(inventory);
+            this.Layer = CollisionLayer.Player;
+            this.CollidesWith = CollisionLayer.Enemy | CollisionLayer.HostileProjectile | CollisionLayer.ItemDrop;
+        }
+
+        public void InitializeGameUpdates()
+        {
+            ItemCollider = new ItemCollider(_inventory);
+            Main.EntityManager.AddEntity(ItemCollider);
         }
 
         public void HandleInput(InputEvent @event)
@@ -61,9 +67,6 @@ namespace TheGreen.Game.Entities
         public override void Update(double delta)
         {
             base.Update(delta);
-            ItemCollider.Position = Position + new Vector2(0, 20);
-            ItemCollider.Update(delta);
-            ItemCollider.FlipSprite = FlipSprite;
             Vector2 newVelocity = Velocity;
 
             //Slow down player if they stopped moving
@@ -136,26 +139,15 @@ namespace TheGreen.Game.Entities
 
         public override void OnCollision(Entity entity)
         {
-            if (entity is ItemDrop itemDrop)
+            switch (entity.Layer)
             {
-                if (_inventory.AddItem(itemDrop.GetItem()) <= 0)
-                {
-                    Main.EntityManager.RemoveItemDrop(itemDrop);
-                }
-            }
-            else if (entity is Enemy enemy)
-            {
-                //Velocity.Y -= 100;
-            }
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            //TODO: move rotation here from Item class to calculate arm rotation
-            base.Draw(spriteBatch);
-            if (ItemCollider.Active)
-            {
-                ItemCollider.Draw(spriteBatch);
+                case CollisionLayer.ItemDrop:
+                    ItemDrop itemDrop = (ItemDrop)entity;
+                    if (_inventory.AddItem(itemDrop.GetItem()) <= 0)
+                    {
+                        Main.EntityManager.RemoveEntity(itemDrop);
+                    }
+                    break;
             }
         }
         public void TakeDamage(int damage)
