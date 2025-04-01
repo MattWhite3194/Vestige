@@ -8,17 +8,10 @@ namespace TheGreen.Game.Items
     public class LiquidItem : Item
     {
         private ushort _liquidID;
-        public LiquidItem(int id, string name, string description, Texture2D Image, ushort liquidID)
+        public LiquidItem(int id, string name, string description, Texture2D image, ushort liquidID) : base(id, name, description, image, true, 0.15, true)
         {
-            this.ID = id;
-            this.Name = name;
-            this.Description = description;
-            this.Image = Image;
-            this.Stackable = true;
             //TODO: liquid IDS like lava or water or whatever
             this._liquidID = liquidID;
-            this.UseSpeed = 0.15;
-            this.AutoUse = true;
         }
         public override bool UseItem()
         {

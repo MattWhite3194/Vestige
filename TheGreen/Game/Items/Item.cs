@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Diagnostics;
 
 namespace TheGreen.Game.Items
 {
@@ -24,54 +22,22 @@ namespace TheGreen.Game.Items
         public bool Stackable;
         public double UseSpeed;
         public bool AutoUse;
-        public bool Active;
-        private double _holdTime;
-        private float _rotation = 0.0f;
-        private float _scale = 1f;
-        private bool _leftReleased = false;
+        public float Scale = 1f;
+        
+        public readonly UseStyle UseStyle;
 
-        public virtual void OnLeftPressed() 
+        protected Item(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, UseStyle useStyle = UseStyle.Swing)
         {
-            _holdTime = UseSpeed;
-            _leftReleased = false;
-            Active = true;
-        }
-        public virtual void OnLeftReleased() 
-        {
-            _leftReleased = true;
-        }
-
-        public virtual bool Update(double delta)
-        {
-            if (!Active)
-                return false;
-            bool itemUsed = false;
-            _holdTime += delta;
-            if (_holdTime >= UseSpeed)
-            {
-                
-                if (UseItem())
-                {
-                    _holdTime = 0.0f;
-                    if (Stackable)
-                        Quantity -= 1;
-                    itemUsed = true;
-                }
-                else
-                {
-                    _holdTime = UseSpeed;
-                }
-            }
-            _rotation += (float)(MathHelper.PiOver2 * (delta / UseSpeed));
-            if (_rotation > MathHelper.PiOver2)
-            {
-                if (!AutoUse || _leftReleased)
-                {
-                    Active = false;
-                }
-                _rotation = 0.0f;
-            }
-            return itemUsed;
+            this.ID = id;
+            this.Name = name;
+            this.Description = description;
+            this.Image = image;
+            this.Stackable = stackable;
+            this.UseSpeed = useSpeed;
+            this.AutoUse = autoUse;
+            this.UseStyle = useStyle;
+            
+            
         }
 
         public virtual bool UseItem()
@@ -79,19 +45,18 @@ namespace TheGreen.Game.Items
             return true;
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch, Vector2 position, bool flipped)
-        {
-            Vector2 bottomPosition = new Vector2(position.X, position.Y + Image.Height);
-            spriteBatch.Draw(Image, 
-                new Vector2((int)position.X, (int)position.Y) + (flipped? new Vector2(12, 0) : new Vector2(8, 0)), 
-                null, 
-                Color.White, 
-                flipped? -_rotation : _rotation, 
-                flipped? new Vector2(Image.Width + 8, Image.Height) : new Vector2(-8, Image.Height), 
-                _scale, 
-                flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 
-                0f
-            );
-        }
+        /// <summary>
+        /// Override this for any custom drawing effects
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        /// <param name="drawPosition"></param>
+        public virtual void Draw(SpriteBatch spriteBatch, Vector2 drawPosition) { }
+    }
+    public enum UseStyle
+    {
+        None,
+        Swing,
+        Hold,
+        Point
     }
 }

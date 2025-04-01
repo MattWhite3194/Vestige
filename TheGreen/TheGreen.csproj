@@ -30,6 +30,7 @@
     <Folder Include="Content\Assets\Shaders\" />
     <Folder Include="Content\Assets\Textures\Backgrounds\Upscaled\" />
     <Folder Include="Content\Assets\Textures\Walls\" />
+    <Folder Include="Game\Entities\Projectiles\ProjectileBehaviors\" />
   </ItemGroup>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />

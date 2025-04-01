@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen.Game.Tiles
 {
@@ -101,25 +100,5 @@ namespace TheGreen.Game.Tiles
         {
             return _tileProperties[tileID].GetUpdatedTileState(tileID, x, y);
         }
-    }
-    public enum TileProperty : ushort
-    {
-        None = 1 << 0,
-        /// <summary>
-        /// The player can collide with this tile, and it absorbs light.
-        /// </summary>
-        Solid = 1 << 1,
-        /// <summary>
-        /// The tile emits light.
-        /// </summary>
-        LightEmitting = 1 << 2,
-        /// <summary>
-        /// The tile does damage to entities.
-        /// </summary>
-        Overlay = 1 << 4,
-        /// <summary>
-        /// The tile's state does not change when tiles around it are updated
-        /// </summary>
-        StaticTileState = 1 << 5,
     }
 }

@@ -3,11 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using TheGreen.Game.Drawables;
-using TheGreen.Game.Entities.Enemies;
 using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
-using TheGreen.Game.Items;
 
 namespace TheGreen.Game.Entities
 {
@@ -22,11 +19,20 @@ namespace TheGreen.Game.Entities
         private int _health;
         private float _fallDistance = 0;
         private bool _queueJump = false;
+        public ItemCollider ItemCollider;
         public Player(Texture2D image, Vector2 position, InventoryManager inventory, int health) : base(image, position, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) })
         {
             this._inventory = inventory;
             CollidesWithTiles = true;
             _health = health;
+            this.Layer = CollisionLayer.Player;
+            this.CollidesWith = CollisionLayer.Enemy | CollisionLayer.HostileProjectile | CollisionLayer.ItemDrop;
+        }
+
+        public void InitializeGameUpdates()
+        {
+            ItemCollider = new ItemCollider(_inventory);
+            Main.EntityManager.AddEntity(ItemCollider);
         }
 
         public void HandleInput(InputEvent @event)
@@ -41,7 +47,7 @@ namespace TheGreen.Game.Entities
             }
             else if (@event.InputButton == InputButton.Right)
             {
-                if (@event.EventType == InputEventType.KeyDown) 
+                if (@event.EventType == InputEventType.KeyDown)
                     Direction.X += 1;
                 else
                     Direction.X -= 1;
@@ -52,17 +58,9 @@ namespace TheGreen.Game.Entities
                 _queueJump = @event.EventType == InputEventType.KeyDown;
                 InputManager.MarkInputAsHandled(@event);
             }
-            else if (@event is MouseInputEvent mouseInputEvent)
+            else
             {
-                if (_inventory.GetSelected() == null) return;
-                if (mouseInputEvent.InputButton == InputButton.LeftMouse)
-                {
-                    if (mouseInputEvent.EventType == InputEventType.MouseButtonDown)
-                        _inventory.GetSelected().OnLeftPressed();
-                    else if (mouseInputEvent.EventType == InputEventType.MouseButtonUp)
-                        _inventory.GetSelected().OnLeftReleased();
-                    InputManager.MarkInputAsHandled(@event);
-                }
+                ItemCollider.HandleInput(@event);
             }
         }
 
@@ -70,7 +68,7 @@ namespace TheGreen.Game.Entities
         {
             base.Update(delta);
             Vector2 newVelocity = Velocity;
-            
+
             //Slow down player if they stopped moving
             if (Direction.X == 0.0f)
             {
@@ -141,40 +139,17 @@ namespace TheGreen.Game.Entities
 
         public override void OnCollision(Entity entity)
         {
-            if (entity is ItemDrop itemDrop)
+            switch (entity.Layer)
             {
-                if (_inventory.AddItem(itemDrop.GetItem()) <= 0)
-                {
-                    Main.EntityManager.RemoveItemDrop(itemDrop);
-                }
-            }
-            else if (entity is Enemy enemy)
-            {
-                Velocity.Y -= 100;
-            }
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            //TODO: move rotation here from Item class to calculate arm rotation
-            base.Draw(spriteBatch);
-            if (_inventory.GetSelected()?.Active ?? false)
-            {
-                _inventory.GetSelected().Draw(spriteBatch, Position + new Vector2(0, 20), FlipSprite);
+                case CollisionLayer.ItemDrop:
+                    ItemDrop itemDrop = (ItemDrop)entity;
+                    if (_inventory.AddItem(itemDrop.GetItem()) <= 0)
+                    {
+                        Main.EntityManager.RemoveEntity(itemDrop);
+                    }
+                    break;
             }
         }
-
-        public Rectangle GetItemBounds()
-        {
-            //TODO: Implementation
-            if (_inventory.GetSelected() == null)
-            {
-                //TODO: return item collision rectangle
-                return default;
-            }
-            return default;
-        }
-
         public void TakeDamage(int damage)
         {
             _health -= damage;

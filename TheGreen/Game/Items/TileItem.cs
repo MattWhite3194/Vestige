@@ -8,16 +8,9 @@ namespace TheGreen.Game.Items
     public class TileItem : Item
     {
         private ushort _tileID;
-        public TileItem(int id, string name, string description, Texture2D Image, ushort tileID) 
+        public TileItem(int id, string name, string description, Texture2D image, ushort tileID) : base(id, name, description, image, true, 0.15, true)
         { 
-            this.ID = id;
-            this.Name = name;
-            this.Description = description;
-            this.Image = Image;
-            this.Stackable = true;
             this._tileID = tileID;
-            this.UseSpeed = 0.15;
-            this.AutoUse = true;
         }
         public override bool UseItem()
         {
