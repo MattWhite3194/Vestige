@@ -631,7 +631,7 @@ namespace TheGreen.Game.WorldGeneration
 
         public void RemoveTile(int x, int y)
         {
-            Item item = ItemDatabase.GetItemByTileID(GetTileID(x, y));
+            Item item = ItemDatabase.InstantiateItemByTileID(GetTileID(x, y));
             if (item != null)
             {
                 Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);

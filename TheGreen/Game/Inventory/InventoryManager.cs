@@ -24,11 +24,11 @@ namespace TheGreen.Game.Inventory
             _inventoryItems = new Item[rows * cols];
 
             //Temporary inventory
-            _inventoryItems[0] = ItemDatabase.GetItemByID(0, quantity: 500);
-            _inventoryItems[1] = ItemDatabase.GetItemByID(1, quantity: 500);
-            _inventoryItems[2] = ItemDatabase.GetItemByID(2);
-            _inventoryItems[3] = ItemDatabase.GetItemByID(3, quantity: 500);
-            _inventoryItems[4] = ItemDatabase.GetItemByID(4, quantity: 100);
+            _inventoryItems[0] = ItemDatabase.InstantiateItemByID(0, quantity: 500);
+            _inventoryItems[1] = ItemDatabase.InstantiateItemByID(1, quantity: 500);
+            _inventoryItems[2] = ItemDatabase.InstantiateItemByID(2);
+            _inventoryItems[3] = ItemDatabase.InstantiateItemByID(3, quantity: 500);
+            _inventoryItems[4] = ItemDatabase.InstantiateItemByID(4, quantity: 100);
 
             
 
@@ -225,7 +225,7 @@ namespace TheGreen.Game.Inventory
             {
                 if (_inventoryItems[index].Stackable)
                 {
-                    Item splitItem = ItemDatabase.GetItemByID(_inventoryItems[index].ID);
+                    Item splitItem = ItemDatabase.InstantiateItemByID(_inventoryItems[index].ID);
                     splitItem.Quantity = (int)Math.Ceiling(_inventoryItems[index].Quantity / 2.0f);
                     _dragItem.Item = splitItem;
                     SetItemQuantity(index, _inventoryItems[index].Quantity - splitItem.Quantity);
