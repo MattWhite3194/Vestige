@@ -25,8 +25,9 @@ namespace TheGreen.Game.Entities
         {
 
             //Handle tile collisions
-            foreach (Entity entity in _entities)
+            for (int i = 0; i < _entities.Count; i++)
             {
+                Entity entity = _entities[i];
                 //Update Entities
                 entity.Update(delta);
 
@@ -46,7 +47,7 @@ namespace TheGreen.Game.Entities
                 float distanceX = entity.Velocity.X * (float)delta;
                 int horizontalCollisionDirection = 0;
                 List<float> horizontalDistances = new List<float>();
-                for (int i = 0; i < Math.Floor(distanceX / (distanceFactor - 1)); i++)
+                for (int _ = 0; _ < Math.Floor(distanceX / (distanceFactor - 1)); _++)
                 {
                     horizontalDistances.Add((distanceFactor - 1));
                 }
@@ -93,7 +94,7 @@ namespace TheGreen.Game.Entities
                 distanceFactor = (int)Math.Min(entity.Size.Y, Globals.TILESIZE);
                 float distanceY = entity.Velocity.Y * (float)delta;
                 List<float> verticalDistances = new List<float>();
-                for (int i = 0; i < Math.Floor(distanceY / (distanceFactor - 1)); i++)
+                for (int _ = 0; _ < Math.Floor(distanceY / (distanceFactor - 1)); _++)
                 {
                     verticalDistances.Add(distanceFactor - 1);
                 }
@@ -160,21 +161,18 @@ namespace TheGreen.Game.Entities
                 }
             }
 
-            //handle enemy collisions with player
-            for (int i = 0; i < _enemies.Count; i++)
+            for (int i = 0; i < _entities.Count; i++)
             {
-                if (_enemies[i].GetBounds().Intersects(_player.GetBounds()))
+                for (int j = i + 1; j < _entities.Count; j++)
                 {
-                    _player.OnCollision(_enemies[i]);
-                }
-            }
-
-            //handle itemDrop collisions with player
-            for (int i = 0; i < _itemDrops.Count; i++)
-            {
-                if (_itemDrops[i].GetBounds().Intersects(_player.GetBounds()))
-                {
-                    _player.OnCollision(_itemDrops[i]);
+                    if ((_entities[i].CollidesWith & _entities[j].Layer) == 0 && (_entities[j].CollidesWith & _entities[i].Layer) == 0)
+                        continue;
+                    if (!_entities[i].GetBounds().Intersects(_entities[j].GetBounds()))
+                        continue;
+                    if ((_entities[j].CollidesWith & _entities[i].Layer) != 0)
+                        _entities[j].OnCollision(_entities[i]);
+                    if ((_entities[i].CollidesWith & _entities[j].Layer) != 0)
+                        _entities[i].OnCollision(_entities[j]);
                 }
             }
         }
@@ -266,6 +264,7 @@ namespace TheGreen.Game.Entities
         {
             _player = player;
             _entities.Add(player);
+            _player.InitializeGameUpdates();
         }
 
         public Player GetPlayer()
@@ -278,7 +277,6 @@ namespace TheGreen.Game.Entities
         {
             Enemy enemy = EnemyDatabase.InstantiateEnemyByID(enemyID);
             enemy.Position = Position;
-            _enemies.Add(enemy);
             _entities.Add(enemy);
         }
 
@@ -287,26 +285,20 @@ namespace TheGreen.Game.Entities
 
             ItemDrop itemDrop = new ItemDrop(item, position);
             itemDrop.Velocity = velocity == default ? Vector2.Zero : velocity;
-            _itemDrops.Add(itemDrop);
             _entities.Add(itemDrop);
         }
-
-        public void RemoveItemDrop(ItemDrop itemDrop)
+        public void AddEntity(Entity entity)
         {
-            _itemDrops.Remove(itemDrop);
-            _entities.Remove(itemDrop);
+            _entities.Add(entity);
         }
-
         public void RemoveEntity(Entity entity)
         {
             _entities.Remove(entity);
         }
-
         public List<Entity> GetEntities()
         {
             return _entities;
         }
-
         private bool CanEntityHop(Entity entity, Point tilePoint, int tileWidth, int tileHeight, int direction)
         {
             if (!entity.IsOnFloor || entity.Velocity.X == 0)

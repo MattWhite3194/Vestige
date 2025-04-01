@@ -41,12 +41,5 @@ namespace TheGreen.Game.Inventory
             Position = InputManager.GetMouseWindowPosition();
             _quantityLabel.Position = this.Position + new Vector2(Size.X / 2, Size.Y - 10);
         }
-
-        public void Refresh()
-        {
-            _quantityLabel.SetText(_item?.Quantity.ToString() ?? "");
-            if (_item?.Quantity <= 0)
-                _item = null;
-        }
     }
 }

@@ -14,6 +14,7 @@ namespace TheGreen.Game.Entities
         {
             _item = item;
             CollidesWithTiles = true;
+            this.Layer = CollisionLayer.ItemDrop;
         }
         public override void Update(double delta)
         {

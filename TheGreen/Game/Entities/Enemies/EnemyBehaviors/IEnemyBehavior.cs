@@ -7,5 +7,9 @@ namespace TheGreen.Game.Entities.Enemies.EnemyBehaviors
     public interface IEnemyBehavior
     {
         void AI(double delta, Enemy enemy);
+        void OnDeath(Enemy enemy)
+        {
+            enemy.Active = false;
+        }
     }
 }

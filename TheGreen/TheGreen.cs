@@ -31,7 +31,7 @@ namespace TheGreen
         {
             
             //Screen settings
-            SetWindowProperties(2560, 1440, true);
+            SetWindowProperties(1920, 1080, false);
             //For unlimited fps:
             IsFixedTimeStep = false;
             
@@ -88,7 +88,7 @@ namespace TheGreen
             _graphics.PreferredBackBufferWidth = width;
             _graphics.PreferredBackBufferHeight = height;
             _graphics.IsFullScreen = fullScreen;
-            _graphics.SynchronizeWithVerticalRetrace = false;
+            //_graphics.SynchronizeWithVerticalRetrace = false;
             _graphics.ApplyChanges();
         }
         public void StartNewWorld(Point size)

@@ -10,7 +10,7 @@ namespace TheGreen.Game.Entities.Enemies
 
         private static Dictionary<int, object[]> _enemies = new Dictionary<int, object[]>
         {
-            {0, [0, "Mutant Cricket", ContentLoader.EnemyTextures[0], new Vector2(69, 34), true, new MutantCricketBehavior(), new List<(int, int)> { (0, 3), (4, 4)}]}
+            {0, [0, "Mutant Cricket", ContentLoader.EnemyTextures[0], new Vector2(69, 34), true, typeof(MutantCricketBehavior), new List<(int, int)> { (0, 3), (4, 4)}]}
         };
         /// <summary>
         /// 

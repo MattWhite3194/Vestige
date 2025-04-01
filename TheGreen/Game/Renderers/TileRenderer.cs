@@ -17,8 +17,8 @@ namespace TheGreen.Game.Renderer
                 {
                     if (i >= 0 && i < WorldGen.World.WorldSize.X && j >= 0 && j < WorldGen.World.WorldSize.Y)
                     {
-                        if (WorldGen.World.GetTileLight(i, j) == 0)
-                            continue;
+                        //if (WorldGen.World.GetTileLight(i, j) == 0)
+                        //    continue;
                         //TEMPORARY
                         if (WorldGen.World.GetWallID(i, j) != 0)
                             TileDatabase.DrawWall(spriteBatch, WorldGen.World.GetWallID(i, j), WorldGen.World.GetWallState(i, j), i, j);
@@ -51,8 +51,8 @@ namespace TheGreen.Game.Renderer
                     ushort tileID = WorldGen.World.GetTileID(i, j);
                     if (!TileDatabase.TileHasProperty(tileID, TileProperty.Solid))
                         continue;
-                    if (WorldGen.World.GetTileLight(i, j) == 0)
-                        continue;
+                    //if (WorldGen.World.GetTileLight(i, j) == 0)
+                    //    continue;
                     TileDatabase.DrawTile(spriteBatch, tileID, WorldGen.World.GetTileState(i, j), i, j);
                 }
             }

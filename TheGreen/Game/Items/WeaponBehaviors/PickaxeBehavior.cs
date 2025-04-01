@@ -1,29 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using TheGreen.Game.Input;
 using TheGreen.Game.WorldGeneration;
 
-namespace TheGreen.Game.Items
+namespace TheGreen.Game.Items.WeaponBehaviors
 {
-    public class Pickaxe : Item
+    internal class PickaxeBehavior : IWeaponBehavior
     {
         private int _minePower;
-        public Pickaxe(int id, string name, string decription, Texture2D image, double useSpeed, int minePower)
+        public PickaxeBehavior(int minePower)
         {
-            this.ID = id;
-            this.Name = name;
-            this.Description = decription;
-            this.Image = image;
-            this.UseSpeed = useSpeed;
             this._minePower = minePower;
-            this.Quantity = 1;
-            this.Stackable = false;
-            this.AutoUse = true;
         }
-
-        public override bool UseItem()
+        public bool UseItem()
         {
-            
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Globals.TILESIZE, Globals.TILESIZE);
             if (WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
                 return false;
