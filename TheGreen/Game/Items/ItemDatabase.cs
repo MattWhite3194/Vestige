@@ -18,7 +18,7 @@ namespace TheGreen.Game.Items
         {
             {0, ("TileItem", [0, "Dirt", "Keep your hands off my dirt!", ContentLoader.ItemTextures[0], (ushort)1], []) },
             {1, ("TileItem", [1, "Stone", "Hard as a rock.", ContentLoader.ItemTextures[1], (ushort)3], []) },
-            {2, ("WeaponItem", [2, "Basic Pickaxe", "Go and break something.", ContentLoader.ItemTextures[2], false, 0.2f, true, true, UseStyle.Swing, new PickaxeBehavior(30)], []) }, //0.2f
+            {2, ("WeaponItem", [2, "Basic Pickaxe", "Go and break something.", ContentLoader.ItemTextures[2], false, 0.2f, true, true, 20, 2, UseStyle.Swing, new Pickaxe(30)], []) }, //0.2f
             {3, ("TileItem", [3, "Torch", "Light it up!", ContentLoader.ItemTextures[3], (ushort)7], []) },
             {4, ("LiquidItem", [4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], (ushort)1], []) }
         };

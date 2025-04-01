@@ -106,12 +106,10 @@ namespace TheGreen.Game.Entities
                         FlipSprite ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                         0f
                     );
-            Main.DrawDebugRectangle(spriteBatch, GetItemBounds(), Color.Red);
         }
 
-        public Rectangle GetItemBounds()
+        public override Rectangle GetBounds()
         {
-            //TODO: account for item rotation
             if (ItemActive && Item is WeaponItem weaponItem && weaponItem.SpriteDoesDamage)
             {
                 Vector2[] corners = {
@@ -130,6 +128,7 @@ namespace TheGreen.Game.Entities
                 float maxY = corners.Max(c => c.Y);
                 return new Rectangle((int)minX, (int)minY, (int)(maxX - minX), (int)(maxY - minY));
             }
+            
             return default;
         }
         private Vector2 RotateVector2(Vector2 vector)

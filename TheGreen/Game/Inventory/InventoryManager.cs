@@ -94,7 +94,16 @@ namespace TheGreen.Game.Inventory
             }
             else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Inventory)
             {
-                _activeMenu = InventoryVisible() ? _hotbar : _menu;
+                SetInventoryOpen(!InventoryVisible());
+                if (_dragItem.Item != null)
+                {
+                    Item itemDrop = AddItem(_dragItem.Item);
+                    _dragItem.Item = null;
+                    if (itemDrop != null)
+                    {
+                        Main.EntityManager.AddItemDrop(itemDrop, Main.EntityManager.GetPlayer().Position);
+                    }
+                }
                 InputManager.MarkInputAsHandled(@event);
             }
             else
@@ -143,8 +152,8 @@ namespace TheGreen.Game.Inventory
         /// Attempts to add the item to the inventory.
         /// </summary>
         /// <param name="item"></param>
-        /// <returns>The quantity remaining of the item added</returns>
-        public int AddItem(Item item)
+        /// <returns>The item with it's remaining quantity. Null if the remainder is zero.</returns>
+        public Item AddItem(Item item)
         {
             int emptyIndex = -1;
             int remainingQuantity = item.Quantity;
@@ -158,7 +167,7 @@ namespace TheGreen.Game.Inventory
 
                 if (item.Stackable && item.ID == (_inventoryItems[i]?.ID ?? -1))
                 {
-                    if (_inventoryItems[i].Quantity >= 30)
+                    if (_inventoryItems[i].Quantity >= 30) //MAXSTACK
                         continue;
                     int newQuantity = _inventoryItems[i].Quantity + remainingQuantity;
                     remainingQuantity = int.Clamp(newQuantity - 30, 0, 30);
@@ -168,12 +177,15 @@ namespace TheGreen.Game.Inventory
                 }
             }
             item.Quantity = remainingQuantity;
-            if (emptyIndex != -1 && remainingQuantity > 0)
+            if (emptyIndex != -1 && item.Quantity > 0)
             {
                 SetItem(item, emptyIndex);
-                remainingQuantity = 0;
+                return null;
             }
-            return remainingQuantity;
+            else if (item.Quantity == 0)
+                return null;
+            item.Quantity = remainingQuantity;
+            return item;
         }
 
         private void PlaceItem(int index)
@@ -274,6 +286,16 @@ namespace TheGreen.Game.Inventory
         public bool InventoryVisible()
         {
             return _activeMenu == _menu;
+        }
+
+        public void DisplayEntityInventory(int cols, int rows, Item[] items)
+        {
+            _activeMenu = _menu;
+            //TODO: implement this for chests
+        }
+        public void SetInventoryOpen(bool open)
+        {
+            _activeMenu = open ? _menu : _hotbar;
         }
     }
 }
