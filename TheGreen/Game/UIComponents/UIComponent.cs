@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
 using TheGreen.Game.Input;
 
 namespace TheGreen.Game.UIComponents

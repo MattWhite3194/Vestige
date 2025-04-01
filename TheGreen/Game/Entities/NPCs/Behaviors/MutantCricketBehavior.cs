@@ -2,12 +2,12 @@
 using System;
 using System.Diagnostics;
 
-namespace TheGreen.Game.Entities.Enemies.EnemyBehaviors
+namespace TheGreen.Game.Entities.NPCs.Behaviors
 {
     /// <summary>
     /// Defined movement pattern for a mutant cricket
     /// </summary>
-    public class MutantCricketBehavior : IEnemyBehavior
+    public class MutantCricketBehavior : INPCBehavior
     {
         private int _directionX = 0;
         private double _elapsedTime = 0.0f;
@@ -15,13 +15,13 @@ namespace TheGreen.Game.Entities.Enemies.EnemyBehaviors
         private float _maxSpeed = 100;
         private float _acceleration = 1000;
         private Player _player;
-        public void AI(double delta, Enemy enemy)
+        public void AI(double delta, NPC enemy)
         {
             _player = Main.EntityManager.GetPlayer();
             Vector2 newVelocity = enemy.Velocity;
             newVelocity.Y += Globals.GRAVITY * (float)delta;
             _elapsedTime += delta;
-            _directionX = -MathF.Sign(enemy.Position.X - _player.Position.X);
+            _directionX = -MathF.Sign((enemy.Position.X + enemy.Origin.X) - (_player.Position.X + _player.Origin.X));
 
             if (enemy.IsOnFloor)
             {
@@ -32,9 +32,7 @@ namespace TheGreen.Game.Entities.Enemies.EnemyBehaviors
                 else
                     newVelocity.X += _acceleration * _directionX * (float)delta;
                 if (MathF.Abs(enemy.Velocity.X) > _maxSpeed)
-                    newVelocity.X = _maxSpeed * _directionX;
-                if (MathF.Abs(enemy.Position.X + enemy.Origin.X - (_player.Position.X + _player.Origin.X)) < 32)
-                    newVelocity.X = 0.0f;
+                    newVelocity.X = _maxSpeed * Math.Sign(newVelocity.X);
                 if (_elapsedTime >= _nextJumpTime)
                 {
                     _nextJumpTime = Main.Random.NextDouble() * 2.0 + 2.0;

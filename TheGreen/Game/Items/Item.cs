@@ -36,8 +36,6 @@ namespace TheGreen.Game.Items
             this.UseSpeed = useSpeed;
             this.AutoUse = autoUse;
             this.UseStyle = useStyle;
-            
-            
         }
 
         public virtual bool UseItem()

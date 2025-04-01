@@ -2,7 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using TheGreen.Game.Entities.Enemies;
+using TheGreen.Game.Entities.NPCs;
+using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration;
@@ -17,20 +18,21 @@ namespace TheGreen.Game.Entities
         private Player _player;
 
         private List<Entity> _entities = new List<Entity>();
-        private List<Enemy> _enemies = new List<Enemy>();
-        private List<ItemDrop> _itemDrops = new List<ItemDrop>();
         private List<Rectangle> _intersections;
 
         public void Update(double delta)
         {
-
             //Handle tile collisions
             for (int i = 0; i < _entities.Count; i++)
             {
                 Entity entity = _entities[i];
+                if (!entity.Active)
+                {
+                    _entities.Remove(entity);
+                    continue;
+                }
                 //Update Entities
                 entity.Update(delta);
-
                 //update enemies positions that don't collide with tiles
                 if (!entity.CollidesWithTiles)
                 {
@@ -160,7 +162,6 @@ namespace TheGreen.Game.Entities
                     }
                 }
             }
-
             for (int i = 0; i < _entities.Count; i++)
             {
                 for (int j = i + 1; j < _entities.Count; j++)
@@ -179,6 +180,7 @@ namespace TheGreen.Game.Entities
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            //TODO: add drawing order using SpriteSortMode based on collision layer
             foreach (Entity entity in _entities)
             {
                 entity.Draw(spriteBatch);
@@ -260,12 +262,17 @@ namespace TheGreen.Game.Entities
             return intersections;
         }
 
+        /// <summary>
+        /// Sets the player for the game world, called only once
+        /// </summary>
+        /// <param name="player"></param>
         public void SetPlayer(Player player)
         {
             _player = player;
-            _entities.Add(player);
             _player.InitializeGameUpdates();
         }
+
+
 
         public Player GetPlayer()
         {
@@ -275,7 +282,7 @@ namespace TheGreen.Game.Entities
         //Change this to spawn by enemy ID
         public void CreateEnemy(int enemyID, Vector2 Position)
         {
-            Enemy enemy = EnemyDatabase.InstantiateEnemyByID(enemyID);
+            NPC enemy = NPCDatabase.InstantiateNPCByID(enemyID);
             enemy.Position = Position;
             _entities.Add(enemy);
         }

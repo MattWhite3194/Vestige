@@ -9,7 +9,7 @@ namespace TheGreen.Game.Items.WeaponBehaviors
     /// <summary>
     /// use for special weapon types that have unique behaviors only
     /// </summary>
-    public interface IWeaponBehavior
+    public interface IWeapon
     {
         public bool UseItem();
     }

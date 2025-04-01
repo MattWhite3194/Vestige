@@ -96,10 +96,8 @@ namespace TheGreen
             _mainMenu = null;
             InventoryManager inventory = new InventoryManager(5, 8);
             WorldGen.World.GenerateWorld(size.X, size.Y);
-            Player player = new Player(ContentLoader.PlayerTexture, (WorldGen.World.SpawnTile.ToVector2() - new Vector2(0, 5)) * Globals.TILESIZE, inventory, 100);
+            Player player = new Player(ContentLoader.PlayerTexture, inventory, 100);
             _gameManager = new Main(player, GraphicsDevice);
-            InputManager.RegisterHandler(inventory);
-            UIManager.RegisterContainer(inventory);
         }
         private void UpdateScreenScaleMatrix()
         {

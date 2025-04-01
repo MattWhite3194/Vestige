@@ -17,6 +17,7 @@ namespace TheGreen.Game.UIComponents
         public int ComponentCount;
         public Vector2 Position;
         public Vector2 Size;
+        private List<UIComponent> _uiComponents = new List<UIComponent>();
 
         public UIComponentContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null)
         {
@@ -25,8 +26,6 @@ namespace TheGreen.Game.UIComponents
             _graphicsDevice = graphicsDevice;
             ComponentCount = 0;
         }
-
-        private List<UIComponent> _uiComponents = new List<UIComponent>();
         public virtual void HandleInput(InputEvent @event)
         {
             foreach (UIComponent component in _uiComponents)

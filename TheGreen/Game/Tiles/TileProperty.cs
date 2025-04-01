@@ -25,5 +25,8 @@ namespace TheGreen.Game.Tiles
         /// The tile's state does not change when tiles around it are updated
         /// </summary>
         StaticTileState = 1 << 5,
+        PickaxeMineable = 1 << 6,
+        AxeMineable = 1 << 7,
+        HammerMineable = 1 << 8,
     }
 }
