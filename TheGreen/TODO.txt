@@ -1,6 +1,8 @@
 ﻿TODO:
 
 Fixes:
+Drawing order for sprites
+fix item collision with tiles floating downwards
 design better damage system
 Fix tile culling not accounting for dynamic light
 Improve lighting algorithm, takes up most of runtime. possibly change method of drawing light, instead of using a texture
@@ -9,14 +11,17 @@ finalize water (make it flow better)
 
 Features:
 Define Max stack value for each item, and set a default to like 1000 or something
-add equipment
+add equipment (maybe make accessories input handlers, and store them in a list and call them before calling the players input)
 add tile entities (start with chest and door)
 Save the game
 walls
 Add Window resizing
 projectiles
 
-maybe make accessories input handlers, and store them in a list and call them before calling the players input
+Ambitious Features:
+Split Screen
+
+
 
 
 UI: 

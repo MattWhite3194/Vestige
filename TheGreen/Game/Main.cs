@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using TheGreen.Game.Drawables;
 using TheGreen.Game.Entities;
-using TheGreen.Game.Input;
 using TheGreen.Game.Renderer;
 using TheGreen.Game.Renderers;
 using TheGreen.Game.WorldGeneration;
@@ -36,8 +35,8 @@ namespace TheGreen.Game
             EntityManager = new EntityManager();
             ParallaxManager = new ParallaxManager();
             EntityManager.SetPlayer(player);
-            //EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
-            //EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
+            EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
+            EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
             _tileRenderer = new TileRenderer();
             _lightRenderer = new LightRenderer(_graphicsDevice);
             _foregroundTarget = new RenderTarget2D(_graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
@@ -65,6 +64,7 @@ namespace TheGreen.Game
             Point drawBoxMin = new Point(((int)-_translation.Translation.X / Globals.TILESIZE), ((int)-_translation.Translation.Y / Globals.TILESIZE));
             Point drawBoxMax = new Point(((int)-_translation.Translation.X / Globals.TILESIZE) + Globals.DrawDistance.X, ((int)-_translation.Translation.Y / Globals.TILESIZE) + Globals.DrawDistance.Y);
             _tileRenderer.SetDrawBox(drawBoxMin, drawBoxMax);
+            _lightRenderer.SetDrawBox(drawBoxMin, drawBoxMax);
             //Render entities scaled twice or thrice to a larger render target, then scale the target down
 
             //draw foreground elements to foreground render target
@@ -72,11 +72,14 @@ namespace TheGreen.Game
             _graphicsDevice.Clear(Color.Transparent);
             spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * TheGreen.ScreenScaleMatrix);
             _tileRenderer.DrawWalls(spriteBatch);
+            //TODO: get rid of this function, sort tiles by depth defined in tile database
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
-            EntityManager.Draw(spriteBatch);
+
             _tileRenderer.DrawTiles(spriteBatch);
+            //TODO: entities also sorted by depth
+            EntityManager.Draw(spriteBatch);
             _tileRenderer.DrawLiquids(spriteBatch);
-            _lightRenderer.Draw(spriteBatch, drawBoxMin, drawBoxMax);
+            _lightRenderer.Draw(spriteBatch);
             spriteBatch.End();
 
 

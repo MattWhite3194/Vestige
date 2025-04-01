@@ -12,6 +12,7 @@ namespace TheGreen.Game.Entities
     {
         public Vector2 Velocity;
         public bool IsOnFloor = false, IsOnCeiling = false;
+        public bool DrawBehindTiles = false;
         /// <summary>
         /// The entity will stop when it collides with a tile
         /// </summary>

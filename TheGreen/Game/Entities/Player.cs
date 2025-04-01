@@ -184,7 +184,6 @@ namespace TheGreen.Game.Entities
                     ApplyDamage(enemy.Damage);
                     ApplyKnockback(enemy.Position + enemy.Origin);
                     break;
-
             }
         }
         public void ApplyDamage(int damage)
