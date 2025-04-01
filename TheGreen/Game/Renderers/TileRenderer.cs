@@ -69,7 +69,7 @@ namespace TheGreen.Game.Renderer
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
                     if (WorldGen.World.GetLiquid(i, j) != 0)
-                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Globals.TILESIZE, j * Globals.TILESIZE),  Color.White);
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Globals.TILESIZE, j * Globals.TILESIZE), new Color((byte)0, (byte)0, (byte)0, (byte)(255 - (int)(WorldGen.World.GetTileLight(i, j) / 255.0f * Globals.GlobalLight))));
                 }
             }
         }

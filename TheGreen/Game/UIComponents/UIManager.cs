@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TheGreen.Game.UIComponents
 {
@@ -12,22 +13,16 @@ namespace TheGreen.Game.UIComponents
 
         public static void Update(double delta)
         {
-            foreach (UIComponentContainer container in _uiComponentContainers)
-            {
-                container.Update(delta);
-            }
+            _uiComponentContainers.First()?.Update(delta);
         }
         public static void Draw(SpriteBatch spriteBatch)
         {
-            foreach (UIComponentContainer container in _uiComponentContainers)
-            {
-                container.Draw(spriteBatch);
-            }
+            _uiComponentContainers.First()?.Draw(spriteBatch);
         }
 
         public static void RegisterContainer(UIComponentContainer container)
         {
-            _uiComponentContainers.Add(container);
+            _uiComponentContainers.Insert(0, container);
         }
 
         public static void UnregisterContainer(UIComponentContainer container)

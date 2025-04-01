@@ -6,12 +6,23 @@ namespace TheGreen.Game.Items
     public class WeaponItem : Item
     {
         private int _baseDamage;
-        public bool SpriteDoesDamage;
-        private IWeaponBehavior _weaponBehavior;
-        public WeaponItem(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, bool spriteDoesDamage, UseStyle useStyle = UseStyle.Swing, IWeaponBehavior weaponBehavior = null) : base(id, name, description, image, stackable, useSpeed, autoUse, useStyle)
+        private int _baseKnockback;
+        public int Damage
         {
-            this.SpriteDoesDamage = true;
-            this._weaponBehavior = weaponBehavior;
+            get { return _baseDamage; }
+        }
+        public int Knockback
+        {
+            get { return _baseKnockback; }
+        }
+        public bool SpriteDoesDamage;
+        private IWeapon _weaponBehavior;
+        public WeaponItem(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, bool spriteDoesDamage, int baseDamage, int baseKnockback, UseStyle useStyle = UseStyle.Swing, IWeapon weaponBehavior = null) : base(id, name, description, image, stackable, useSpeed, autoUse, useStyle)
+        {
+            SpriteDoesDamage = spriteDoesDamage;
+            _baseDamage = baseDamage;
+            _baseKnockback = baseKnockback;
+            _weaponBehavior = weaponBehavior;
         }
         public override bool UseItem()
         {

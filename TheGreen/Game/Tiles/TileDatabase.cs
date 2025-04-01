@@ -19,13 +19,13 @@ namespace TheGreen.Game.Tiles
         /// </summary>
         private static readonly TileData[] _tileProperties = [
             new TileData(TileProperty.None, Color.CornflowerBlue),                     //Air
-            new TileData(TileProperty.Solid, Color.Brown, itemID: 0, health: 40),           //Dirt
-            new TileData(TileProperty.Solid | TileProperty.Overlay, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
-            new TileData(TileProperty.Solid, Color.Gray, itemID: 1, health : 100), //CobbleStone
-            new TileData(TileProperty.Solid, Color.Gray, itemID: 1, health: 100),  //Stone
-            new TreeData(TileProperty.StaticTileState, Color.Brown, health: 80),    //Tree
-            new TreeTopData(TileProperty.StaticTileState, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
-            new TorchData(TileProperty.StaticTileState | TileProperty.LightEmitting, Color.Orange, itemID: 3)
+            new TileData(TileProperty.Solid | TileProperty.PickaxeMineable, Color.Brown, itemID: 0, health: 40),           //Dirt
+            new TileData(TileProperty.Solid | TileProperty.Overlay | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
+            new TileData(TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100), //CobbleStone
+            new TileData(TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100),  //Stone
+            new TreeData(TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
+            new TreeTopData(TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
+            new TorchData(TileProperty.StaticTileState | TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Red, itemID: 3)  //Torch
             ];
         private static Rectangle CreateAtlasRect(int x, int y)
         {

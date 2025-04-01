@@ -12,9 +12,18 @@ namespace TheGreen.Game.Entities
     {
         public Vector2 Velocity;
         public bool IsOnFloor = false, IsOnCeiling = false;
+        /// <summary>
+        /// The entity will stop when it collides with a tile
+        /// </summary>
         public bool CollidesWithTiles;
         public bool Active = true;
+        /// <summary>
+        /// The layer other entities receive when they collide with this entity
+        /// </summary>
         public CollisionLayer Layer;
+        /// <summary>
+        /// The collision layers this entity receives collision events from
+        /// </summary>
         public CollisionLayer CollidesWith;
 
         protected Entity(Texture2D image, Vector2 position, Vector2 size = default, List<(int, int)> animationFrames = null) : base(image, position, size, animationFrames)
@@ -25,13 +34,11 @@ namespace TheGreen.Game.Entities
         {
 
         }
-
         public virtual void OnTileCollision()
         {
 
         }
-
-        public Rectangle GetBounds()
+        public virtual Rectangle GetBounds()
         {
             return new Rectangle(Position.ToPoint(), Size.ToPoint());
         }
