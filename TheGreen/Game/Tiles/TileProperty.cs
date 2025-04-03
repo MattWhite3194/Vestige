@@ -28,5 +28,6 @@ namespace TheGreen.Game.Tiles
         PickaxeMineable = 1 << 6,
         AxeMineable = 1 << 7,
         HammerMineable = 1 << 8,
+        TileEntity = 1 << 9,
     }
 }

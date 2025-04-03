@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration.WorldUpdaters;
@@ -39,12 +40,6 @@ namespace TheGreen.Game.WorldGeneration
         public Point WorldSize;
         private int[,,] gradients = new int[256, 256, 2];
         public Texture2D Map;
-        public readonly byte TileLightAbsorption = 32;
-        public readonly byte WallLightAbsorption = 8;
-        /// <summary>
-        /// The maximum distance light can travel
-        /// </summary>
-        private int _lightRange;
         /// <summary>
         /// Quick access to surrounding tile points
         /// </summary>
@@ -131,7 +126,7 @@ namespace TheGreen.Game.WorldGeneration
             {
                 for (int j = 1; j < size_y - 1; j++)
                 {
-                    SetTileState(i, j, TileDatabase.GetUpdatedTileState(GetTileID(i, j), i, j));
+                    SetTileState(i, j, TileDatabase.GetTileData(GetTileID(i, j)).GetUpdatedTileState(i, j));
                     UpdateWallState(i, j);
                 }
             }
@@ -179,9 +174,6 @@ namespace TheGreen.Game.WorldGeneration
             Stream stream = File.Create(gamePath + "/map.jpg");
             Map.SaveAsJpeg(stream, size_x, size_y);
             stream.Close();*/
-
-            _lightRange = 256 / WallLightAbsorption;
-            CalculateInitialLighting();
         }
 
         private byte[] _randTreeTileStates = [0, 2, 8, 10];
@@ -261,7 +253,7 @@ namespace TheGreen.Game.WorldGeneration
                 return;
             if (GetTileID(coordinates.X, coordinates.Y) == 0)
                 return;
-            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(TileDatabase.GetTileHealth(GetTileID(coordinates.X, coordinates.Y)), 0);
+            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(TileDatabase.GetTileData(GetTileID(coordinates.X, coordinates.Y)).Health, 0);
             damagedTileData.Health = damagedTileData.Health - damage;
             damagedTileData.Time = 0;
             if (damagedTileData.Health <= 0)
@@ -274,142 +266,9 @@ namespace TheGreen.Game.WorldGeneration
                 _minedTiles[coordinates] = damagedTileData;
             }
         }
-        
-        private void CalculateInitialLighting()
-        {
-            //TODO: possibly change this nightmare to the recursive algorithm, same as dynamic light calculations
-            for (int i = 0; i < WorldSize.X; i++)
-            {
-                for (int j = 0; j < WorldSize.Y; j++)
-                {
-                    if (TileDatabase.TileHasProperty(GetTileID(i, j), TileProperty.Solid) || GetWallID(i, j) != 0)
-                    {
-                        SetTileLight(i, j, 0);
-                    }
-                    else
-                    {
-                        SetTileLight(i, j, 255);
-                    }
-                }
-            }
-            for (int i = 0; i < WorldSize.X; i++)
-            {
-                for (int j = 0; j < WorldSize.Y; j++)
-                {
-                    CalculateTileLight(i, j);
-                }
-            }
-            for (int i = WorldSize.X - 1; i >= 0; i--)
-            {
-                for (int j = WorldSize.Y - 1; j >= 0; j--)
-                {
-                    CalculateTileLight(i, j);
-                }
-            }
-            for (int i = WorldSize.X - 1; i >= 0; i--)
-            {
-                for (int j = 0; j < WorldSize.Y; j++)
-                {
-                    CalculateTileLight(i, j);
-                }
-            }
-            for (int i = WorldSize.X - 1; i >= 0; i--)
-            {
-                for (int j = 0; j < WorldSize.Y; j++)
-                {
-                    CalculateTileLight(i, j);
-                }
-            }
-        }
         public bool IsTileInBounds(int x, int y)
         {
             return (x >= 0 && y >= 0 && x < WorldSize.X && y < WorldSize.Y);
-        }
-        private void RecalculateTileLighting(int x, int y)
-        {
-
-            //4 O(n^2) loops fucking horrible, but it works so optimize later
-            //spread light from left to right and top to bottom
-            for (int i = -_lightRange; i <= _lightRange; i++)
-            {
-                for (int j = -_lightRange; j <= _lightRange; j++)
-                {
-                    if (!IsTileInBounds(x + i, y + j))
-                    {
-                        continue;
-                    }
-                    if (!TileDatabase.TileHasProperty(GetTileID(x + i, y + j), TileProperty.Solid) && GetWallID(x + i, y + j) == 0)
-                    {
-                        SetTileLight(x + i, y + j, 255);
-                    }
-                    else
-                    {
-                        SetTileLight(x + i, y + j, 0);
-                    }
-                    CalculateTileLight(x + i, y + j);
-                }
-            }
-            //spread light from right to left and bottom to top
-            for (int i = _lightRange; i >= -_lightRange; i--)
-            {
-                for (int j = _lightRange; j >= -_lightRange; j--)
-                {
-                    if (!IsTileInBounds(x + i, y + j))
-                    {
-                        continue;
-                    }
-                    CalculateTileLight(x + i, y + j);
-                }
-            }
-            //spread light from right to left 
-            for (int i = _lightRange; i >= -_lightRange; i--)
-            {
-                for (int j = -_lightRange; j <= _lightRange; j++)
-                {
-                    if (!IsTileInBounds(x + i, y + j))
-                    {
-                        continue;
-                    }
-                    CalculateTileLight(x + i, y + j);
-                }
-            }
-            //spread light from left to right and bottom to top
-            for (int i = -_lightRange; i <= _lightRange; i++)
-            {
-                for (int j = _lightRange; j >= -_lightRange; j--)
-                {
-                    if (!IsTileInBounds(x + i, y + j))
-                    {
-                        continue;
-                    }
-                    CalculateTileLight(x + i, y + j);
-                }
-            }
-        }
-
-        private void CalculateTileLight(int x, int y)
-        {
-            if (GetTileLight(x, y) == 255)
-                return;
-            int light = GetTileLight(x, y);
-            foreach (Point point in SurroundingTiles)
-            {
-                if (!IsTileInBounds(x + point.X, y + point.Y))
-                {
-                    continue;
-                }
-                byte absorption = 0;
-                if (GetWallID(x + point.X, y + point.Y) != 0)
-                    absorption = WallLightAbsorption;
-                if (TileDatabase.TileHasProperty(GetTileID(x + point.X, y + point.Y), TileProperty.Solid))
-                    absorption = TileLightAbsorption;
-                if (GetTileLight(x + point.X, y + point.Y) - absorption > light)
-                    light = GetTileLight(x + point.X, y + point.Y) - absorption;
-            }
-            if (light < 0)
-                light = 0;
-            SetTileLight(x, y, (byte)light);
-            return;
         }
         /// <summary>
         /// 
@@ -561,29 +420,25 @@ namespace TheGreen.Game.WorldGeneration
         {
             return _tiles[y * WorldSize.X + x].ID;
         }
-
         public ushort GetWallID(int x, int y)
         {
             return _tiles[y * WorldSize.X + x].WallID;
         }
-
         public byte GetTileLight(int x, int y)
         {
             return _tiles[y * WorldSize.X + x].Light;
         }
-
         private void SetTileLight(int x, int y, byte light)
         {
             _tiles[y * WorldSize.X + x].Light = light;
         }
-
         public bool SetTile(int x, int y, ushort ID)
         {
+            //TODO: Large Tiles
             //verify the tile first to ensure its being set at a valid position
-            if (ID != 0 && TileDatabase.VerifyTile(ID, x, y) != 1)
+            if (ID != 0 && TileDatabase.GetTileData(ID).VerifyTile(x, y) != 1)
                 return false;
             _tiles[y * WorldSize.X + x].ID = ID;
-            RecalculateTileLighting(x, y);
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
@@ -595,19 +450,19 @@ namespace TheGreen.Game.WorldGeneration
 
                     ushort tileID = GetTileID(x + i, y + j);
 
-                    if (TileDatabase.VerifyTile(tileID, x + i, y + j) == -1)
+                    if (TileDatabase.GetTileData(tileID).VerifyTile(x + i, y + j) == -1)
                     {
                         RemoveTile(x + i, y + j);
                         continue;
                     }
 
-                    byte state = TileDatabase.GetUpdatedTileState(tileID, x + i, y + j);
+                    byte state = TileDatabase.GetTileData(tileID).GetUpdatedTileState(x + i, y + j);
                     SetTileState(x + i, y + j, state);
 
                     if (TileDatabase.TileHasProperty(tileID, TileProperty.Overlay))
                     {
                         if (state == 255)
-                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = TileDatabase.GetTileBaseID(tileID);
+                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = TileDatabase.GetTileData(tileID).BaseTileID;
                         else
                             _overlayTileUpdater.EnqueueOverlayTile(x + i, y + j, tileID);
                     }
@@ -615,11 +470,9 @@ namespace TheGreen.Game.WorldGeneration
             }
             return true;
         }
-
         public void SetWall(int x, int y, byte WallID)
         {
             _tiles[y * WorldSize.X + x].WallID = WallID;
-            RecalculateTileLighting(x, y);
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
@@ -631,12 +484,14 @@ namespace TheGreen.Game.WorldGeneration
 
         public void RemoveTile(int x, int y)
         {
-            Item item = ItemDatabase.InstantiateItemByTileID(GetTileID(x, y));
+            ushort tileID = GetTileID(x, y);
+            SetTile(x, y, 0);
+            Item item = ItemDatabase.InstantiateItemByTileID(tileID);
             if (item != null)
             {
                 Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);
             }
-            SetTile(x, y, 0);
+            
         }
 
         private void SetInitialTile(int x, int y, ushort ID)

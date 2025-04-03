@@ -43,5 +43,19 @@ namespace TheGreen.Game.Entities
         {
             return new Rectangle(Position.ToPoint(), Size.ToPoint());
         }
+        public override void Draw(SpriteBatch spriteBatch)
+        {
+            Point centerTilePosition = ((Position + Size / 2) / Globals.TILESIZE).ToPoint();
+            spriteBatch.Draw(Image,
+                new Vector2((int)Position.X, (int)Position.Y) + Origin,
+                Animation?.AnimationRectangle ?? new Rectangle(Point.Zero, Size.ToPoint()),
+                Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
+                Rotation,
+                Origin,
+                Scale,
+                FlipSprite ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                0.0f
+            );
+        }
     }
 }

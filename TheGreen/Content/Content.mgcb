@@ -20,12 +20,6 @@
 /processorParam:TextureFormat=Compressed
 /build:Assets/Fonts/File.spritefont
 
-#begin Assets/Shaders/LightShader.fx
-/importer:EffectImporter
-/processor:EffectProcessor
-/processorParam:DebugMode=Auto
-/build:Assets/Shaders/LightShader.fx
-
 #begin Assets/Textures/Backgrounds/Normal/Mountains.png
 /importer:TextureImporter
 /processor:TextureProcessor

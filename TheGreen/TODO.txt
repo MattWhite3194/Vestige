@@ -1,6 +1,7 @@
 ﻿TODO:
 
 Fixes:
+change tree top data draw to just draw as a large tile instead of the special offset shit, that way avoiding having to do custom logic to draw off screen
 Drawing order for sprites
 fix item collision with tiles floating downwards
 design better damage system
@@ -8,6 +9,7 @@ Fix tile culling not accounting for dynamic light
 Improve lighting algorithm, takes up most of runtime. possibly change method of drawing light, instead of using a texture
 Fix Damaged tile sprite or change it's logic completely
 finalize water (make it flow better)
+get rid of globals file, it's stupid. move the time stuff either to main or a seperate class called time. move static variables to TheGreen or Main depending on their scope
 
 Features:
 Define Max stack value for each item, and set a default to like 1000 or something
@@ -17,7 +19,7 @@ Save the game
 walls
 Add Window resizing
 projectiles
-
+Save a dictionary of chest inventories, with the key being the origin point of the tile.
 Ambitious Features:
 Split Screen
 
@@ -32,3 +34,7 @@ Drawing Order:
 player and entities draw above tiles, unless bool is set
 item drops draw above all entities
 player draws above all enemies
+
+Large Tiles
+Set tiles and tile states in a for loop using _tiles[blah].ID =
+only need to call SetTile once
