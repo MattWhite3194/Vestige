@@ -18,14 +18,14 @@ namespace TheGreen.Game.Tiles
         /// e.x. Dirt: _tileProperties[1].TileProperties & Solid; returns true
         /// </summary>
         private static readonly TileData[] _tileProperties = [
-            new TileData(TileProperty.None, Color.CornflowerBlue),                     //Air
-            new TileData(TileProperty.Solid | TileProperty.PickaxeMineable, Color.Brown, itemID: 0, health: 40),           //Dirt
-            new TileData(TileProperty.Solid | TileProperty.Overlay | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
-            new TileData(TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100), //CobbleStone
-            new TileData(TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100),  //Stone
-            new TreeData(TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
-            new TreeTopData(TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
-            new TorchData(TileProperty.StaticTileState | TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Red, itemID: 3)  //Torch
+            new TileData(0, TileProperty.None, Color.CornflowerBlue),                     //Air
+            new TileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Brown, itemID: 0, health: 40),           //Dirt
+            new TileData(2, TileProperty.Solid | TileProperty.Overlay | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
+            new TileData(3, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100), //CobbleStone
+            new TileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100),  //Stone
+            new TreeData(5, TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
+            new TreeTopData(6, TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
+            new TorchData(7, TileProperty.StaticTileState | TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Yellow, itemID: 3)  //Torch
             ];
         private static Rectangle CreateAtlasRect(int x, int y)
         {
@@ -46,59 +46,19 @@ namespace TheGreen.Game.Tiles
             {248, CreateAtlasRect(0,7)}, {250, CreateAtlasRect(1,7)}, {251, CreateAtlasRect(2,7)}, {254, CreateAtlasRect(3,7)}, {255, CreateAtlasRect(4,7)}
         };
 
-        public static bool TileHasProperty(ushort id, TileProperty property)
+        public static bool TileHasProperty(ushort tileID, TileProperty property)
         {
-            if (property == TileProperty.None) return _tileProperties[id].Properties == TileProperty.None;
-            return (_tileProperties[id].Properties & property) == property;
+            if (property == TileProperty.None) return _tileProperties[tileID].Properties == TileProperty.None;
+            return (_tileProperties[tileID].Properties & property) == property;
         }
-        public static Color GetTileMapColor(ushort id)
+
+        public static TileData GetTileData(ushort tileID)
         {
-            return _tileProperties[id].MapColor;
-        }
-        public static int GetTileHealth(ushort id)
-        {
-            return _tileProperties[id].Health;
-        }
-        public static int GetTileItemID(ushort id)
-        {
-            return _tileProperties[id].ItemID;
-        }
-        public static Type GetTileType(ushort id)
-        {
-            return _tileProperties[id].GetType();
+            return _tileProperties[tileID];
         }
         public static Rectangle GetTileTextureAtlas(byte state)
         {
             return _textureAtlasRects[state];
-        }
-        /// <summary>
-        /// Only overlay tiles like grass can have a set base tile.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns>An overlay tiles base tile. Ex: base tile of grass is dirt</returns>
-        public static ushort GetTileBaseID(ushort id)
-        {
-            return _tileProperties[id].BaseTileID;
-        }
-        public static void DrawTile(SpriteBatch spriteBatch, int tileID, byte tileState, int x, int y)
-        {
-            _tileProperties[tileID].Draw(spriteBatch, tileID, tileState, x, y);
-        }
-
-        public static void DrawWall(SpriteBatch spriteBatch, int wallID, byte wallState, int x, int y)
-        {
-            //Temporary
-            spriteBatch.Draw(ContentLoader.TileTextures[wallID], new Vector2(x * Globals.TILESIZE, y * Globals.TILESIZE), _textureAtlasRects[wallState], Color.White);
-        }
-
-        public static int VerifyTile(ushort tileID, int x, int y)
-        {
-            return _tileProperties[tileID].VerifyTile(tileID, x, y);
-        }
-
-        public static byte GetUpdatedTileState(ushort tileID, int x, int y)
-        {
-            return _tileProperties[tileID].GetUpdatedTileState(tileID, x, y);
         }
     }
 }

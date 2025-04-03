@@ -45,7 +45,7 @@ namespace TheGreen.Game.Items
 
         public static Item InstantiateItemByTileID(ushort tileID, int quantity = 1)
         {
-            int itemID = TileDatabase.GetTileItemID(tileID);
+            int itemID = TileDatabase.GetTileData(tileID).ItemID;
             return itemID == -1 ? null : InstantiateItemByID(itemID);
         }
     }

@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using TheGreen.Game.Drawables;
 using TheGreen.Game.Entities;
+using TheGreen.Game.Lighting;
 using TheGreen.Game.Renderer;
-using TheGreen.Game.Renderers;
 using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen.Game
@@ -17,7 +17,7 @@ namespace TheGreen.Game
         private GraphicsDevice _graphicsDevice;
         private static Matrix _translation;
         private TileRenderer _tileRenderer;
-        private LightRenderer _lightRenderer;
+        public static LightEngine LightEngine;
         private RenderTarget2D _foregroundTarget;
         public static readonly Random Random = new Random();
         public static EntityManager EntityManager = null;
@@ -38,7 +38,7 @@ namespace TheGreen.Game
             EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
             EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
             _tileRenderer = new TileRenderer();
-            _lightRenderer = new LightRenderer(_graphicsDevice);
+            LightEngine = new LightEngine(_graphicsDevice);
             _foregroundTarget = new RenderTarget2D(_graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
             ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, 300 * Globals.TILESIZE, 50 * Globals.TILESIZE));
             ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position, 250 * Globals.TILESIZE, 140 * Globals.TILESIZE));
@@ -52,10 +52,9 @@ namespace TheGreen.Game
         public void Update(double delta)
         {
             Globals.UpdateGameTime(delta);
+            WorldGen.World.Update(delta);
             ParallaxManager.Update(delta, GetCameraPosition());
             EntityManager.Update(delta);
-            WorldGen.World.Update(delta);
-            
             CalculateTranslation();
         }
         public void Draw(SpriteBatch spriteBatch)
@@ -64,7 +63,8 @@ namespace TheGreen.Game
             Point drawBoxMin = new Point(((int)-_translation.Translation.X / Globals.TILESIZE), ((int)-_translation.Translation.Y / Globals.TILESIZE));
             Point drawBoxMax = new Point(((int)-_translation.Translation.X / Globals.TILESIZE) + Globals.DrawDistance.X, ((int)-_translation.Translation.Y / Globals.TILESIZE) + Globals.DrawDistance.Y);
             _tileRenderer.SetDrawBox(drawBoxMin, drawBoxMax);
-            _lightRenderer.SetDrawBox(drawBoxMin, drawBoxMax);
+            LightEngine.SetDrawBox(drawBoxMin, drawBoxMax);
+            LightEngine.CalculateLightMap();
             //Render entities scaled twice or thrice to a larger render target, then scale the target down
 
             //draw foreground elements to foreground render target
@@ -74,12 +74,12 @@ namespace TheGreen.Game
             _tileRenderer.DrawWalls(spriteBatch);
             //TODO: get rid of this function, sort tiles by depth defined in tile database
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
-
             _tileRenderer.DrawTiles(spriteBatch);
+            _tileRenderer.DrawLiquids(spriteBatch);
             //TODO: entities also sorted by depth
             EntityManager.Draw(spriteBatch);
-            _tileRenderer.DrawLiquids(spriteBatch);
-            _lightRenderer.Draw(spriteBatch);
+            
+            //_tileRenderer.DrawDebug(spriteBatch);
             spriteBatch.End();
 
 
@@ -90,7 +90,7 @@ namespace TheGreen.Game
             spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: TheGreen.ScreenScaleMatrix);
             ParallaxManager.Draw(spriteBatch, new Color(Globals.GlobalLight, Globals.GlobalLight, Globals.GlobalLight));
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, effect: ContentLoader.LightShader);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
             spriteBatch.Draw(_foregroundTarget, Vector2.Zero, Color.White);
             spriteBatch.End();
         }

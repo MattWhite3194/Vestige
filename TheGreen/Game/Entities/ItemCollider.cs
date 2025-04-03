@@ -86,7 +86,7 @@ namespace TheGreen.Game.Entities
             {
                 _holdTime = 0.0f;
                 _canUseItem = true;
-                if (!Item.AutoUse || _leftReleased)
+                if (!Item.AutoUse || _leftReleased || _inventory.GetSelected() == null)
                 {
                     ItemActive = false;
                 }
@@ -96,10 +96,11 @@ namespace TheGreen.Game.Entities
         {
             if (!ItemActive)
                 return;
+            Point centerTilePosition = ((Position + Size / 2) / Globals.TILESIZE).ToPoint();
             spriteBatch.Draw(Item.Image,
                         Position,
                         null,
-                        Color.White,
+                        Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                         Rotation,
                         Origin,
                         Item.Scale,
