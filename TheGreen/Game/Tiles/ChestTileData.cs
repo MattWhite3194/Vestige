@@ -25,8 +25,12 @@ namespace TheGreen.Game.Tiles
                     WorldGen.World.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)(j * 10 + i + 2));
                 }
             }
-            Item[] items = new Item[8 * 5];
-            items[0] = ItemDatabase.InstantiateItemByID(1, quantity: 20);
+            Item[] items = WorldGen.World.GetTileInventory(worldOrigin);
+            if (items == null)
+            {
+                items = new Item[8 * 5];
+                WorldGen.World.AddTileInventory(worldOrigin, items);
+            }
             Main.EntityManager.GetPlayer().Inventory.DisplayTileInventory(8, items);
         }
     }
