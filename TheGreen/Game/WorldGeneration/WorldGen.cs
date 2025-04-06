@@ -53,6 +53,7 @@ namespace TheGreen.Game.WorldGeneration
         private List<WorldUpdater> _worldUpdaters;
         private LiquidUpdater _liquidUpdater;
         private OverlayTileUpdater _overlayTileUpdater;
+        private Dictionary<Point, Item[]> _tileInventories;
         public class DamagedTile
         {
             /// <summary>
@@ -73,6 +74,7 @@ namespace TheGreen.Game.WorldGeneration
         {
             WorldSize = new Point(size_x, size_y);
             _tiles = new Tile[size_x * size_y];
+            _tileInventories = new Dictionary<Point, Item[]>();
             int[] surfaceNoise = Generate1DNoise(size_x, 50, 10, 6, 0.5f);
             int[] surfaceTerrain = new int[size_x];
 
@@ -582,6 +584,16 @@ namespace TheGreen.Game.WorldGeneration
             if (amount > 0)
                 _liquidUpdater.QueueLiquidUpdate(x, y);
             _tiles[y * WorldSize.X + x].Liquid = amount;
+        }
+        public void AddTileInventory(Point coordinates, Item[] items)
+        {
+            _tileInventories[coordinates] = items;
+        }
+        public Item[] GetTileInventory(Point coordinates)
+        {
+            if (_tileInventories.ContainsKey(coordinates))
+                return _tileInventories[coordinates];
+            return null;
         }
     }
 }
