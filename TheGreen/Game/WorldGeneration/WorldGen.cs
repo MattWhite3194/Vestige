@@ -424,21 +424,19 @@ namespace TheGreen.Game.WorldGeneration
         {
             return _tiles[y * WorldSize.X + x].WallID;
         }
-        public byte GetTileLight(int x, int y)
-        {
-            return _tiles[y * WorldSize.X + x].Light;
-        }
-        private void SetTileLight(int x, int y, byte light)
-        {
-            _tiles[y * WorldSize.X + x].Light = light;
-        }
         public bool SetTile(int x, int y, ushort ID)
         {
-            //TODO: Large Tiles
-            //verify the tile first to ensure its being set at a valid position
             if (ID != 0 && TileDatabase.GetTileData(ID).VerifyTile(x, y) != 1)
                 return false;
-            _tiles[y * WorldSize.X + x].ID = ID;
+            if (TileDatabase.TileHasProperty(ID, TileProperty.LargeTile))
+            {
+                SetLargeTile(x, y, ID);
+                //TEMPORARY
+                //TODO: add tiles updated to a list, and thenm update the tiles in the list and around the tiles in the list
+                return true;
+            }
+            else 
+                _tiles[y * WorldSize.X + x].ID = ID;
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
@@ -470,6 +468,52 @@ namespace TheGreen.Game.WorldGeneration
             }
             return true;
         }
+        public void RemoveTile(int x, int y)
+        {
+            ushort tileID = GetTileID(x, y);
+            if (TileDatabase.TileHasProperty(tileID, TileProperty.LargeTile))
+            {
+                RemoveLargeTile(x, y, tileID);
+            }
+            else
+            {
+                SetTile(x, y, 0);
+            }
+            Item item = ItemDatabase.InstantiateItemByTileID(tileID);
+            if (item != null)
+            {
+                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);
+            }
+
+        }
+        private void SetLargeTile(int x, int y, ushort ID)
+        {
+            if (!(TileDatabase.GetTileData(ID) is LargeTileData largeTileData))
+                return;
+            Point topLeft = largeTileData.GetTopLeft(x, y) ;
+            for (int i = 0; i < largeTileData.TileSize.X; i++)
+            {
+                for (int j = 0; j < largeTileData.TileSize.Y; j++)
+                {
+                    _tiles[(topLeft.Y + j) * WorldSize.X + (topLeft.X + i)].ID = ID;
+                    SetTileState(topLeft.X + i, topLeft.Y + j, (byte)(j * 10 + i));
+                }
+            }
+        }
+        private void RemoveLargeTile(int x, int y, ushort ID)
+        {
+            if (!(TileDatabase.GetTileData(ID) is LargeTileData largeTileData))
+                return;
+            Point topLeft = largeTileData.GetTopLeft(x, y);
+            for (int i = 0; i < largeTileData.TileSize.X; i++)
+            {
+                for (int j = 0; j < largeTileData.TileSize.Y; j++)
+                {
+                    _tiles[(topLeft.Y + j) * WorldSize.X + (topLeft.X + i)].ID = 0;
+                    SetTileState(topLeft.X + i, topLeft.Y + j, 0);
+                }
+            }
+        }
         public void SetWall(int x, int y, byte WallID)
         {
             _tiles[y * WorldSize.X + x].WallID = WallID;
@@ -480,18 +524,6 @@ namespace TheGreen.Game.WorldGeneration
                     UpdateWallState(x + i, y + j);
                 }
             }
-        }
-
-        public void RemoveTile(int x, int y)
-        {
-            ushort tileID = GetTileID(x, y);
-            SetTile(x, y, 0);
-            Item item = ItemDatabase.InstantiateItemByTileID(tileID);
-            if (item != null)
-            {
-                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);
-            }
-            
         }
 
         private void SetInitialTile(int x, int y, ushort ID)
@@ -509,7 +541,7 @@ namespace TheGreen.Game.WorldGeneration
             _tiles[y * WorldSize.X + x].ID = 0;
         }
 
-        private void SetTileState(int x, int y, byte state)
+        public void SetTileState(int x, int y, byte state)
         {
             _tiles[y * WorldSize.X + x].State = state;
         }
