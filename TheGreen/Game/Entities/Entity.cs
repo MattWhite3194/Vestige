@@ -27,7 +27,7 @@ namespace TheGreen.Game.Entities
         /// </summary>
         public CollisionLayer CollidesWith;
 
-        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, List<(int, int)> animationFrames = null) : base(image, position, size, animationFrames)
+        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
         {
         }
 
@@ -48,7 +48,7 @@ namespace TheGreen.Game.Entities
             Point centerTilePosition = ((Position + Size / 2) / Globals.TILESIZE).ToPoint();
             spriteBatch.Draw(Image,
                 new Vector2((int)Position.X, (int)Position.Y) + Origin,
-                Animation?.AnimationRectangle ?? new Rectangle(Point.Zero, Size.ToPoint()),
+                Animation?.AnimationRectangle ?? null,
                 Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                 Rotation,
                 Origin,

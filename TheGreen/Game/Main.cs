@@ -35,8 +35,8 @@ namespace TheGreen.Game
             EntityManager = new EntityManager();
             ParallaxManager = new ParallaxManager();
             EntityManager.SetPlayer(player);
-            EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
-            EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
+            //EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
+            //EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
             _tileRenderer = new TileRenderer();
             LightEngine = new LightEngine(_graphicsDevice);
             _foregroundTarget = new RenderTarget2D(_graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
@@ -76,6 +76,7 @@ namespace TheGreen.Game
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
             _tileRenderer.DrawTiles(spriteBatch);
             _tileRenderer.DrawLiquids(spriteBatch);
+            //_tileRenderer.DrawDebug(spriteBatch);
             //TODO: entities also sorted by depth
             EntityManager.Draw(spriteBatch);
             

@@ -25,7 +25,8 @@ namespace TheGreen.Game.Tiles
             new TileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100),  //Stone
             new TreeData(5, TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
             new TreeTopData(6, TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
-            new TorchData(7, TileProperty.StaticTileState | TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Yellow, itemID: 3)  //Torch
+            new TorchData(7, TileProperty.StaticTileState | TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),  //Torch
+            new ChestTileData(8, TileProperty.StaticTileState | TileProperty.PickaxeMineable | TileProperty.LargeTile, Color.Brown, itemID: 5)
             ];
         private static Rectangle CreateAtlasRect(int x, int y)
         {

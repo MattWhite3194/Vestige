@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using TheGreen.Game.Items.WeaponBehaviors;
 using TheGreen.Game.Tiles;
 
@@ -13,11 +11,12 @@ namespace TheGreen.Game.Items
     {
         private static Dictionary<int, Item> _items = new Dictionary<int, Item>
         {
-            {0, new TileItem(0, "Dirt", "Keep your hands off my dirt!", ContentLoader.ItemTextures[0], (ushort)1) },
-            {1, new TileItem(1, "Stone", "Hard as a rock.", ContentLoader.ItemTextures[1], (ushort)3) },
+            {0, new TileItem(0, "Dirt", "Keep your hands off my dirt!", ContentLoader.ItemTextures[0], 1) },
+            {1, new TileItem(1, "Stone", "Hard as a rock.", ContentLoader.ItemTextures[1], 3) },
             {2, new WeaponItem(2, "Basic Pickaxe", "Go and break something.", ContentLoader.ItemTextures[2], false, 0.2f, true, true, 20, 2, UseStyle.Swing, new Pickaxe(30)) }, //0.2f
-            {3, new TileItem(3, "Torch", "Light it up!", ContentLoader.ItemTextures[3], (ushort)7) },
-            {4, new LiquidItem(4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], (ushort)1) }
+            {3, new TileItem(3, "Torch", "Light it up!", ContentLoader.ItemTextures[3], 7) },
+            {4, new LiquidItem(4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], 1) },
+            {5, new TileItem(5, "Chest", "For storing shiny things!", ContentLoader.ItemTextures[5], 8) },
         };
 
         /// <summary>

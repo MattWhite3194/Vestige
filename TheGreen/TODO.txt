@@ -1,7 +1,6 @@
 ﻿TODO:
 
 Fixes:
-change tree top data draw to just draw as a large tile instead of the special offset shit, that way avoiding having to do custom logic to draw off screen
 Drawing order for sprites
 fix item collision with tiles floating downwards
 design better damage system
@@ -29,6 +28,8 @@ Split Screen
 UI: 
 UI does not disappear, but can't open map or use items / scroll through inventory
 if inventory was open on death, reopen it when you respawn
+draw map to a render target2D the size of the map. 
+Only draw to this render target when the map is updated, and draw the pixels at the coorisponding positions.
 
 Drawing Order:
 player and entities draw above tiles, unless bool is set
