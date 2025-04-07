@@ -34,8 +34,8 @@ namespace TheGreen.Game
             EntityManager = new EntityManager();
             ParallaxManager = new ParallaxManager();
             EntityManager.SetPlayer(player);
-            //EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
-            //EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
+            EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
+            EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
             _tileRenderer = new TileRenderer();
             LightEngine = new LightEngine(_graphicsDevice);
             ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, 300 * Globals.TILESIZE, 50 * Globals.TILESIZE));

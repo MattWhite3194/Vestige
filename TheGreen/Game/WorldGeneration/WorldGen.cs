@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration.WorldUpdaters;
@@ -158,15 +159,14 @@ namespace TheGreen.Game.WorldGeneration
             }
 
             //generate map file
-            /*Color[] colorData = new Color[size_x * size_y];
+            Color[] colorData = new Color[size_x * size_y];
             for (int x = 0; x < size_x; x++)
             {
                 for (int y = 0; y < size_y; y++)
                 {
-                    colorData[x + y * size_x] = TileDatabase.GetTileMapColor(GetTileID(x, y));
+                    colorData[x + y * size_x] = TileDatabase.GetTileData(GetTileID(x, y)).MapColor;
                 }
             }
-
             Map.SetData(colorData);
             string gamePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TheGreen");
             if (!Directory.Exists(gamePath))
@@ -175,7 +175,7 @@ namespace TheGreen.Game.WorldGeneration
             }
             Stream stream = File.Create(gamePath + "/map.jpg");
             Map.SaveAsJpeg(stream, size_x, size_y);
-            stream.Close();*/
+            stream.Close();
         }
 
         private byte[] _randTreeTileStates = [0, 2, 8, 10];
