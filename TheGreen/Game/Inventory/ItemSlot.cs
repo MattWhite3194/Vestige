@@ -20,6 +20,7 @@ namespace TheGreen.Game.Inventory
             
             if (item.Stackable)
             {
+                spriteBatch.DrawString(ContentLoader.GameFont, item.Quantity + "", Position + new Vector2(Size.X / 2, Size.Y - 10) + new Vector2(0.6f, 0.6f), Color.Black, 0.0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0.0f);
                 spriteBatch.DrawString(ContentLoader.GameFont, item.Quantity + "", Position + new Vector2(Size.X / 2, Size.Y - 10), Color.White, 0.0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0.0f);
             }
         }

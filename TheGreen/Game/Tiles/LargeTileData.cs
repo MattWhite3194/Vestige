@@ -38,6 +38,14 @@ namespace TheGreen.Game.Tiles
             }
             return verification;
         }
+        public override bool CanTileBeDamaged(int x, int y)
+        {
+            return true;
+        }
+        public override byte GetUpdatedTileState(int x, int y)
+        {
+            return WorldGen.World.GetTileState(x, y);
+        }
         public virtual Point GetTopLeft(int x, int y)
         {
             if (WorldGen.World.GetTileID(x, y) != TileID)

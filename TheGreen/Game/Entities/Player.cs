@@ -104,10 +104,7 @@ namespace TheGreen.Game.Entities
         public override void Update(double delta)
         {
             base.Update(delta);
-            Point centerTilePosition = ((Position + Size / 2) / Globals.TILESIZE).ToPoint();
-            Main.LightEngine.AddLight(centerTilePosition.X, centerTilePosition.Y, Color.Blue);
             Vector2 newVelocity = Velocity;
-
             Direction.X = 0;
             if (_activeInputs.Contains(InputButton.Left)) Direction.X -= 1;
             if (_activeInputs.Contains(InputButton.Right)) Direction.X += 1;

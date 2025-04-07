@@ -10,10 +10,12 @@ namespace TheGreen.Game.Inventory
 {
     public class InventoryManager : UIComponentContainer
     {
-        private Inventory _tileInventory;
-        private Inventory _inventoryMenu;
         private Hotbar _hotbar;
+        private Inventory _inventoryMenu;
         private DragItem _dragItem;
+        private InventoryTileData _inventoryTileData;
+        private Point _inventoryTileDataCoordinates;
+        private Inventory _tileInventory;
         private Grid _activeMenu;
         public InventoryManager(int rows, int cols)
         {
@@ -65,7 +67,7 @@ namespace TheGreen.Game.Inventory
                     return;
                 Main.EntityManager.AddItemDrop(_dragItem.Item, InputManager.GetMouseWorldPosition().ToVector2());
                 _dragItem.Item = null;
-                InputManager.IsEventHandled(@event);
+                InputManager.MarkInputAsHandled(@event);
             }
         }
 
@@ -97,12 +99,17 @@ namespace TheGreen.Game.Inventory
             return _activeMenu == _inventoryMenu;
         }
 
-        public void DisplayTileInventory(int cols, Item[] items)
+        public void DisplayTileInventory(InventoryTileData inventoryTileData, Point coordinates, Item[] items)
         {
             //TODO: close active tileinventory if there is one
-            _tileInventory = null;
             SetInventoryOpen(true);
-            _tileInventory = new Inventory(cols, _dragItem, items, margin: 2, position: _inventoryMenu.Position + _inventoryMenu.Size);
+            if (_inventoryTileData != null && coordinates != _inventoryTileDataCoordinates)
+            {
+                _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
+            }
+            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, items, margin: 2, position: _inventoryMenu.Position + new Vector2(_inventoryMenu.Size.X + 30, 0 ), itemSlotColor: Color.Crimson);
+            _inventoryTileDataCoordinates = coordinates;
+            _inventoryTileData = inventoryTileData;
         }
         public void SetInventoryOpen(bool open)
         {
@@ -110,6 +117,12 @@ namespace TheGreen.Game.Inventory
             if (!InventoryVisible())
             {
                 _tileInventory = null;
+                
+                if (_inventoryTileData != null)
+                {
+                    _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
+                    _inventoryTileData = null;
+                }
             }
         }
         public bool UseSelected()

@@ -53,7 +53,7 @@ namespace TheGreen.Game.Lighting
                     }
                     if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.LightEmitting))
                     {
-                        _lightMap[mapIndex].light = TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)).MapColor.ToVector3();
+                        _lightMap[mapIndex].light = Vector3.Max(TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)).MapColor.ToVector3(), _lightMap[mapIndex].light);
                         _lightMap[mapIndex].mask = 1f;
                     }
                 }
@@ -67,9 +67,7 @@ namespace TheGreen.Game.Lighting
                 if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
                 {
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (Globals.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
-                    _lightMap[mapIndex].light.X = Math.Max(light.X, _lightMap[mapIndex].light.X);
-                    _lightMap[mapIndex].light.Y = Math.Max(light.Y, _lightMap[mapIndex].light.Y);
-                    _lightMap[mapIndex].light.Z = Math.Max(light.Z, _lightMap[mapIndex].light.Z);
+                    Vector3.Max(light, _lightMap[mapIndex].light);
                 }
             }
         }
@@ -102,9 +100,7 @@ namespace TheGreen.Game.Lighting
             Vector3 light = Vector3.Zero;
             for (int i = startIndex; i != endIndex + stride; i += stride)
             {
-                light.X = Math.Max(light.X, _lightMap[i].light.X);
-                light.Y = Math.Max(light.Y, _lightMap[i].light.Y);
-                light.Z = Math.Max(light.Z, _lightMap[i].light.Z);
+                light = Vector3.Max(light, _lightMap[i].light);
                 if (light.X >= 0.0185f)
                 {
                     _lightMap[i].light.X = light.X;

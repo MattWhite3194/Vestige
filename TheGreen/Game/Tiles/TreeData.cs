@@ -8,6 +8,10 @@ namespace TheGreen.Game.Tiles
         public TreeData(int tileID, TileProperty properties, Color color, int itemID = -1, int health = 0) : base(tileID, properties, color, itemID, health)
         {
         }
+        public override bool CanTileBeDamaged(int x, int y)
+        {
+            return true;
+        }
         public override int VerifyTile(int x, int y)
         {
             ushort bottom = WorldGen.World.GetTileID(x, y + 1);
@@ -19,6 +23,10 @@ namespace TheGreen.Game.Tiles
             else if ((WorldGen.World.GetTileState(x, y) == 62 || WorldGen.World.GetTileState(x, y) == 130) && left != TileID && right != TileID)
                 return -1;
             return 1;
+        }
+        public override byte GetUpdatedTileState(int x, int y)
+        {
+            return WorldGen.World.GetTileState(x, y);
         }
     }
 }

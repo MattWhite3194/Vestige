@@ -13,7 +13,7 @@ namespace TheGreen.Game.Inventory
         private ItemSlot[] _inventoryItemSlots;
         private DragItem _dragItem;
 
-        public Inventory(int cols, DragItem dragItem, Item[] inventoryItems, int margin = 5, Vector2 position = default, Vector2 size = default) : base(cols, margin, position, size)
+        public Inventory(int cols, DragItem dragItem, Item[] inventoryItems, int margin = 5, Vector2 position = default, Vector2 size = default, Color itemSlotColor = default) : base(cols, margin, position, size)
         {
             _inventoryItems = inventoryItems;
             _inventoryItemSlots = new ItemSlot[_inventoryItems.Length];
@@ -21,7 +21,7 @@ namespace TheGreen.Game.Inventory
             for (int i = 0; i < _inventoryItemSlots.Length; i++)
             {
                 int index = i;
-                _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, Color.ForestGreen);
+                _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor == default ? Color.ForestGreen : itemSlotColor);
                 AddGridItem(_inventoryItemSlots[i]);
                 _inventoryItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
             }
