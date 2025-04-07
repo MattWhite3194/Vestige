@@ -10,7 +10,7 @@ namespace TheGreen.Game.Inventory
     {
         private Item[] _inventoryItems;
         private ItemSlot[] _hotbarItemSlots;
-        private int selected = 0;
+        private int selected;
         public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default, Vector2 size = default) : base(cols, margin, position, size)
         {
             _inventoryItems = inventoryItems;
@@ -22,6 +22,7 @@ namespace TheGreen.Game.Inventory
                 AddGridItem(_hotbarItemSlots[i]);
                 _hotbarItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
             }
+            SetSelected(0);
         }
         private void OnItemSlotGuiInput(int index, InputEvent @event)
         {

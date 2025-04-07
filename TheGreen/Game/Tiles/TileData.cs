@@ -24,7 +24,7 @@ namespace TheGreen.Game.Tiles
             BaseTileID = baseTileID;
         }
         /// <summary>
-        /// Runs whenever the tile state is updated, used to determine if the tile is valid in the world relative to its surrounding tile
+        /// Runs whenever the tile state is updated, used to determine if the tile is valid in the world relative to its surrounding tiles
         /// </summary>
         /// <param name="tileID"></param>
         /// <param name="x"></param>
@@ -41,10 +41,18 @@ namespace TheGreen.Game.Tiles
 
             return Math.Sign(top + right + bottom + left + wall);
         }
+        public virtual bool CanTileBeDamaged(int x, int y)
+        {
+            ushort top = WorldGen.World.GetTileID(x, y - 1);
+            if (TileDatabase.TileHasProperty(top, TileProperty.LargeTile))
+                return (TileDatabase.GetTileData(top) as LargeTileData).CanTileBeDamaged(x, y - 1);
+            if (TileDatabase.TileHasProperty(top, TileProperty.AxeMineable))
+                return false;
+            return true;
+        }
         public virtual byte GetUpdatedTileState(int x, int y)
         {
             if (TileID == 0) return 0;
-            if ((Properties & TileProperty.StaticTileState) == TileProperty.StaticTileState) return WorldGen.World.GetTileState(x, y);
             ushort top = WorldGen.World.GetTileID(x, y - 1);
             ushort right = WorldGen.World.GetTileID(x + 1, y);
             ushort bottom = WorldGen.World.GetTileID(x, y + 1);

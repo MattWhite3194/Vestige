@@ -253,9 +253,13 @@ namespace TheGreen.Game.WorldGeneration
         {
             if (!IsTileInBounds(coordinates.X, coordinates.Y))
                 return;
-            if (GetTileID(coordinates.X, coordinates.Y) == 0)
+            ushort tileID = GetTileID(coordinates.X, coordinates.Y);
+            if (tileID == 0)
                 return;
-            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(TileDatabase.GetTileData(GetTileID(coordinates.X, coordinates.Y)).Health, 0);
+            TileData tileData = TileDatabase.GetTileData(tileID);
+            if (!tileData.CanTileBeDamaged(coordinates.X, coordinates.Y))
+                return;
+            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(tileData.Health, 0);
             damagedTileData.Health = damagedTileData.Health - damage;
             damagedTileData.Time = 0;
             if (damagedTileData.Health <= 0)
@@ -267,6 +271,7 @@ namespace TheGreen.Game.WorldGeneration
             {
                 _minedTiles[coordinates] = damagedTileData;
             }
+            //TODO: play tile specific damage sound here, so it only plays if the tile was actually damaged. any mining sounds or item use sounds will be playes by the item collider or the inventory useItem
         }
         public bool IsTileInBounds(int x, int y)
         {
@@ -434,7 +439,7 @@ namespace TheGreen.Game.WorldGeneration
             {
                 SetLargeTile(x, y, ID);
                 //TEMPORARY
-                //TODO: add tiles updated to a list, and thenm update the tiles in the list and around the tiles in the list
+                //TODO: add tiles updated to a list, and then update the tiles in the list and around the tiles in the list
                 return true;
             }
             else 
@@ -588,6 +593,10 @@ namespace TheGreen.Game.WorldGeneration
         public void AddTileInventory(Point coordinates, Item[] items)
         {
             _tileInventories[coordinates] = items;
+        }
+        public void RemoveTileInventory(Point coordinates)
+        {
+            _tileInventories.Remove(coordinates);
         }
         public Item[] GetTileInventory(Point coordinates)
         {

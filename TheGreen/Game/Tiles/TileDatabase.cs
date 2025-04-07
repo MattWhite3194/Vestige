@@ -23,10 +23,10 @@ namespace TheGreen.Game.Tiles
             new TileData(2, TileProperty.Solid | TileProperty.Overlay | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
             new TileData(3, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100), //CobbleStone
             new TileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100),  //Stone
-            new TreeData(5, TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
-            new TreeTopData(6, TileProperty.StaticTileState | TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
-            new TorchData(7, TileProperty.StaticTileState | TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),  //Torch
-            new ChestTileData(8, TileProperty.StaticTileState | TileProperty.PickaxeMineable | TileProperty.LargeTile, Color.Brown, itemID: 5)
+            new TreeData(5, TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
+            new TreeTopData(6, TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
+            new TorchData(7, TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),  //Torch
+            new InventoryTileData(8, TileProperty.PickaxeMineable | TileProperty.LargeTile, Color.Brown, itemID: 5, cols: 5, rows: 3)
             ];
         private static Rectangle CreateAtlasRect(int x, int y)
         {

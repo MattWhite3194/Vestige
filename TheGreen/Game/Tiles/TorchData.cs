@@ -19,6 +19,10 @@ namespace TheGreen.Game.Tiles
                 return 1;
             return -1;
         }
+        public override bool CanTileBeDamaged(int x, int y)
+        {
+            return true;
+        }
         public override byte GetUpdatedTileState(int x, int y)
         {
             ushort bottom = WorldGen.World.GetTileID(x, y + 1);
