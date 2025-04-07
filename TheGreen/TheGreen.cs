@@ -105,6 +105,7 @@ namespace TheGreen
         public void StartNewWorld(Point size)
         {
             InventoryManager inventory = new InventoryManager(5, 8);
+            WorldGen.World.Map = new Texture2D(GraphicsDevice, size.X, size.Y);
             WorldGen.World.GenerateWorld(size.X, size.Y);
             Player player = new Player(ContentLoader.PlayerTexture, inventory, 100);
             _gameManager = new Main(player, GraphicsDevice);
