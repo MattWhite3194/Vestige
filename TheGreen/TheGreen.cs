@@ -83,11 +83,7 @@ namespace TheGreen
                 _spriteBatch.End();
             }
             
-
-            _spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: UIScaleMatrix);
             UIManager.Draw(_spriteBatch);
-            _spriteBatch.End();
-            
 
             base.Draw(gameTime);
         }
@@ -112,8 +108,8 @@ namespace TheGreen
         }
         private void UpdateRenderDestination(int width, int height)
         {
-            float xScale = width / (float)Globals.NativeResolution.X;
-            float yScale = height / (float)Globals.NativeResolution.Y;
+            int xScale = (int)Math.Ceiling(width / (float)Globals.NativeResolution.X);
+            int yScale = (int)Math.Ceiling(height / (float)Globals.NativeResolution.Y);
             SetUIScaleMatrix(width / (float)Globals.NativeResolution.X);
             float scale = Math.Max(xScale, yScale);
             RenderDestination = new Rectangle(
@@ -126,6 +122,7 @@ namespace TheGreen
         public void SetUIScaleMatrix(float scale)
         {
             UIScaleMatrix = Matrix.CreateScale(scale);
+            UIManager.OnUIScaleChanged(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
         }
     }
 }

@@ -28,14 +28,14 @@ namespace TheGreen.Game
         public Main(Player player, GraphicsDevice graphicsDevice)
         {
 
-            Globals.StartGameClock(10, 30);
+            Globals.StartGameClock(1000, 2000);
             WorldGen.World.InitializeGameUpdates();
             _graphicsDevice = graphicsDevice;
             EntityManager = new EntityManager();
             ParallaxManager = new ParallaxManager();
             EntityManager.SetPlayer(player);
-            EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
-            EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
+            //EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
+            //EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
             _tileRenderer = new TileRenderer();
             LightEngine = new LightEngine(_graphicsDevice);
             ParallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, 300 * Globals.TILESIZE, 50 * Globals.TILESIZE));
@@ -45,7 +45,7 @@ namespace TheGreen.Game
 
             //Debugging only
             _pixel = new Texture2D(graphicsDevice, 1, 1);
-            _pixel.SetData(new[] { Color.White }); // Fill it with white color
+            _pixel.SetData(new []{ Color.White }); // Fill it with white color
         }
         public void Update(double delta)
         {

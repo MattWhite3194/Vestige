@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TheGreen.Game.Input;
 
 namespace TheGreen.Game.UIComponents
@@ -18,13 +19,29 @@ namespace TheGreen.Game.UIComponents
         public Vector2 Position;
         public Vector2 Size;
         private List<UIComponent> _uiComponents = new List<UIComponent>();
+        public Anchor Anchor;
+        private Matrix _anchorMatrix;
+        public Matrix AnchorMatrix
+        {
+            get
+            {
+                return _anchorMatrix;
+            }
+            set
+            {
+                _anchorMatrix = value;
+                _invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);
+            }
+        }
+        private Matrix _invertedAnchorMatrix;
 
-        public UIComponentContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null)
+        public UIComponentContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null, Anchor anchor = Anchor.Center)
         {
             Position = position;
             Size = size;
             _graphicsDevice = graphicsDevice;
             ComponentCount = 0;
+            Anchor = anchor;
         }
         public virtual void HandleInput(InputEvent @event)
         {
@@ -40,7 +57,7 @@ namespace TheGreen.Game.UIComponents
                 }
                 else if (@event is MouseInputEvent)
                 {
-                    if (InputManager.GetMouseWindowBounds().Intersects(component.GetBounds()))
+                    if (component.MouseInside)
                     {
                         component.OnGuiInput(@event);
                     }
@@ -54,7 +71,7 @@ namespace TheGreen.Game.UIComponents
             {
                 if (!component.IsVisible()) continue;
 
-                if (InputManager.GetMouseWindowBounds().Intersects(component.GetBounds()))
+                if (component.GetBounds().Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), _invertedAnchorMatrix)))
                 {
                     if (!component.MouseInside)
                     {
@@ -85,6 +102,7 @@ namespace TheGreen.Game.UIComponents
             component.Position = component.Position + Position;
             _uiComponents.Add(component);
             ComponentCount++;
+            Size = Vector2.Max(Size, component.Position - Position + component.Size);
         }
         public void RemoveUIComponent(UIComponent component)
         {
@@ -108,6 +126,10 @@ namespace TheGreen.Game.UIComponents
         {
             InputManager.UnregisterHandler(this);
             UIManager.UnregisterContainer(this);
+        }
+        public virtual void SetAnchorMatrix(Matrix anchorMatrix)
+        {
+            AnchorMatrix = anchorMatrix;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace TheGreen.Game.Entities
         public Vector2 Direction = Vector2.Zero;
         private int _maxSpeed = 200;
         private int _maxFallSpeed = 900;
-        private int _jumpVelocity = -600;
+        private int _jumpVelocity = -500;
         public InventoryManager Inventory;
         private int _health;
         private float _fallDistance = 0;
@@ -52,19 +52,14 @@ namespace TheGreen.Game.Entities
             Position = WorldGen.World.SpawnTile.ToVector2() * Globals.TILESIZE - new Vector2(0, Size.Y - 1);
             Main.EntityManager.AddEntity(this);
             Main.EntityManager.AddEntity(ItemCollider);
-            InputManager.RegisterHandler(this);
             UIManager.RegisterContainer(Inventory);
+            InputManager.RegisterHandler(this);
+            InputManager.RegisterHandler(Inventory);
         }
 
         public void HandleInput(InputEvent @event)
         {
             if (!Active) return;
-            //TODO:
-            //Handle input for equipment
-            Inventory.HandleInput(@event);
-            if (InputManager.IsEventHandled(@event))
-                return;
-            //if input is handled return
 
             if (@event.InputButton == InputButton.Left)
             {

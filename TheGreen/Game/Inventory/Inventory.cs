@@ -18,10 +18,15 @@ namespace TheGreen.Game.Inventory
             _inventoryItems = inventoryItems;
             _inventoryItemSlots = new ItemSlot[_inventoryItems.Length];
             this._dragItem = dragItem;
+            if (itemSlotColor == default)
+            {
+                itemSlotColor = Color.ForestGreen;
+            }
+            itemSlotColor.A = 200;
             for (int i = 0; i < _inventoryItemSlots.Length; i++)
             {
                 int index = i;
-                _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor == default ? Color.ForestGreen : itemSlotColor);
+                _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
                 AddGridItem(_inventoryItemSlots[i]);
                 _inventoryItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
             }

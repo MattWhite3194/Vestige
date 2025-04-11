@@ -11,19 +11,19 @@ namespace TheGreen.Game.Lighting
 {
     public class LightEngine
     {
-        private (Vector3 light, float mask)[] _lightMap;
+        private (Vector3 light, Vector3 mask)[] _lightMap;
         private Point _paddedDrawBoxMin;
         private Point _paddedDrawBoxMax;
         private int _lightRange;
-        private float _wallAbsorption = 0.9f;
-        private float _tileAbsorption = 0.7f;
-        private readonly Random _random = new Random();
+        private Vector3 _wallAbsorption = new Vector3(0.9f, 0.9f, 0.9f);
+        private Vector3 _tileAbsorption = new Vector3(0.7f, 0.7f, 0.7f);
+        private Vector3 _liquidLightAbsorption = new Vector3(0.7f, 0.8f, 0.9f);
         private Queue<(int, int, Vector3)> _dynamicLights;
 
         public LightEngine(GraphicsDevice graphicsDevice)
         {
             _lightRange = 38;
-            _lightMap = new (Vector3, float)[(Globals.DrawDistance.X + 2 * _lightRange) * (Globals.DrawDistance.Y + 2 * _lightRange)];
+            _lightMap = new (Vector3, Vector3)[(Globals.DrawDistance.X + 2 * _lightRange) * (Globals.DrawDistance.Y + 2 * _lightRange)];
             _dynamicLights = new Queue<(int, int, Vector3)>();
         }
         /// <summary>
@@ -31,33 +31,38 @@ namespace TheGreen.Game.Lighting
         /// </summary>
         private void ClearLightMap()
         {
-            for (int x = _paddedDrawBoxMin.X; x < _paddedDrawBoxMax.X; x++)
+            Parallel.For(_paddedDrawBoxMin.X, _paddedDrawBoxMax.X, x =>
             {
                 for (int y = _paddedDrawBoxMin.Y; y < _paddedDrawBoxMax.Y; y++)
                 {
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (Globals.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
                     if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
                     {
-                        _lightMap[mapIndex].light = new Vector3(0f);
+                        _lightMap[mapIndex].light = Vector3.Zero;
                         _lightMap[mapIndex].mask = _tileAbsorption;
                     }
-                    else if (WorldGen.World.GetWallID(x, y) != 0 || WorldGen.World.GetLiquid(x, y) == 255)
+                    else if (WorldGen.World.GetWallID(x, y) != 0)
                     {
-                        _lightMap[mapIndex].light = new Vector3(0f);
+                        _lightMap[mapIndex].light = Vector3.Zero;
                         _lightMap[mapIndex].mask = _wallAbsorption;
                     }
                     else
                     {
                         _lightMap[mapIndex].light = new Vector3(Globals.GlobalLight / 255.0f);
-                        _lightMap[mapIndex].mask = _wallAbsorption * (100.0f / _random.Next(98, 100));
+                        _lightMap[mapIndex].mask = _wallAbsorption;
+                    }
+                    if (WorldGen.World.GetLiquid(x, y) != 0)
+                    {
+                        _lightMap[mapIndex].light = Vector3.Zero;
+                        _lightMap[mapIndex].mask = _liquidLightAbsorption;
                     }
                     if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.LightEmitting))
                     {
                         _lightMap[mapIndex].light = Vector3.Max(TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)).MapColor.ToVector3(), _lightMap[mapIndex].light);
-                        _lightMap[mapIndex].mask = 1f;
+                        _lightMap[mapIndex].mask = new Vector3(1f, 1f, 1f);
                     }
                 }
-            }
+            });
         }
         private void ApplyDynamicLights()
         {
@@ -104,17 +109,18 @@ namespace TheGreen.Game.Lighting
                 if (light.X >= 0.0185f)
                 {
                     _lightMap[i].light.X = light.X;
-                    light.X *= _lightMap[i].mask;
+                    light.X *= _lightMap[i].mask.X;
                 }
                 if (light.Y >= 0.0185f)
                 {
                     _lightMap[i].light.Y = light.Y;
-                    light.Y *= _lightMap[i].mask;
+                    light.Y *= _lightMap[i].mask.Y;
+                    
                 }
                 if (light.Z >= 0.0185f)
                 {
                     _lightMap[i].light.Z = light.Z;
-                    light.Z *= _lightMap[i].mask;
+                    light.Z *= _lightMap[i].mask.Z;
                 }
             }
         }

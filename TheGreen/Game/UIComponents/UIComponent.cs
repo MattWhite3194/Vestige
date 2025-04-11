@@ -21,6 +21,7 @@ namespace TheGreen.Game.UIComponents
         private bool focused = false;
         protected Vector2 _drawPosition;
         private Vector2 _position;
+        private Vector2 _anchorOrigin;
         public Vector2 Position
         {
             get { return _position; }
@@ -37,18 +38,18 @@ namespace TheGreen.Game.UIComponents
             set
             {
                 _size = value;
-                _origin = _size / 2.0f;
+                Origin = _size / 2.0f;
                 UpdateDrawPosition();
             }
         }
-        protected Vector2 _origin;
+        public Vector2 Origin;
         public bool MouseInside = false;
         protected GraphicsDevice _graphicsDevice;
         protected bool _drawCentered;
         protected float _rotation;
         protected float _scale;
 
-        public UIComponent(Vector2 position, Texture2D image = null, Color color = default(Color), GraphicsDevice graphicsDevice = null, bool drawCentered = false, float rotation = 0.0f, float scale = 0.0f)
+        public UIComponent(Vector2 position, Texture2D image = null, Color color = default, GraphicsDevice graphicsDevice = null, bool drawCentered = false, float rotation = 0.0f, float scale = 1.0f)
         {
             this._position = position;
             this.image = image;
@@ -57,7 +58,7 @@ namespace TheGreen.Game.UIComponents
             this._drawCentered = drawCentered;
             this._rotation = rotation;
             this._scale = scale;
-            _drawPosition = _drawCentered ? _position - _origin : _position;
+            _drawPosition = _drawCentered ? _position - Origin * scale : _position;
             if (image != null)
                 Size = new Vector2(image.Width, image.Height);
             else
@@ -72,7 +73,7 @@ namespace TheGreen.Game.UIComponents
 
         public virtual void Draw(SpriteBatch spriteBatch) 
         {
-            spriteBatch.Draw(image, _drawPosition, color);
+            spriteBatch.Draw(image, _drawPosition, null, color, 0.0f, _anchorOrigin, _scale, SpriteEffects.None, 0.0f);
         }
 
         public bool IsFocused()
@@ -92,7 +93,7 @@ namespace TheGreen.Game.UIComponents
 
         private void UpdateDrawPosition()
         {
-            _drawPosition = _drawCentered ? _position - _origin : _position;
+            _drawPosition = _drawCentered ? _position - Origin * _scale : _position;
         }
 
         /// <summary>
@@ -136,7 +137,7 @@ namespace TheGreen.Game.UIComponents
 
         public Rectangle GetBounds()
         {
-            return new Rectangle((int)_drawPosition.X, (int)_drawPosition.Y, (int)_size.X, (int)_size.Y);
+            return new Rectangle((int)_drawPosition.X, (int)_drawPosition.Y, (int)(_size.X * _scale), (int)(_size.Y * _scale));
         }
 
         //TODO: implement something like this and add it to a global window resize delegate or something similar

@@ -16,9 +16,9 @@ namespace TheGreen.Game.Items
         public override bool UseItem()
         {
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Globals.TILESIZE);
-            if (WorldGen.World.GetLiquid(mouseTilePosition.X, mouseTilePosition.Y) != 255)
+            if (WorldGen.World.GetLiquid(mouseTilePosition.X, mouseTilePosition.Y) != WorldGen.MaxLiquid)
             {
-                WorldGen.World.SetLiquid(mouseTilePosition.X, mouseTilePosition.Y, 255);
+                WorldGen.World.SetLiquid(mouseTilePosition.X, mouseTilePosition.Y, WorldGen.MaxLiquid, true);
                 return true;
             }
             return false;

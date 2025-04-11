@@ -128,18 +128,13 @@ namespace TheGreen.Game.Input
         }
         public static Vector2 GetMouseWindowPosition()
         {
-            return Vector2.Transform(Mouse.GetState().Position.ToVector2(), Matrix.Invert(TheGreen.UIScaleMatrix));
+            return Mouse.GetState().Position.ToVector2();
         }
         public static Point GetMouseWorldPosition()
         {
             Vector2 mousePosition = (Mouse.GetState().Position.ToVector2() - TheGreen.RenderDestination.Location.ToVector2()) * new Vector2(Globals.NativeResolution.X / (float)TheGreen.RenderDestination.Width) ;
             Point translation = Main.GetCameraPosition().ToPoint();
             return mousePosition.ToPoint() + translation;
-        }
-        public static Rectangle GetMouseWindowBounds()
-        {
-            Vector2 mousePosition = GetMouseWindowPosition();
-            return new Rectangle((int)mousePosition.X, (int)mousePosition.Y, 1, 1);
         }
     }
 }

@@ -11,13 +11,14 @@ namespace TheGreen.Game.WorldGeneration.WorldUpdaters
     {
         private Queue<(int, int, ushort)> _overlayUpdateQueue = new Queue<(int, int, ushort)>();
         private HashSet<(int, int, ushort)> _baseTiles = new HashSet<(int, int, ushort)>();
+        private Point[] _surroundingTiles = { new Point(0, 1), new Point(0, -1), new Point(1, 0), new Point(-1, 0) };
         public OverlayTileUpdater(double updateRate) : base(updateRate)
         {
 
         }
         public void EnqueueOverlayTile(int x, int y, ushort overlayTileID)
         {
-            foreach (Point point in WorldGen.World.SurroundingTiles)
+            foreach (Point point in _surroundingTiles)
             {
                 if (!WorldGen.World.IsTileInBounds(x + point.X, y + point.Y))
                 {

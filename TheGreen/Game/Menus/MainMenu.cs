@@ -29,41 +29,40 @@ namespace TheGreen.Game.Menus
             _menus = new Stack<UIComponentContainer>();
 
 
-            _startMenu = new UIComponentContainer();
-            _createWorldMenu = new UIComponentContainer();
+            _startMenu = new UIComponentContainer(position: new Vector2(Globals.ScreenCenter.X, 80), anchor: Anchor.Center);
+            _createWorldMenu = new UIComponentContainer(position: Globals.ScreenCenter.ToVector2());
 
-            _titleLabel = new Label(Globals.ScreenCenter.ToVector2() - new Vector2(0, 200), "The Green", Vector2.Zero, textColor: Color.ForestGreen, drawCentered: true, scale: 5.0f);
+            _titleLabel = new Label(new Vector2(0, 0), "The Green", Vector2.Zero, textColor: Color.ForestGreen, drawCentered: true, scale: 5.0f);
             _startMenu.AddUIComponent(_titleLabel);
 
-            _newGameButton = new Button(Globals.ScreenCenter.ToVector2(), "New Game", new Vector2(0, 5), borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            _newGameButton = new Button(new Vector2(0, 140), "New Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
             _newGameButton.OnButtonPress += () => AddSubMenu(_createWorldMenu);
             _startMenu.AddUIComponent(_newGameButton);
 
-            _loadGameButton = new Button(Globals.ScreenCenter.ToVector2() + new Vector2(0, 20), "Load Game", new Vector2(0, 5), borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            _loadGameButton = new Button(new Vector2(0, 160), "Load Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
             _loadGameButton.OnButtonPress += LoadGame;
             _startMenu.AddUIComponent(_loadGameButton);
 
-            Button reduceUIScaleButton = new Button(Globals.ScreenCenter.ToVector2() + new Vector2(0, 40), "Reduce UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            Button reduceUIScaleButton = new Button(new Vector2(0, 180), "Reduce UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
             reduceUIScaleButton.OnButtonPress += () => 
             {
                 _game.SetUIScaleMatrix(Math.Max(0.1f, TheGreen.UIScaleMatrix.M11 - 0.1f));
             };
             _startMenu.AddUIComponent(reduceUIScaleButton);
 
-            Button increaseUIScaleButton = new Button(Globals.ScreenCenter.ToVector2() + new Vector2(0, 60), "Increase UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            Button increaseUIScaleButton = new Button(new Vector2(0, 200), "Increase UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
             increaseUIScaleButton.OnButtonPress += () =>
             { 
                 _game.SetUIScaleMatrix(Math.Min(5f, TheGreen.UIScaleMatrix.M11 + 0.1f));
             };
             _startMenu.AddUIComponent(increaseUIScaleButton);
 
-            _backButton = new Button(new Vector2(150, Globals.NativeResolution.Y - 100), "Back", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
-            _backButton.OnButtonPress += () => RemoveSubMenu();
-            _createWorldMenu.AddUIComponent( _backButton );
-
-            _createWorldButton = new Button(Globals.ScreenCenter.ToVector2(), "Create World", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            _createWorldButton = new Button(new Vector2(0, 0), "Create World", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
             _createWorldButton.OnButtonPress += () => StartNewGame();
             _createWorldMenu.AddUIComponent( _createWorldButton );
+            _backButton = new Button(new Vector2(0, 20), "Back", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            _backButton.OnButtonPress += () => RemoveSubMenu();
+            _createWorldMenu.AddUIComponent(_backButton);
 
             AddSubMenu(_startMenu);
         }
@@ -72,7 +71,6 @@ namespace TheGreen.Game.Menus
             int numMenus = _menus.Count;
             for (int i = 0; i < numMenus; i++)
             {
-                Debug.WriteLine(_menus.Peek().ToString());
                 _menus.Pop().Dereference();
             }
             _game.StartNewWorld(new Point(2100, 600));
@@ -82,6 +80,11 @@ namespace TheGreen.Game.Menus
         }
         private void AddSubMenu(UIComponentContainer menu)
         {
+            if (_menus.Count != 0)
+            {
+                UIManager.UnregisterContainer(_menus.Peek());
+                InputManager.UnregisterHandler(_menus.Peek());
+            }
             UIManager.RegisterContainer(menu);
             InputManager.RegisterHandler(menu);
             _menus.Push(menu);
@@ -91,6 +94,11 @@ namespace TheGreen.Game.Menus
             UIManager.UnregisterContainer(_menus.Peek());
             InputManager.UnregisterHandler(_menus.Peek());
             _menus.Pop();
+            if (_menus.Count != 0)
+            {
+                UIManager.RegisterContainer(_menus.Peek());
+                InputManager.RegisterHandler(_menus.Peek());
+            }
         }
     }
 }

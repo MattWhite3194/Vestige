@@ -1,12 +1,18 @@
 ﻿TODO:
 
+Collisions:
+Look up how to properly apply collisions, for now at least they're even
+Fix right side collisions not detecting properly
+Water:
+add shading for water
+draws above literally everything except backgrounds
+
 Fixes:
 Drawing order for sprites
 fix item collision with tiles floating downwards
 design better damage system
 Implement tile culling
 Fix Damaged tile sprite or change it's logic completely
-finalize water (make it flow better)
 get rid of globals file, it's stupid. move the time stuff either to main or a seperate class called time. move static variables to TheGreen or Main depending on their scope
 
 Features:
@@ -18,9 +24,6 @@ walls
 projectiles
 Ambitious Features:
 Split Screen
-
-
-
 
 UI: 
 if inventory was open on death, reopen it when you respawn
@@ -37,7 +40,6 @@ Change TileData to abstract, and just implement each one seperately instead of t
 export tileUpdating to UpdateTileFunction in WorldGen, Update tiles when liquid is set, for removal of tiles like grass or torches.
 
 finish UIScaling
-add an enum type for anchors, (topleft, top right, bottom left, bottom right, centered), create matrices for each one of these or a function for getting translated position
-
-Inventory
-all itemslots have transparency
+Add BottomRight and bottomLeft Anchors
+Future note For sizes:
+components must be further down and further right than the containers position or else they willl not be calculated in the containers size correctly, obviously.

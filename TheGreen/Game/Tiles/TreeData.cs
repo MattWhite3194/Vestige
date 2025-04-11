@@ -18,7 +18,7 @@ namespace TheGreen.Game.Tiles
             ushort left = WorldGen.World.GetTileID(x - 1, y);
             ushort right = WorldGen.World.GetTileID(x + 1, y);
 
-            if (bottom != TileID && !TileDatabase.TileHasProperty(bottom, TileProperty.Solid))
+            if ((TileDatabase.GetTileData(bottom) is not TreeData) && !TileDatabase.TileHasProperty(bottom, TileProperty.Solid))
                 return -1;
             else if ((WorldGen.World.GetTileState(x, y) == 62 || WorldGen.World.GetTileState(x, y) == 130) && left != TileID && right != TileID)
                 return -1;

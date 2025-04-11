@@ -1,11 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheGreen.Game.Input;
 
 namespace TheGreen.Game.UIComponents
@@ -27,14 +21,7 @@ namespace TheGreen.Game.UIComponents
                 {
                     if (IsFocused())
                     {
-                        if (InputManager.GetMouseWindowBounds().Intersects(GetBounds()))
-                        {
-                            //Do something if you click somewhere on the textbox while its focused
-                        }
-                        else
-                        {
-                            SetFocused(false);
-                        }
+
                     }
                     else
                     {

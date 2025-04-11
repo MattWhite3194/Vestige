@@ -29,10 +29,10 @@ namespace TheGreen.Game.Entities
                 {
                     if (mouseInputEvent.EventType == InputEventType.MouseButtonDown)
                     {
+                        _leftReleased = false;
                         if (ItemActive) return;
                         _holdTime = 0.0f;
                         _canUseItem = true;
-                        _leftReleased = false;
                         ItemActive = true;
                     }
                     else if (mouseInputEvent.EventType == InputEventType.MouseButtonUp)

@@ -18,7 +18,7 @@ namespace TheGreen.Game.Inventory
             for (int i = 0; i < cols; i++)
             {
                 int index = i;
-                _hotbarItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, new Color(34, 139, 34, 200));
+                _hotbarItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, new Color(34, 139, 34, 150));
                 AddGridItem(_hotbarItemSlots[i]);
                 _hotbarItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
             }
@@ -39,7 +39,7 @@ namespace TheGreen.Game.Inventory
         }
         public void SetSelected(int index)
         {
-            _hotbarItemSlots[selected].SetColor(new Color(34, 139, 34, 200));
+            _hotbarItemSlots[selected].SetColor(new Color(34, 139, 34, 150));
             selected = index;
             _hotbarItemSlots[selected].SetColor(Color.Yellow);
         }

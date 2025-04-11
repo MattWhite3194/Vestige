@@ -195,15 +195,15 @@ namespace TheGreen.Game.Entities
             for (int y = 0; y <= tileHeight; y++)
             {
                 intersections.Add(new Rectangle(
-                    (int)(entity.Position.X / Globals.TILESIZE),
-                    (int)((entity.Position.Y + y * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    (int)entity.Position.X / Globals.TILESIZE,
+                    (int)((entity.Position.Y + 1 + y * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
                     Globals.TILESIZE,
                     Globals.TILESIZE
                 ));
 
                 intersections.Add(new Rectangle(
                     (int)((entity.Position.X + entity.Size.X) / Globals.TILESIZE),
-                    (int)((entity.Position.Y + y * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    (int)((entity.Position.Y + 1 + y * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
                     Globals.TILESIZE,
                     Globals.TILESIZE
                 ));
@@ -233,14 +233,14 @@ namespace TheGreen.Game.Entities
             for (int x = 0; x <= tileWidth; x++)
             {
                 intersections.Add(new Rectangle(
-                    (int)((entity.Position.X + x * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    (int)((entity.Position.X + 1 + x * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
                     (int)(entity.Position.Y / Globals.TILESIZE),
                     Globals.TILESIZE,
                     Globals.TILESIZE
                 ));
 
                 intersections.Add(new Rectangle(
-                    (int)((entity.Position.X + x * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
+                    (int)((entity.Position.X + 1 + x * (Globals.TILESIZE - 1)) / Globals.TILESIZE),
                     (int)((entity.Position.Y + entity.Size.Y) / Globals.TILESIZE),
                     Globals.TILESIZE,
                     Globals.TILESIZE

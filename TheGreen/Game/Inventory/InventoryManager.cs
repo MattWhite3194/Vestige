@@ -20,6 +20,7 @@ namespace TheGreen.Game.Inventory
         public InventoryManager(int rows, int cols)
         {
             //Temporary inventory
+            
             Item[] inventoryItems = new Item[rows * cols];
             inventoryItems[0] = ItemDatabase.InstantiateItemByID(0, quantity: 500);
             inventoryItems[1] = ItemDatabase.InstantiateItemByID(1, quantity: 500);
@@ -27,11 +28,10 @@ namespace TheGreen.Game.Inventory
             inventoryItems[3] = ItemDatabase.InstantiateItemByID(3, quantity: 500);
             inventoryItems[4] = ItemDatabase.InstantiateItemByID(4, quantity: 500);
             inventoryItems[5] = ItemDatabase.InstantiateItemByID(5, quantity: 500);
-
+            Anchor = Anchor.TopLeft;
             _dragItem = new DragItem(Vector2.Zero);
             _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20));
             _hotbar = new Hotbar(cols, inventoryItems, margin: 2, position: new Vector2(20, 20));
-
             _activeMenu = _hotbar;
         }
         public override void HandleInput(InputEvent @event)
@@ -108,6 +108,7 @@ namespace TheGreen.Game.Inventory
                 _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
             }
             _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, items, margin: 2, position: _inventoryMenu.Position + new Vector2(_inventoryMenu.Size.X + 30, 0 ), itemSlotColor: Color.Crimson);
+            _tileInventory.SetAnchorMatrix(AnchorMatrix);
             _inventoryTileDataCoordinates = coordinates;
             _inventoryTileData = inventoryTileData;
         }
@@ -146,6 +147,12 @@ namespace TheGreen.Game.Inventory
         public Item AddItemToPlayerInventory(Item item)
         {
             return _inventoryMenu.AddItem(item);
+        }
+        public override void SetAnchorMatrix(Matrix anchorMatrix)
+        {
+            base.SetAnchorMatrix(anchorMatrix);
+            _inventoryMenu.SetAnchorMatrix(anchorMatrix);
+            _hotbar.SetAnchorMatrix(anchorMatrix);
         }
     }
 }

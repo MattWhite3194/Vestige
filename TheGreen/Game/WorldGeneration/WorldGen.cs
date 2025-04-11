@@ -39,12 +39,9 @@ namespace TheGreen.Game.WorldGeneration
         private int _grassDepth = 8;
         private int _surfaceHeight;
         public Point WorldSize;
+        public static readonly byte MaxLiquid = 255;
         private int[,,] gradients = new int[256, 256, 2];
         public Texture2D Map;
-        /// <summary>
-        /// Quick access to surrounding tile points
-        /// </summary>
-        public readonly Point[] SurroundingTiles = { new Point(0, -1), new Point(0, 1), new Point(-1, 0), new Point(1, 0) };
 
         /// <summary>
         /// Stores the location and damage information of any tiles that are actively being mined by the player
@@ -220,8 +217,8 @@ namespace TheGreen.Game.WorldGeneration
         public void InitializeGameUpdates()
         {
             _worldUpdaters = new List<WorldUpdater>();
-            _liquidUpdater = new LiquidUpdater(0.01);
-            _overlayTileUpdater = new OverlayTileUpdater(1);
+            _liquidUpdater = new LiquidUpdater(0.04);
+            _overlayTileUpdater = new OverlayTileUpdater(5);
             _worldUpdaters.AddRange([ _liquidUpdater, _overlayTileUpdater]);
         }
         public void Update(double delta)
@@ -444,6 +441,20 @@ namespace TheGreen.Game.WorldGeneration
             }
             else 
                 _tiles[y * WorldSize.X + x].ID = ID;
+            //tile states need to be updated first before calling any other checks
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    if (TileDatabase.GetTileData(GetTileID(x + i, y + j)).VerifyTile(x + i, y + j) == -1)
+                    {
+                        RemoveTile(x + i, y + j);
+                        continue;
+                    }
+                    byte state = TileDatabase.GetTileData(GetTileID(x + i, y + j)).GetUpdatedTileState(x + i, y + j);
+                    SetTileState(x + i, y + j, state);
+                }
+            }
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
@@ -452,24 +463,12 @@ namespace TheGreen.Game.WorldGeneration
                     {
                         _liquidUpdater.QueueLiquidUpdate(x + i, y + j);
                     }
-
-                    ushort tileID = GetTileID(x + i, y + j);
-
-                    if (TileDatabase.GetTileData(tileID).VerifyTile(x + i, y + j) == -1)
+                    if (TileDatabase.TileHasProperty(GetTileID(x + i, y + j), TileProperty.Overlay))
                     {
-                        RemoveTile(x + i, y + j);
-                        continue;
-                    }
-
-                    byte state = TileDatabase.GetTileData(tileID).GetUpdatedTileState(x + i, y + j);
-                    SetTileState(x + i, y + j, state);
-
-                    if (TileDatabase.TileHasProperty(tileID, TileProperty.Overlay))
-                    {
-                        if (state == 255)
-                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = TileDatabase.GetTileData(tileID).BaseTileID;
+                        if (GetTileState(x + i, y + j) == 255)
+                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = TileDatabase.GetTileData(GetTileID(x + i, y + j)).BaseTileID;
                         else
-                            _overlayTileUpdater.EnqueueOverlayTile(x + i, y + j, tileID);
+                            _overlayTileUpdater.EnqueueOverlayTile(x + i, y + j, GetTileID(x + i, y + j));
                     }
                 }
             }
@@ -491,7 +490,6 @@ namespace TheGreen.Game.WorldGeneration
             {
                 Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);
             }
-
         }
         private void SetLargeTile(int x, int y, ushort ID)
         {
@@ -532,6 +530,10 @@ namespace TheGreen.Game.WorldGeneration
                 }
             }
         }
+        public void SetTileState(int x, int y, byte state)
+        {
+            _tiles[y * WorldSize.X + x].State = state;
+        }
 
         private void SetInitialTile(int x, int y, ushort ID)
         {
@@ -546,11 +548,6 @@ namespace TheGreen.Game.WorldGeneration
         private void RemoveInitialTile(int x, int y)
         {
             _tiles[y * WorldSize.X + x].ID = 0;
-        }
-
-        public void SetTileState(int x, int y, byte state)
-        {
-            _tiles[y * WorldSize.X + x].State = state;
         }
 
         public Dictionary<Point, DamagedTile> GetMinedTiles()
@@ -584,9 +581,9 @@ namespace TheGreen.Game.WorldGeneration
         {
             return _tiles[y * WorldSize.X + x].Liquid;
         }
-        public void SetLiquid(int x, int y, byte amount)
+        public void SetLiquid(int x, int y, byte amount, bool forceUpdate = false)
         {
-            if (amount > 0)
+            if (forceUpdate)
                 _liquidUpdater.QueueLiquidUpdate(x, y);
             _tiles[y * WorldSize.X + x].Liquid = amount;
         }

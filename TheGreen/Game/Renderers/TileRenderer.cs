@@ -73,7 +73,10 @@ namespace TheGreen.Game.Renderer
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
                     if (WorldGen.World.GetLiquid(i, j) != 0)
-                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Globals.TILESIZE, j * Globals.TILESIZE), Main.LightEngine.GetLight(i, j));
+                    {
+                        int rectY = WorldGen.World.GetLiquid(i, j - 1) != 0 ? 15 * 17 : (int)(WorldGen.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * 14) * 17;
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Globals.TILESIZE - 1, j * Globals.TILESIZE), new Rectangle(0, rectY, 18, 17), Main.LightEngine.GetLight(i, j));
+                    }
                 }
             }
         }
@@ -88,7 +91,7 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 { 
-                    spriteBatch.DrawString(ContentLoader.GameFont, WorldGen.World.GetTileID(i, j) + "", new Vector2(i, j) * Globals.TILESIZE, Color.White, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0.0f);
+                    spriteBatch.DrawString(ContentLoader.GameFont, WorldGen.World.GetLiquid(i, j) + "", new Vector2(i, j) * Globals.TILESIZE, Color.White, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0.0f);
                 }
             }
         }

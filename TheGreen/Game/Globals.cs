@@ -1,18 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace TheGreen.Game
 {
     static class Globals
     {
-        public static Point NativeResolution = new Point(960, 540);
+        public static Point NativeResolution = new Point(960, 640);
         public static readonly int TILESIZE = 16;
-        public static Point DrawDistance = new Point(960 / TILESIZE + 1, 540 / TILESIZE + 2);
+        public static Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
         public static readonly float GRAVITY = 1400.0f;
-        public static Point ScreenCenter = new Point(960 / 2, 540 / 2);
+        public static Point ScreenCenter = new Point(960 / 2, 640 / 2);
         /// <summary>
         /// The light level of an empty tile at the current time. Does not affect stored tile light, only the final draw light
         /// </summary>

@@ -26,17 +26,20 @@ namespace TheGreen.Game.Inventory
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (_item == null) return;
-            spriteBatch.Draw(_item.Image, Position, Color.White);
+            spriteBatch.Draw(_item.Image, Position, null, Color.White, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
             if (_item.Stackable)
             {
-                spriteBatch.DrawString(ContentLoader.GameFont, _item.Quantity + "", Position + new Vector2(Size.X / 2, Size.Y - 10) + new Vector2(0.6f, 0.6f), Color.Black, 0.0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(ContentLoader.GameFont, _item.Quantity + "", Position + new Vector2(Size.X / 2, Size.Y - 10), Color.White, 0.0f, Vector2.Zero, 0.6f, SpriteEffects.None, 0.0f);
+                string quantity = _item.Quantity.ToString();
+                Vector2 stringOrigin = ContentLoader.GameFont.MeasureString(quantity) / 2;
+                Vector2 stringPosition = Position + new Vector2(_item.Image.Width / 2, _item.Image.Height + 10);
+                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(1, 1), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition, Color.White, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
             }
         }
 
         public override void Update(double delta)
         {
-            Position = InputManager.GetMouseWindowPosition();
+            Position = Vector2.Transform(InputManager.GetMouseWindowPosition(), Matrix.Invert(TheGreen.UIScaleMatrix));
         }
     }
 }

@@ -26,7 +26,7 @@ namespace TheGreen.Game.UIComponents
         public Button(Vector2 position, string text, Vector2 padding, int borderRadius = 0, 
             Color color = default(Color), Color clickedColor = default(Color), Color hoveredColor = default(Color), 
             Color textColor = default(Color), Color textClickedColor = default(Color), Color textHoveredColor = default(Color), 
-            GraphicsDevice graphicsDevice = null, Texture2D image = null, bool drawCentered = false, int maxWidth = 200) : base(position, text, padding, borderRadius, color, textColor, graphicsDevice, image, drawCentered, maxWidth)
+            GraphicsDevice graphicsDevice = null, Texture2D image = null, bool drawCentered = false, int maxWidth = 200, float scale = 1.0f) : base(position, text, padding, borderRadius, color, textColor, graphicsDevice, image, drawCentered, maxWidth, scale: scale)
         {
             this._clickedColor = clickedColor;
             this._hoveredColor = hoveredColor;
