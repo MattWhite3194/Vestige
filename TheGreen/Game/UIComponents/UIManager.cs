@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,8 +25,8 @@ namespace TheGreen.Game.UIComponents
         {
             for (int i = 0; i < _uiComponentContainers.Count; i++) {
                 UIComponentContainer componentContainer = _uiComponentContainers[i];
-                spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: componentContainer.AnchorMatrix);
-                _uiComponentContainers.First()?.Draw(spriteBatch);
+                spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, transformMatrix: componentContainer.AnchorMatrix);
+                _uiComponentContainers[i].Draw(spriteBatch);
                 spriteBatch.End();
             }
         }
@@ -33,7 +34,7 @@ namespace TheGreen.Game.UIComponents
         public static void RegisterContainer(UIComponentContainer container)
         {
             container.SetAnchorMatrix(GetAnchorMatrix(container, _screenSize.X, _screenSize.Y));
-            _uiComponentContainers.Insert(0, container);
+            _uiComponentContainers.Add(container);
         }
 
         public static void UnregisterContainer(UIComponentContainer container)
@@ -50,6 +51,8 @@ namespace TheGreen.Game.UIComponents
                     return TheGreen.UIScaleMatrix;
                 case Anchor.TopRight:
                     return Matrix.CreateTranslation(-Globals.NativeResolution.X, 0, 0) * TheGreen.UIScaleMatrix * Matrix.CreateTranslation(screenWidth - componentContainer.Size.X * TheGreen.UIScaleMatrix.M11, 0, 0);
+                case Anchor.ScreenScale:
+                    return Matrix.CreateScale(Math.Max(screenWidth / (float)Globals.NativeResolution.X, screenHeight / (float)Globals.NativeResolution.Y));
                 default:
                     return Matrix.Identity;
             }

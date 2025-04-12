@@ -8,6 +8,7 @@ namespace TheGreen.Game.UIComponents
         TopRight,
         BottomLeft,
         BottomRight,
-        Center
+        Center,
+        ScreenScale
     }
 }

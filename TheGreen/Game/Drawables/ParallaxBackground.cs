@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 
 namespace TheGreen.Game.Drawables
 {
@@ -16,6 +17,14 @@ namespace TheGreen.Game.Drawables
         private int _minDrawDepth;
         public bool Active = true;
         private Vector2 _currentPosition;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="backgroundImage"></param>
+        /// <param name="speed"></param>
+        /// <param name="initialPlayerPosition"></param>
+        /// <param name="maxDrawDepth">The lowest height this parallax background draws at, also the height at which the offset is calculated from. If this position is at the bottom of the screen, the parallax background will draw here with no offset</param>
+        /// <param name="minDrawDepth">The point at which the parallax backgorund becomes invisible</param>
         public ParallaxBackground(Texture2D backgroundImage, Vector2 speed, Vector2 initialPlayerPosition, int maxDrawDepth, int minDrawDepth) 
         { 
             this._backgroundImage = backgroundImage;
@@ -29,7 +38,7 @@ namespace TheGreen.Game.Drawables
         public void Update(double delta, Vector2 position)
         {
             //Only Activate this parallax if the player is above the maxdrawdepth
-            Active = position.Y < _maxDrawDepth && position.Y > _minDrawDepth;
+            Active = position.Y <= _maxDrawDepth && position.Y > _minDrawDepth;
             //offset increases as the player is moving left, and decreases as the player is moving right
             Offset.X -= (position.X - _currentPosition.X) * Speed.X;
             Offset.Y = (_maxDrawDepth - position.Y) * Speed.Y;

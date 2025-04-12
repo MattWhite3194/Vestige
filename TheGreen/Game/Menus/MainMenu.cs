@@ -19,6 +19,7 @@ namespace TheGreen.Game.Menus
         private UIComponentContainer _createWorldMenu;
         private Stack<UIComponentContainer> _menus;
         private TheGreen _game;
+        private MainMenuBackground _mainMenuBackground;
 
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
@@ -64,10 +65,13 @@ namespace TheGreen.Game.Menus
             _backButton.OnButtonPress += () => RemoveSubMenu();
             _createWorldMenu.AddUIComponent(_backButton);
 
+            _mainMenuBackground = new MainMenuBackground();
+            UIManager.RegisterContainer( _mainMenuBackground );
             AddSubMenu(_startMenu);
         }
         private void StartNewGame()
         {
+            UIManager.UnregisterContainer( _mainMenuBackground );
             int numMenus = _menus.Count;
             for (int i = 0; i < numMenus; i++)
             {

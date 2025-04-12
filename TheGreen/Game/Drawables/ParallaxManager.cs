@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace TheGreen.Game.Drawables
 {
@@ -36,6 +37,5 @@ namespace TheGreen.Game.Drawables
                 _parallaxBackgrounds[i].Draw(spriteBatch, color);
             }
         }
-
     }
 }

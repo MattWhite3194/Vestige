@@ -58,11 +58,16 @@ namespace TheGreen.Game.UIComponents
 
         public override void Draw(SpriteBatch spriteBatch)
         {
+            //TODO: possibly move the custom logic to a new spritefont class with it's own draw function
             if (image != null)
             {
                 spriteBatch.Draw(image, _drawPosition, null, color, _rotation, Vector2.Zero, _scale, SpriteEffects.None, 0.0f);
             }
-            spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + Origin * _scale + new Vector2(_scale), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + Origin * _scale + _scale * new Vector2(-1, 0), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + Origin * _scale + _scale * new Vector2(0, -1), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + Origin * _scale + _scale * new Vector2(1, 0), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + Origin * _scale + _scale * new Vector2(0, 1), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+
             spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + Origin * _scale, _textColor, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
             
         }
