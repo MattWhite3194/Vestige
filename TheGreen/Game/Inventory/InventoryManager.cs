@@ -4,6 +4,7 @@ using System;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
+using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UIComponents;
 
 namespace TheGreen.Game.Inventory
@@ -16,7 +17,7 @@ namespace TheGreen.Game.Inventory
         private InventoryTileData _inventoryTileData;
         private Point _inventoryTileDataCoordinates;
         private Inventory _tileInventory;
-        private Grid _activeMenu;
+        private GridContainer _activeMenu;
         public InventoryManager(int rows, int cols)
         {
             //Temporary inventory
@@ -28,6 +29,7 @@ namespace TheGreen.Game.Inventory
             inventoryItems[3] = ItemDatabase.InstantiateItemByID(3, quantity: 500);
             inventoryItems[4] = ItemDatabase.InstantiateItemByID(4, quantity: 500);
             inventoryItems[5] = ItemDatabase.InstantiateItemByID(5, quantity: 500);
+            inventoryItems[6] = ItemDatabase.InstantiateItemByID(6);
             Anchor = Anchor.TopLeft;
             _dragItem = new DragItem(Vector2.Zero);
             _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20));
@@ -148,11 +150,16 @@ namespace TheGreen.Game.Inventory
         {
             return _inventoryMenu.AddItem(item);
         }
+        //Why do they need to be updated? - future me, I forgor
+        //Since the inventories are tied to this UIComponentContainer and not the UIManager, The anchor matrices will not be updated by default by the UIManager. They must be updated here so input handles correctly
+        //For future reference in case I do something stupid like this again
+        //Maybe add a list of UIComponentContainers as children, and the UIComponentContainer will auto-magically update it's children
         public override void SetAnchorMatrix(Matrix anchorMatrix)
         {
             base.SetAnchorMatrix(anchorMatrix);
             _inventoryMenu.SetAnchorMatrix(anchorMatrix);
             _hotbar.SetAnchorMatrix(anchorMatrix);
+            _tileInventory?.SetAnchorMatrix(anchorMatrix);
         }
     }
 }

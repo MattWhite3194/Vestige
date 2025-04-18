@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
-using TheGreen.Game.UIComponents;
+using TheGreen.Game.UI.Components;
 
 namespace TheGreen.Game.Inventory
 {
@@ -26,13 +26,16 @@ namespace TheGreen.Game.Inventory
         public override void Draw(SpriteBatch spriteBatch)
         {
             if (_item == null) return;
-            spriteBatch.Draw(_item.Image, Position, null, Color.White, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(_item.Image, Position, null, Color.White, _rotation, Origin, 1.0f, SpriteEffects.None, 0.0f);
             if (_item.Stackable)
             {
                 string quantity = _item.Quantity.ToString();
                 Vector2 stringOrigin = ContentLoader.GameFont.MeasureString(quantity) / 2;
                 Vector2 stringPosition = Position + new Vector2(_item.Image.Width / 2, _item.Image.Height + 2);
-                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(1, 1), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(1, 0), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(-1, 0), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(0, 1), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(0, -1), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
                 spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition, Color.White, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
             }
         }

@@ -3,8 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.Diagnostics;
 using TheGreen.Game.Input;
+using TheGreen.Game.UI.Components;
+using TheGreen.Game.UIComponents;
 
-namespace TheGreen.Game.UIComponents
+namespace TheGreen.Game.UI.Containers
 {
     /// <summary>
     /// A collection of UIComponents.
@@ -12,11 +14,21 @@ namespace TheGreen.Game.UIComponents
     /// </summary>
     public class UIComponentContainer : IInputHandler
     {
-        
+
         private static UIComponent _focusedUIComponent;
-        protected GraphicsDevice _graphicsDevice;
+        protected GraphicsDevice graphicsDevice;
         public int ComponentCount;
-        public Vector2 Position;
+        private Vector2 _position;
+        public Vector2 Position
+        {
+            get { return _position; }
+            set
+            {
+                UpdateChildPositions(_position, value);
+                _position = value;
+            }
+        }
+        private Vector2 _defaultSize;
         public Vector2 Size;
         private List<UIComponent> _uiComponents = new List<UIComponent>();
         public Anchor Anchor;
@@ -30,23 +42,25 @@ namespace TheGreen.Game.UIComponents
             set
             {
                 _anchorMatrix = value;
-                _invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);
+                invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);
             }
         }
-        private Matrix _invertedAnchorMatrix;
+        protected Matrix invertedAnchorMatrix;
 
-        public UIComponentContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null, Anchor anchor = Anchor.Center)
+        public UIComponentContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null, Anchor anchor = Anchor.MiddleMiddle)
         {
             Position = position;
+            _defaultSize = size;
             Size = size;
-            _graphicsDevice = graphicsDevice;
+            this.graphicsDevice = graphicsDevice;
             ComponentCount = 0;
             Anchor = anchor;
         }
         public virtual void HandleInput(InputEvent @event)
         {
-            foreach (UIComponent component in _uiComponents)
+            for (int i = 0; i < _uiComponents.Count; i++)
             {
+                UIComponent component = _uiComponents[i];
                 if (InputManager.IsEventHandled(@event)) break;
 
                 if (!component.IsVisible()) continue;
@@ -54,6 +68,7 @@ namespace TheGreen.Game.UIComponents
                 if (component.IsFocused())
                 {
                     component.OnGuiInput(@event);
+                    InputManager.MarkInputAsHandled(@event);
                 }
                 else if (@event is MouseInputEvent)
                 {
@@ -71,7 +86,7 @@ namespace TheGreen.Game.UIComponents
             {
                 if (!component.IsVisible()) continue;
 
-                if (component.GetBounds().Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), _invertedAnchorMatrix)))
+                if (component.GetBounds().Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix)))
                 {
                     if (!component.MouseInside)
                     {
@@ -96,18 +111,28 @@ namespace TheGreen.Game.UIComponents
                     component.Draw(spritebatch);
                 }
             }
+            DebugHelper.DrawDebugRectangle(spritebatch, new Rectangle(Position.ToPoint(), Size.ToPoint()), Color.Blue);
         }
-        public void AddUIComponent(UIComponent component)
+        private void UpdateChildPositions(Vector2 oldPosition, Vector2 newPosition)
+        {
+            foreach (UIComponent component in _uiComponents)
+            {
+                component.Position -= oldPosition;
+                component.Position += newPosition;
+            }
+        }
+        public virtual void AddUIComponent(UIComponent component)
         {
             component.Position = component.Position + Position;
             _uiComponents.Add(component);
             ComponentCount++;
-            Size = Vector2.Max(Size, component.Position - Position + component.Size);
+            RecalculateSize();
         }
-        public void RemoveUIComponent(UIComponent component)
+        public virtual void RemoveUIComponent(UIComponent component)
         {
             _uiComponents.Remove(component);
             ComponentCount--;
+            RecalculateSize();
         }
         public UIComponent GetUIComponent(int index)
         {
@@ -118,9 +143,9 @@ namespace TheGreen.Game.UIComponents
             _focusedUIComponent = component;
         }
 
-        public UIComponent GetFocusedComponent(UIComponent component) 
-        { 
-            return _focusedUIComponent; 
+        public UIComponent GetFocusedComponent(UIComponent component)
+        {
+            return _focusedUIComponent;
         }
         public virtual void Dereference()
         {
@@ -130,6 +155,20 @@ namespace TheGreen.Game.UIComponents
         public virtual void SetAnchorMatrix(Matrix anchorMatrix)
         {
             AnchorMatrix = anchorMatrix;
+        }
+        private void RecalculateSize()
+        {
+            Vector2 newSize = Vector2.Zero;
+            foreach (UIComponent component in _uiComponents)
+            {
+               newSize = Vector2.Max(newSize, component.Position - Position + component.Size);
+            }
+            Size.X = _defaultSize.X != 0 ? _defaultSize.X : newSize.X;
+            Size.Y = _defaultSize.Y != 0 ? _defaultSize.Y : newSize.Y;
+        }
+        public virtual Vector2 GetSize()
+        {
+            return Size;
         }
     }
 }

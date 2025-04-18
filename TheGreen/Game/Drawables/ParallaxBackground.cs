@@ -17,6 +17,7 @@ namespace TheGreen.Game.Drawables
         private int _minDrawDepth;
         public bool Active = true;
         private Vector2 _currentPosition;
+        private float _alpha = 1.0f;
         /// <summary>
         /// 
         /// </summary>
@@ -51,10 +52,12 @@ namespace TheGreen.Game.Drawables
             {
                 Offset.X = Offset.X - _backgroundImage.Width;
             }
+            _alpha = Math.Min(50, Math.Max(0, Math.Min(_maxDrawDepth - position.Y, position.Y - _minDrawDepth))) / 50f;
         }
 
         public void Draw(SpriteBatch spriteBatch, Color color)
         {
+            color *= _alpha;
             for (int i = 0; i <= (int)Math.Ceiling(Globals.NativeResolution.X / (float)_backgroundImage.Width); i++)
             {
                 spriteBatch.Draw(

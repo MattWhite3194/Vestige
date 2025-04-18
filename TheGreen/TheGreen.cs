@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.IO;
 using TheGreen.Game;
 using TheGreen.Game.Entities;
 using TheGreen.Game.Input;
@@ -14,18 +15,22 @@ namespace TheGreen
 
     public class TheGreen : Microsoft.Xna.Framework.Game
     {
+        public static string SavePath;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Main _gameManager;
         private RenderTarget2D _gameTarget;
         public static Matrix UIScaleMatrix;
         public static Rectangle RenderDestination;
+        public static GameWindow GameWindow;
 
         public TheGreen()
         {
             _graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
+            GameWindow = Window;
+            SavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TheGreen");
         }
 
         protected override void Initialize()
@@ -38,6 +43,7 @@ namespace TheGreen
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
             IsFixedTimeStep = false;
+            DebugHelper.Initialize(GraphicsDevice);
             base.Initialize();
             
         }
@@ -71,7 +77,7 @@ namespace TheGreen
         }
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.BlanchedAlmond);
             if (_gameManager != null)
             {
                 GraphicsDevice.SetRenderTarget(_gameTarget);
@@ -98,11 +104,9 @@ namespace TheGreen
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
         }
-        public void StartNewWorld(Point size)
+        public void StartGame()
         {
             InventoryManager inventory = new InventoryManager(5, 8);
-            WorldGen.World.Map = new Texture2D(GraphicsDevice, size.X, size.Y);
-            WorldGen.World.GenerateWorld(size.X, size.Y);
             Player player = new Player(ContentLoader.PlayerTexture, inventory, 100);
             _gameManager = new Main(player, GraphicsDevice);
         }

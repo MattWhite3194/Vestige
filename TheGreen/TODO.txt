@@ -1,5 +1,16 @@
 ﻿TODO:
 
+SpawnTile
+Add an entity that tracks if a player placed a tile in it, and if so, set the spawn point to the players current position
+Saving:
+Save and Load World
+
+Player
+make arm swing
+
+UIComponentContainer:
+Move Spritebatch.draw to UIComponentContainer Draw function, so I don't have to do annoying matrix dependency injection
+
 Collisions:
 Look up how to properly apply collisions, for now at least they're even
 Fix right side collisions not detecting properly
@@ -43,3 +54,9 @@ finish UIScaling
 Add BottomRight and bottomLeft Anchors
 Future note For sizes:
 components must be further down and further right than the containers position or else they willl not be calculated in the containers size correctly, obviously.
+
+GenerateWorldMenu
+Call GenerateWorldsFunction with the size from the selector
+Save the generated world to file
+Load the world from a list
+player inventory and world are tied together

@@ -15,6 +15,8 @@ namespace TheGreen.Game.Input
             {InputButton.Down, Keys.S },
             {InputButton.Left, Keys.A },
             {InputButton.Right, Keys.D},
+            {InputButton.LeftArrow, Keys.Left },
+            {InputButton.RightArrow, Keys.Right },
             {InputButton.Jump, Keys.Space},
             {InputButton.Inventory, Keys.E}
         };

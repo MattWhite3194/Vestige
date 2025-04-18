@@ -5,10 +5,15 @@ namespace TheGreen.Game.UIComponents
     {
         None,
         TopLeft,
+        TopMiddle,
         TopRight,
+        MiddleLeft,
+        MiddleMiddle,
+        MiddleRight,
         BottomLeft,
+        BottomMiddle,
         BottomRight,
-        Center,
+
         ScreenScale
     }
 }

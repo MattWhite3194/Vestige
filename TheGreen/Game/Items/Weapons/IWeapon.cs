@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TheGreen.Game.Items.WeaponBehaviors
+﻿namespace TheGreen.Game.Items.Weapons
 {
     /// <summary>
     /// use for special weapon types that have unique behaviors only

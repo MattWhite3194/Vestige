@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -37,11 +38,14 @@ namespace TheGreen.Game.WorldGeneration
         }
         private int _dirtDepth = 20;
         private int _grassDepth = 8;
+        /// <summary>
+        /// The lowest point of the surface in the world. Y-Down
+        /// </summary>
         private int _surfaceHeight;
+        public int SurfaceDepth;
         public Point WorldSize;
         public static readonly byte MaxLiquid = 255;
         private int[,,] gradients = new int[256, 256, 2];
-        public Texture2D Map;
 
         /// <summary>
         /// Stores the location and damage information of any tiles that are actively being mined by the player
@@ -73,7 +77,7 @@ namespace TheGreen.Game.WorldGeneration
             WorldSize = new Point(size_x, size_y);
             _tiles = new Tile[size_x * size_y];
             _tileInventories = new Dictionary<Point, Item[]>();
-            int[] surfaceNoise = Generate1DNoise(size_x, 50, 10, 6, 0.5f);
+            int[] surfaceNoise = Generate1DNoise(size_x, 30, 200, 2, 0.5f);
             int[] surfaceTerrain = new int[size_x];
 
             _surfaceHeight = size_y;
@@ -90,14 +94,19 @@ namespace TheGreen.Game.WorldGeneration
                         _surfaceHeight = size_y - surfaceTerrain[i];
                 }
             }
+            SurfaceDepth = size_y - _surfaceHeight;
             //place dirt
             for (int i = 0; i < size_x; i++)
             {
                 for (int j = 0; j < _dirtDepth; j++)
                 {
-                    if (j > 4)
+                    if (j > 3)
                     {
-                        SetInitialWall(i, surfaceTerrain[i], 0);
+                        SetInitialWall(i, surfaceTerrain[i] + j, 1);
+                    }
+                    else
+                    {
+                        SetInitialWall(i, surfaceTerrain[i] + j, 0);
                     }
                     SetInitialTile(i, surfaceTerrain[i] + j, 1);
                 }
@@ -106,16 +115,43 @@ namespace TheGreen.Game.WorldGeneration
             _spawnTile = new Point(size_x / 2, surfaceTerrain[size_x / 2]);
             //generate caves
             InitializeGradients();
-            double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(size_x, _surfaceHeight - _dirtDepth - 1, scale: 40, octaves: 5, persistence: 0.5);
+            double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(size_x, _surfaceHeight - _dirtDepth - 1, scale: 25, octaves: 4, persistence: 0.5);
             //threshhold cave noise
+            int[] cornersX = [0, 0, 1, -1];
+            int[] cornersY = [1, -1, 0, 0];
+            //flood fill top edge so there are no sharp cutoffs on caves.
+            Queue<Point> fillPoints = new Queue<Point>();
+            for (int x = 0; x < size_x; x++)
+            {
+                if (perlinNoise[0, x] < -0.1)
+                {
+                    perlinNoise[0, x] = 1;
+                    fillPoints.Enqueue(new Point(x, 0));
+
+                }
+            }
+            while (fillPoints.Count > 0)
+            {
+                Point fillPoint = fillPoints.Dequeue();
+                for (int i = 0; i < 4; i++)
+                {
+                    int x = fillPoint.X + cornersX[i];
+                    int y = fillPoint.Y + cornersY[i];
+                    if (x < 0 || y < 0 || x >= perlinNoise.GetLength(1) || y >= perlinNoise.GetLength(0))
+                        continue;
+                    if (perlinNoise[y, x] < -0.1)
+                    {
+                        perlinNoise[y, x] = 1;
+                        fillPoints.Enqueue(new Point(x, y));
+                    }
+                }
+            }
             for (int x = 0; x < size_x; x++)
             {
                 for (int y = 0; y < _surfaceHeight - _dirtDepth - 1; y++)
                 {
                     if (perlinNoise[y, x] < -0.1)
-                    {
                         RemoveInitialTile(x, size_y - _surfaceHeight + _dirtDepth + y);
-                    }
                 }
             }
 
@@ -154,25 +190,93 @@ namespace TheGreen.Game.WorldGeneration
                     lastTreeX = i;
                 }
             }
-
-            //generate map file
-            Color[] colorData = new Color[size_x * size_y];
-            for (int x = 0; x < size_x; x++)
+        }
+        public bool LoadWorld(string worldName)
+        {
+            try
             {
-                for (int y = 0; y < size_y; y++)
+                string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
+                if (!Path.Exists(worldPath))
                 {
-                    colorData[x + y * size_x] = TileDatabase.GetTileData(GetTileID(x, y)).MapColor;
+                    return false;
                 }
+                using (FileStream worldData = File.OpenRead(Path.Combine(worldPath, worldName + ".bin")))
+                using (BinaryReader binaryReader = new BinaryReader(worldData))
+                {
+                    //TODO: load grass
+                    //TODO: load water
+                    _spawnTile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+                    WorldSize = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+                    SurfaceDepth = binaryReader.ReadInt32();
+                }
+                _tiles = new Tile[WorldSize.X * WorldSize.Y];
+                using (FileStream world = File.OpenRead(Path.Combine(worldPath, worldName + ".wld")))
+                using (BinaryReader binaryReader = new BinaryReader(world) )
+                {
+                    for (int i = 0; i < WorldSize.X; i++)
+                    {
+                        for (int j = 0; j < WorldSize.Y; j++)
+                        {
+                            SetInitialTile(i, j, binaryReader.ReadUInt16());
+                            SetTileState(i, j, binaryReader.ReadByte());
+                            SetInitialWall(i, j, binaryReader.ReadUInt16());
+                            SetWallState(i, j, binaryReader.ReadByte());
+                            SetLiquid(i, j, binaryReader.ReadByte());
+                        }
+                    }
+                }
+                Debug.WriteLine("World loading successful");
+                return true;
             }
-            Map.SetData(colorData);
-            string gamePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TheGreen");
-            if (!Directory.Exists(gamePath))
+            catch (Exception ex)
             {
-                Directory.CreateDirectory(gamePath);
+                MessageBox.Show("Error saving world", ex.Message, ["Ok"]);
+                return false;
             }
-            Stream stream = File.Create(gamePath + "/map.jpg");
-            Map.SaveAsJpeg(stream, size_x, size_y);
-            stream.Close();
+        }
+        public bool SaveWorld(string worldName)
+        {
+            try
+            {
+                string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
+                if (!Path.Exists(worldPath))
+                {
+                    Directory.CreateDirectory(worldPath);
+                }
+                using (FileStream worldData = File.Create(Path.Combine(worldPath, worldName + ".bin")))
+                using (BinaryWriter binaryWriter = new BinaryWriter(worldData))
+                {
+                    //TODO: write grass
+                    //TODO: write water
+                    binaryWriter.Write(_spawnTile.X);
+                    binaryWriter.Write(_spawnTile.Y);
+                    binaryWriter.Write(WorldSize.X);
+                    binaryWriter.Write(WorldSize.Y);
+                    binaryWriter.Write(SurfaceDepth);
+                }
+                using (FileStream world = File.Create(Path.Combine(worldPath, worldName + ".wld")))
+                using (BinaryWriter binaryWriter = new BinaryWriter(world))
+                {
+                    for (int i = 0; i < WorldSize.X; i++)
+                    {
+                        for (int j = 0; j < WorldSize.Y; j++)
+                        {
+                            binaryWriter.Write(GetTileID(i, j));
+                            binaryWriter.Write(GetTileState(i, j));
+                            binaryWriter.Write(GetWallID(i, j));
+                            binaryWriter.Write(GetWallState(i, j));
+                            binaryWriter.Write(GetLiquid(i, j));
+                        }
+                    }
+                }
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error saving world", ex.Message, ["Ok"]);
+                return false;
+            }
         }
 
         private byte[] _randTreeTileStates = [0, 2, 8, 10];
@@ -203,13 +307,6 @@ namespace TheGreen.Game.WorldGeneration
             //Add tree top
             SetInitialTile(x, y - height, 6);
             SetTileState(x, y - height, 0);
-        }
-
-        public void LoadWorld()
-        {
-            //TODO: implementation
-            //get size from file
-            _tiles = new Tile[0];
         }
         /// <summary>
         /// Called when a player starts a world. Use this to start any frame or tick updates.
@@ -283,52 +380,27 @@ namespace TheGreen.Game.WorldGeneration
         /// <param name="octaves">Number of passes. Will make the noise more detailed</param>
         /// <param name="persistance">Value less than 1. Reduces height of next octave.</param>
         /// <returns></returns>
-        public int[] Generate1DNoise(int size, float height, float frequency, int octaves, float persistance)
+        public int[] Generate1DNoise(int size, float height, int scale, int octaves, float persistance)
         {
-            float[] noise = new float[size];
-            int[] intNoise = new int[size];
+            float[] values = new float[256];
+            for (int i = 0; i < values.Length; i++)
+            {
+                values[i] = (float)_random.NextDouble();
+            }
+            int[] noise = new int[size];
             for (int octave = 0; octave < octaves; octave++)
             {
-                float[] values = new float[(int)frequency];
-                int xOffset = (int)(4000 / frequency);
-                int currentValue = 0;
-                int nextValue = 1;
-
-                for (int i = 0; i < values.Length; i++)
-                {
-                    values[i] = (float)_random.NextDouble() * height + noise[(i * xOffset) % size];
-                }
-
-                int step = 0;
                 for (int i = 0; i < size; i++)
                 {
-                    if (currentValue >= values.Length)
-                    {
-                        currentValue = 0;
-                    }
-                    if (nextValue >= values.Length)
-                    {
-                        nextValue = 0;
-                    }
-                    noise[i] = CubicInterpolation(currentValue * xOffset, values[currentValue], nextValue * xOffset, values[nextValue], i);
-                    step++;
-                    if (step == xOffset)
-                    {
-                        currentValue++;
-                        nextValue++;
-                        step = 0;
-                    }
+                    int x0 = (i / scale) % 256;
+                    int x1 = (i / scale + 1) % 256;
+                    noise[i] += (int)CubicInterpolation(x0 * scale, values[x0] * height, x1 * scale, values[x1] * height, i);
                 }
-                frequency *= 2;
+                scale /= 2;
                 height *= persistance;
             }
 
-            for (int i = 0; i < intNoise.Length; i++)
-            {
-                intNoise[i] = (int)(noise[i]);
-            }
-
-            return intNoise;
+            return noise;
         }
 
         private float CubicInterpolation(float x0, float y0, float x1, float y1, float t)
@@ -535,12 +607,17 @@ namespace TheGreen.Game.WorldGeneration
             _tiles[y * WorldSize.X + x].State = state;
         }
 
+        private void SetWallState(int x, int y, byte state)
+        {
+            _tiles[y * WorldSize.X + x].WallState = state;
+        }
+
         private void SetInitialTile(int x, int y, ushort ID)
         {
             _tiles[y * WorldSize.X + x].ID = ID;
         }
 
-        private void SetInitialWall(int x, int y, byte WallID)
+        private void SetInitialWall(int x, int y, ushort WallID)
         {
             _tiles[y * WorldSize.X + x].WallID = WallID;
         }
@@ -567,7 +644,7 @@ namespace TheGreen.Game.WorldGeneration
             ushort bottom = GetWallID(x, y + 1);
             ushort left = GetWallID(x - 1, y);
 
-            _tiles[y * WorldSize.X + x].WallState = (byte)((Math.Sign(top) * 2) + (Math.Sign(right) * 8) + (Math.Sign(bottom) * 32) + (Math.Sign(left) * 128));
+            SetWallState(x, y, (byte)((Math.Sign(top) * 2) + (Math.Sign(right) * 8) + (Math.Sign(bottom) * 32) + (Math.Sign(left) * 128)));
         }
         public byte GetTileState(int x, int y)
         {

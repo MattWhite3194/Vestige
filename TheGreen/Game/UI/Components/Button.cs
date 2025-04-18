@@ -1,14 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TheGreen.Game.Input;
 
-namespace TheGreen.Game.UIComponents
+namespace TheGreen.Game.UI.Components
 {
 
     //TODO: implement rounded corners and border color
@@ -23,19 +17,19 @@ namespace TheGreen.Game.UIComponents
         private Color _defaultColor;
         private Color _defaultTextColor;
         private bool _clicked = false;
-        public Button(Vector2 position, string text, Vector2 padding, int borderRadius = 0, 
-            Color color = default(Color), Color clickedColor = default(Color), Color hoveredColor = default(Color), 
-            Color textColor = default(Color), Color textClickedColor = default(Color), Color textHoveredColor = default(Color), 
-            GraphicsDevice graphicsDevice = null, Texture2D image = null, bool drawCentered = false, int maxWidth = 200, float scale = 1.0f) : base(position, text, padding, borderRadius, color, textColor, graphicsDevice, image, drawCentered, maxWidth, scale: scale)
+        public Button(Vector2 position, string text, Vector2 padding, int borderRadius = 0,
+            Color color = default, Color clickedColor = default, Color hoveredColor = default,
+            Color textColor = default, Color textClickedColor = default, Color textHoveredColor = default,
+            GraphicsDevice graphicsDevice = null, bool drawCentered = false, int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, borderRadius, color, textColor, graphicsDevice, drawCentered, maxWidth, scale: scale, textAlign: textAlign)
         {
-            this._clickedColor = clickedColor;
-            this._hoveredColor = hoveredColor;
-            this._textClickedColor = textClickedColor;
-            this._textHoveredColor = textHoveredColor;
-            this._defaultColor = color;
-            this._defaultTextColor = textColor;
-            this.OnMouseEntered += () => HoverButton();
-            this.OnMouseExited += () => ResetButton();
+            _clickedColor = clickedColor;
+            _hoveredColor = hoveredColor;
+            _textClickedColor = textClickedColor;
+            _textHoveredColor = textHoveredColor;
+            _defaultColor = color;
+            _defaultTextColor = textColor;
+            OnMouseEntered += HoverButton;
+            OnMouseExited += ResetButton;
         }
 
         protected override void HandleGuiInput(InputEvent @event)
@@ -60,6 +54,7 @@ namespace TheGreen.Game.UIComponents
         private void ResetButton()
         {
             _clicked = false;
+            Scale = Scale - 0.2f;
             _textColor = _defaultTextColor;
             color = _defaultColor;
         }
@@ -67,7 +62,12 @@ namespace TheGreen.Game.UIComponents
         private void HoverButton()
         {
             color = _hoveredColor;
+            Scale = Scale + 0.2f;
             _textColor = _textHoveredColor;
+        }
+        public override Rectangle GetBounds()
+        {
+            return new Rectangle(_stringPosition.ToPoint(), _stringSize.ToPoint());
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using TheGreen.Game.Input;
-using TheGreen.Game.Items.WeaponBehaviors;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration;
 

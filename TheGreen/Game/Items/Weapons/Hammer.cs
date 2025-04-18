@@ -3,8 +3,8 @@ using TheGreen.Game.Input;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration;
 
-namespace TheGreen.Game.Items.WeaponBehaviors
-{
+namespace TheGreen.Game.Items.Weapons
+{ 
     internal class Hammer : IWeapon
     {
         private int _hammerPower;

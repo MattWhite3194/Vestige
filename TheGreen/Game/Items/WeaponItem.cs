@@ -1,5 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
-using TheGreen.Game.Items.WeaponBehaviors;
+using TheGreen.Game.Items.Weapons;
 
 namespace TheGreen.Game.Items
 {

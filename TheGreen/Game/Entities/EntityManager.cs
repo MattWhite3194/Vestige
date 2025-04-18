@@ -23,7 +23,7 @@ namespace TheGreen.Game.Entities
         public void Update(double delta)
         {
             //Handle tile collisions
-            for (int i = 0; i < _entities.Count; i++)
+            for (int i = _entities.Count - 1; i >= 0; i--)
             {
                 Entity entity = _entities[i];
                 if (!entity.Active)

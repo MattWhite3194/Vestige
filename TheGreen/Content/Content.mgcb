@@ -68,42 +68,6 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Backgrounds/Normal/TreesFarthest.png
 
-#begin Assets/Textures/Backgrounds/Upscaled/TreesFartherUpscaled.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Assets/Textures/Backgrounds/Upscaled/TreesFartherUpscaled.png
-
-#begin Assets/Textures/Backgrounds/Upscaled/TreesFarthestUpscaled.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Assets/Textures/Backgrounds/Upscaled/TreesFarthestUpscaled.png
-
-#begin Assets/Textures/Backgrounds/Upscaled/TreesUpscaled.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Assets/Textures/Backgrounds/Upscaled/TreesUpscaled.png
-
 #begin Assets/Textures/Enemies/Enemy0.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -187,6 +151,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Items/Item5.png
+
+#begin Assets/Textures/Items/Item6.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Items/Item6.png
 
 #begin Assets/Textures/Player/Player.png
 /importer:TextureImporter

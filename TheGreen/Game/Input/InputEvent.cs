@@ -41,6 +41,8 @@ namespace TheGreen.Game.Input
         Right,
         Jump,
         Inventory,
+        LeftArrow,
+        RightArrow,
         LeftMouse,
         RightMouse,
         MiddleMouse

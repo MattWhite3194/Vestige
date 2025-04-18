@@ -3,84 +3,146 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using TheGreen.Game.Input;
+using TheGreen.Game.UI;
+using TheGreen.Game.UI.Components;
+using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UIComponents;
+using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen.Game.Menus
 {
     public class MainMenu
     {
-        private Label _titleLabel;
-        private Button _newGameButton;
-        private Button _loadGameButton;
-        private Button _backButton;
-        private Button _createWorldButton;
         private UIComponentContainer _startMenu;
-        private UIComponentContainer _createWorldMenu;
+        private GridContainer _createWorldMenu;
+        private GridContainer _settingsMenu;
+        private ScrollContainer _loadGameMenu;
+        private Button _backButton;
         private Stack<UIComponentContainer> _menus;
         private TheGreen _game;
         private MainMenuBackground _mainMenuBackground;
+        private TextBox _worldNameTextBox;
+        private GraphicsDevice _graphicsDevice;
 
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
         //TODO: export each menu to its own class so this doesn't become a nightmare file
+
+        //TODO: base menu class, extend for other menus
         public MainMenu(TheGreen game, GraphicsDevice graphicsDevice)
         {
             _game = game;
+            _graphicsDevice = graphicsDevice;
             _menus = new Stack<UIComponentContainer>();
 
 
-            _startMenu = new UIComponentContainer(position: new Vector2(Globals.ScreenCenter.X, 80), anchor: Anchor.Center);
-            _createWorldMenu = new UIComponentContainer(position: Globals.ScreenCenter.ToVector2());
+            _startMenu = new UIComponentContainer(position: new Vector2(0, 20), anchor: Anchor.TopMiddle);
+            _createWorldMenu = new GridContainer(1);
+            _createWorldMenu.Anchor = Anchor.MiddleMiddle;
+            _settingsMenu = new GridContainer(1);
+            _settingsMenu.Anchor = Anchor.MiddleMiddle;
 
-            _titleLabel = new Label(new Vector2(0, 0), "The Green", Vector2.Zero, textColor: Color.ForestGreen, drawCentered: true, scale: 5.0f);
+            Label _titleLabel = new Label(new Vector2(0, 0), "The Green", Vector2.Zero, textColor: Color.ForestGreen, scale: 5.0f, maxWidth: 200);
             _startMenu.AddUIComponent(_titleLabel);
 
-            _newGameButton = new Button(new Vector2(0, 140), "New Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
-            _newGameButton.OnButtonPress += () => AddSubMenu(_createWorldMenu);
-            _startMenu.AddUIComponent(_newGameButton);
+            Button newGameButton = new Button(new Vector2(0, 140), "New Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
+            newGameButton.OnButtonPress += () => AddSubMenu(_createWorldMenu);
+            _startMenu.AddUIComponent(newGameButton);
 
-            _loadGameButton = new Button(new Vector2(0, 160), "Load Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
-            _loadGameButton.OnButtonPress += LoadGame;
-            _startMenu.AddUIComponent(_loadGameButton);
+            Button loadGameButton = new Button(new Vector2(0, 160), "Load Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
+            loadGameButton.OnButtonPress += ListWorlds;
+            _startMenu.AddUIComponent(loadGameButton);
 
-            Button reduceUIScaleButton = new Button(new Vector2(0, 180), "Reduce UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            Button settingsMenuButton = new Button(new Vector2(0, 180), "Settings", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
+            settingsMenuButton.OnButtonPress += () => AddSubMenu(_settingsMenu);
+            _startMenu.AddUIComponent(settingsMenuButton);
+
+            Button reduceUIScaleButton = new Button(new Vector2(0, 0), "Reduce UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
             reduceUIScaleButton.OnButtonPress += () => 
             {
                 _game.SetUIScaleMatrix(Math.Max(0.1f, TheGreen.UIScaleMatrix.M11 - 0.1f));
             };
-            _startMenu.AddUIComponent(reduceUIScaleButton);
+            _settingsMenu.AddUIComponent(reduceUIScaleButton);
 
-            Button increaseUIScaleButton = new Button(new Vector2(0, 200), "Increase UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
+            Button increaseUIScaleButton = new Button(new Vector2(0, 0), "Increase UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
             increaseUIScaleButton.OnButtonPress += () =>
             { 
                 _game.SetUIScaleMatrix(Math.Min(5f, TheGreen.UIScaleMatrix.M11 + 0.1f));
             };
-            _startMenu.AddUIComponent(increaseUIScaleButton);
+            _settingsMenu.AddUIComponent(increaseUIScaleButton);
 
-            _createWorldButton = new Button(new Vector2(0, 0), "Create World", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
-            _createWorldButton.OnButtonPress += () => StartNewGame();
-            _createWorldMenu.AddUIComponent( _createWorldButton );
-            _backButton = new Button(new Vector2(0, 20), "Back", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, drawCentered: true);
-            _backButton.OnButtonPress += () => RemoveSubMenu();
-            _createWorldMenu.AddUIComponent(_backButton);
+            _worldNameTextBox = new TextBox(new Vector2(0, 180), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 200);
+            _createWorldMenu.AddUIComponent(_worldNameTextBox);
+
+            Button createWorldButton = new Button(new Vector2(0, 0), "Create World", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
+            createWorldButton.OnButtonPress += CreateWorld;
+            _createWorldMenu.AddUIComponent( createWorldButton );
+
+            _backButton = new Button(new Vector2(0, 0), "Back", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
+            _backButton.OnButtonPress += RemoveSubMenu;
 
             _mainMenuBackground = new MainMenuBackground();
             UIManager.RegisterContainer( _mainMenuBackground );
-            AddSubMenu(_startMenu);
+            UIManager.RegisterContainer(_startMenu);
+            InputManager.RegisterHandler(_startMenu);
+            _menus.Push(_startMenu);
         }
-        private void StartNewGame()
+        private async void CreateWorld()
         {
-            UIManager.UnregisterContainer( _mainMenuBackground );
+            bool worldGenSuccessful = true;
+            int numMenus = _menus.Count;
+            UIManager.UnregisterContainer(_createWorldMenu);
+            await Task.Run(() =>
+            {
+                WorldGen.World.GenerateWorld(4200, 1200);
+                worldGenSuccessful = WorldGen.World.SaveWorld(_worldNameTextBox.GetText());
+            });
+            if (!worldGenSuccessful)
+            {
+                UIManager.RegisterContainer(_createWorldMenu);
+                return;
+            }
+            for (int i = 0; i < numMenus; i++)
+            {
+                _menus.Pop().Dereference();
+            }
+            UIManager.UnregisterContainer(_mainMenuBackground);
+            _game.StartGame();
+        }
+        private void LoadWorld(string worldName)
+        {
+            bool worldLoadingSuccessful = WorldGen.World.LoadWorld(worldName);
+            if (!worldLoadingSuccessful)
+            {
+                return;
+            }
             int numMenus = _menus.Count;
             for (int i = 0; i < numMenus; i++)
             {
                 _menus.Pop().Dereference();
             }
-            _game.StartNewWorld(new Point(2100, 600));
+            UIManager.UnregisterContainer(_mainMenuBackground);
+            _game.StartGame();
         }
-        private void LoadGame() {
-            Debug.WriteLine("You probably want to implement this at some point... (for future reference)");
+        private void ListWorlds()
+        {
+            _loadGameMenu = new ScrollContainer(Vector2.Zero, 100, size: new Vector2(200, 0));
+            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds");
+            if (!Path.Exists(worldPath))
+                return;
+            string[] worldDirectories = Directory.EnumerateDirectories(worldPath).ToArray();
+            foreach (string worldDirectory in worldDirectories)
+            {
+                string worldName = worldDirectory.Split('\\').Last();
+                Button worldButton = new Button(Vector2.Zero, worldName, Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 200);
+                worldButton.OnButtonPress += () => LoadWorld(worldName);
+                _loadGameMenu.AddUIComponent(worldButton);
+            }
+            AddSubMenu(_loadGameMenu);
         }
         private void AddSubMenu(UIComponentContainer menu)
         {
@@ -92,11 +154,13 @@ namespace TheGreen.Game.Menus
             UIManager.RegisterContainer(menu);
             InputManager.RegisterHandler(menu);
             _menus.Push(menu);
+            menu.AddUIComponent(_backButton);
         }
         private void RemoveSubMenu()
         {
             UIManager.UnregisterContainer(_menus.Peek());
             InputManager.UnregisterHandler(_menus.Peek());
+            _menus.Peek().RemoveUIComponent(_backButton);
             _menus.Pop();
             if (_menus.Count != 0)
             {

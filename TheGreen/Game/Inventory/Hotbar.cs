@@ -2,16 +2,16 @@
 using Microsoft.Xna.Framework.Graphics;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
-using TheGreen.Game.UIComponents;
+using TheGreen.Game.UI.Containers;
 
 namespace TheGreen.Game.Inventory
 {
-    public class Hotbar : Grid
+    public class Hotbar : GridContainer
     {
         private Item[] _inventoryItems;
         private ItemSlot[] _hotbarItemSlots;
         private int selected;
-        public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default, Vector2 size = default) : base(cols, margin, position, size)
+        public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default) : base(cols, margin, position)
         {
             _inventoryItems = inventoryItems;
             _hotbarItemSlots = new ItemSlot[cols];
@@ -19,7 +19,7 @@ namespace TheGreen.Game.Inventory
             {
                 int index = i;
                 _hotbarItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, new Color(34, 139, 34, 150));
-                AddGridItem(_hotbarItemSlots[i]);
+                AddUIComponent(_hotbarItemSlots[i]);
                 _hotbarItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
             }
             SetSelected(0);

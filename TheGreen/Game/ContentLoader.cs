@@ -29,9 +29,9 @@ namespace TheGreen.Game
             ItemSlotTexture = content.Load<Texture2D>("Assets/Textures/UIComponents/ItemSlot");
             GameFont = content.Load<SpriteFont>("Assets/Fonts/File");
             Cracks = content.Load<Texture2D>("Assets/Textures/Tiles/Extras/Cracks");
-            TreesBackground = content.Load<Texture2D>(Globals.NativeResolution.X == 1280 ? "Assets/Textures/Backgrounds/Upscaled/TreesUpscaled" : "Assets/Textures/Backgrounds/Normal/Trees");
-            TreesFartherBackground = content.Load<Texture2D>(Globals.NativeResolution.X == 1280 ? "Assets/Textures/Backgrounds/Upscaled/TreesFartherUpscaled" : "Assets/Textures/Backgrounds/Normal/TreesFarther");
-            TreesFarthestBackground = content.Load<Texture2D>(Globals.NativeResolution.X == 1280 ? "Assets/Textures/Backgrounds/Upscaled/TreesFarthestUpscaled" : "Assets/Textures/Backgrounds/Normal/TreesFarthest");
+            TreesBackground = content.Load<Texture2D>("Assets/Textures/Backgrounds/Normal/Trees");
+            TreesFartherBackground = content.Load<Texture2D>("Assets/Textures/Backgrounds/Normal/TreesFarther");
+            TreesFarthestBackground = content.Load<Texture2D>("Assets/Textures/Backgrounds/Normal/TreesFarthest");
             MountainsBackground = content.Load<Texture2D>("Assets/Textures/Backgrounds/Normal/Mountains");
             LiquidTexture = content.Load<Texture2D>("Assets/Textures/Tiles/Liquids/Liquid0");
 

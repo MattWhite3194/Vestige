@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Timers;
 using TheGreen.Game.Entities.NPCs;
 using TheGreen.Game.Input;

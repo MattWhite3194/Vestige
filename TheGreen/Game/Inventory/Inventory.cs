@@ -3,17 +3,17 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
-using TheGreen.Game.UIComponents;
+using TheGreen.Game.UI.Containers;
 
 namespace TheGreen.Game.Inventory
 {
-    public class Inventory : Grid
+    public class Inventory : GridContainer
     {
         private Item[] _inventoryItems;
         private ItemSlot[] _inventoryItemSlots;
         private DragItem _dragItem;
 
-        public Inventory(int cols, DragItem dragItem, Item[] inventoryItems, int margin = 5, Vector2 position = default, Vector2 size = default, Color itemSlotColor = default) : base(cols, margin, position, size)
+        public Inventory(int cols, DragItem dragItem, Item[] inventoryItems, int margin = 5, Vector2 position = default, Color itemSlotColor = default) : base(cols, margin, position)
         {
             _inventoryItems = inventoryItems;
             _inventoryItemSlots = new ItemSlot[_inventoryItems.Length];
@@ -27,7 +27,7 @@ namespace TheGreen.Game.Inventory
             {
                 int index = i;
                 _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
-                AddGridItem(_inventoryItemSlots[i]);
+                AddUIComponent(_inventoryItemSlots[i]);
                 _inventoryItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
             }
         }
