@@ -58,11 +58,11 @@ namespace TheGreen.Game.Drawables
         public void Draw(SpriteBatch spriteBatch, Color color)
         {
             color *= _alpha;
-            for (int i = 0; i <= (int)Math.Ceiling(Globals.NativeResolution.X / (float)_backgroundImage.Width); i++)
+            for (int i = 0; i <= (int)Math.Ceiling(TheGreen.NativeResolution.X / (float)_backgroundImage.Width); i++)
             {
                 spriteBatch.Draw(
                     _backgroundImage,
-                    new Vector2((int)(Offset.X + (i * _backgroundImage.Width) - _backgroundImage.Width), (int)(Globals.NativeResolution.Y - _backgroundImage.Height + Offset.Y)),
+                    new Vector2((int)(Offset.X + (i * _backgroundImage.Width) - _backgroundImage.Width), (int)(TheGreen.NativeResolution.Y - _backgroundImage.Height + Offset.Y)),
                     color
                     );
             }

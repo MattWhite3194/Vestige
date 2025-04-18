@@ -19,7 +19,7 @@ namespace TheGreen.Game.Entities.NPCs.Behaviors
         {
             _player = Main.EntityManager.GetPlayer();
             Vector2 newVelocity = enemy.Velocity;
-            newVelocity.Y += Globals.GRAVITY * (float)delta;
+            newVelocity.Y += TheGreen.GRAVITY * (float)delta;
             _elapsedTime += delta;
             _directionX = -MathF.Sign((enemy.Position.X + enemy.Origin.X) - (_player.Position.X + _player.Origin.X));
 

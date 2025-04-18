@@ -49,6 +49,7 @@ namespace TheGreen.Game.Inventory
         {
             int emptyIndex = -1;
             int remainingQuantity = item.Quantity;
+            int maxStack = item.MaxStack;
             for (int i = 0; i < _inventoryItems.Length; i++)
             {
                 //get first empty slot starting from the back of the array
@@ -59,10 +60,10 @@ namespace TheGreen.Game.Inventory
 
                 if (item.Stackable && item.ID == (_inventoryItems[i]?.ID ?? -1))
                 {
-                    if (_inventoryItems[i].Quantity >= 30) //MAXSTACK
+                    if (_inventoryItems[i].Quantity >= maxStack) //MAXSTACK
                         continue;
                     int newQuantity = _inventoryItems[i].Quantity + remainingQuantity;
-                    remainingQuantity = int.Clamp(newQuantity - 30, 0, 30);
+                    remainingQuantity = int.Clamp(newQuantity - maxStack, 0, maxStack);
                     newQuantity -= remainingQuantity;
 
                     SetItemQuantity(i, newQuantity);
@@ -96,9 +97,16 @@ namespace TheGreen.Game.Inventory
                 SetItem(_dragItem.Item, index);
                 _dragItem.Item = null;
             }
-            else if (_inventoryItems[index].ID == _dragItem.Item.ID && _inventoryItems[index].Stackable)
+            else if (_inventoryItems[index].ID == _dragItem.Item.ID && _inventoryItems[index].Stackable && _inventoryItems[index].Quantity < _inventoryItems[index].MaxStack)
             {
-                SetItemQuantity(index, _inventoryItems[index].Quantity + _dragItem.Item.Quantity);
+                int newQuantity = _inventoryItems[index].Quantity + _dragItem.Item.Quantity;
+                if (newQuantity > _inventoryItems[index].MaxStack)
+                {
+                    SetItemQuantity(index, _inventoryItems[index].MaxStack);
+                    _dragItem.Item.Quantity = newQuantity - _dragItem.Item.MaxStack;
+                    return;
+                }
+                SetItemQuantity(index, newQuantity);
                 _dragItem.Item = null;
             }
             else

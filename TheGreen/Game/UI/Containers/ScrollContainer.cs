@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.ComponentModel;
 using TheGreen.Game.Input;
 
 namespace TheGreen.Game.UI.Containers
@@ -19,7 +18,9 @@ namespace TheGreen.Game.UI.Containers
         }
         public override void HandleInput(InputEvent @event)
         {
-            if (@event is MouseInputEvent mouseInputEvent && mouseInputEvent.InputButton == InputButton.MiddleMouse && new Rectangle((int)Position.X, _initialPositionY, (int)Size.X, _viewHeight).Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix)))
+            if (!new Rectangle((int)Position.X, _initialPositionY, (int)Size.X, _viewHeight).Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix)))
+                return;
+            if (@event is MouseInputEvent mouseInputEvent && mouseInputEvent.InputButton == InputButton.MiddleMouse)
             {
                 if (mouseInputEvent.EventType == InputEventType.MouseButtonDown)
                 {
@@ -54,8 +55,10 @@ namespace TheGreen.Game.UI.Containers
         }
         public override void Draw(SpriteBatch spritebatch)
         {
+            Rectangle clippingRectangle = spritebatch.GraphicsDevice.ScissorRectangle;
+            spritebatch.GraphicsDevice.ScissorRectangle = new Rectangle(Vector2.Transform(new Vector2((int)Position.X, _initialPositionY), AnchorMatrix).ToPoint(), Vector2.Transform(new Vector2((int)Size.X, _viewHeight), TheGreen.UIScaleMatrix).ToPoint());
             base.Draw(spritebatch);
-            DebugHelper.DrawDebugRectangle(spritebatch, new Rectangle((int)Position.X, _initialPositionY, (int)Size.X, _viewHeight), Color.Red);
+            spritebatch.GraphicsDevice.ScissorRectangle = clippingRectangle;
         }
         public override Vector2 GetSize()
         {

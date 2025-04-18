@@ -12,7 +12,7 @@ namespace TheGreen.Game.Items
         public bool SpriteDoesDamage;
         private IWeapon _weaponBehavior;
         public IWeapon WeaponBehavior { get { return _weaponBehavior; } }
-        public WeaponItem(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, bool spriteDoesDamage, int baseDamage, int baseKnockback, UseStyle useStyle = UseStyle.Swing, IWeapon weaponBehavior = null) : base(id, name, description, image, stackable, useSpeed, autoUse, useStyle)
+        public WeaponItem(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, bool spriteDoesDamage, int baseDamage, int baseKnockback, UseStyle useStyle = UseStyle.Swing, IWeapon weaponBehavior = null, int maxStack = 1) : base(id, name, description, image, stackable, useSpeed, autoUse, maxStack, useStyle)
         {
             SpriteDoesDamage = spriteDoesDamage;
             _baseDamage = baseDamage;

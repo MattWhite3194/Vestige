@@ -26,7 +26,7 @@ namespace TheGreen.Game.Renderer
                             light.R = (byte)Math.Max(0, light.R - 30);
                             light.G = (byte)Math.Max(0, light.G - 30);
                             light.B = (byte)Math.Max(0, light.B - 30);
-                            spriteBatch.Draw(ContentLoader.TileTextures[wallID], new Vector2(i * Globals.TILESIZE, j * Globals.TILESIZE), TileDatabase.GetTileTextureAtlas(255), light);
+                            spriteBatch.Draw(ContentLoader.TileTextures[wallID], new Vector2(i * TheGreen.TILESIZE, j * TheGreen.TILESIZE), TileDatabase.GetTileTextureAtlas(255), light);
                         }
                     }
                 }
@@ -60,9 +60,10 @@ namespace TheGreen.Game.Renderer
                     TileDatabase.GetTileData(tileID).Draw(spriteBatch, WorldGen.World.GetTileState(i, j), i, j);
                 }
             }
-            foreach (Point crackPoint in WorldGen.World.GetMinedTiles().Keys)
+            foreach (DamagedTile damagedTile in WorldGen.World.GetDamagedTiles().Values)
             {
-                spriteBatch.Draw(ContentLoader.Cracks, crackPoint.ToVector2() * Globals.TILESIZE, Main.LightEngine.GetLight(crackPoint.X, crackPoint.Y));
+                int cracksTextureAtlasY = (5 - (int)(damagedTile.Health / (float)damagedTile.TotalTileHealth * 5)) * TheGreen.TILESIZE;
+                spriteBatch.Draw(ContentLoader.Cracks, new Vector2(damagedTile.X, damagedTile.Y) * TheGreen.TILESIZE, new Rectangle(0, cracksTextureAtlasY, TheGreen.TILESIZE, TheGreen.TILESIZE), Main.LightEngine.GetLight(damagedTile.X, damagedTile.Y));
             }
         }
 
@@ -75,7 +76,7 @@ namespace TheGreen.Game.Renderer
                     if (WorldGen.World.GetLiquid(i, j) != 0)
                     {
                         int rectY = WorldGen.World.GetLiquid(i, j - 1) != 0 ? 15 * 17 : (int)(WorldGen.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * 14) * 17;
-                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Globals.TILESIZE - 1, j * Globals.TILESIZE), new Rectangle(0, rectY, 18, 17), Main.LightEngine.GetLight(i, j));
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * TheGreen.TILESIZE - 1, j * TheGreen.TILESIZE), new Rectangle(0, rectY, 18, 17), Main.LightEngine.GetLight(i, j));
                     }
                 }
             }
@@ -91,7 +92,7 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 { 
-                    spriteBatch.DrawString(ContentLoader.GameFont, WorldGen.World.GetLiquid(i, j) + "", new Vector2(i, j) * Globals.TILESIZE, Color.White, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0.0f);
+                    spriteBatch.DrawString(ContentLoader.GameFont, WorldGen.World.GetLiquid(i, j) + "", new Vector2(i, j) * TheGreen.TILESIZE, Color.White, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0.0f);
                 }
             }
         }

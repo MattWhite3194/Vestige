@@ -45,7 +45,7 @@ namespace TheGreen.Game.Entities
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Point centerTilePosition = ((Position + Size / 2) / Globals.TILESIZE).ToPoint();
+            Point centerTilePosition = ((Position + Size / 2) / TheGreen.TILESIZE).ToPoint();
             spriteBatch.Draw(Image,
                 new Vector2((int)Position.X, (int)Position.Y) + Origin,
                 Animation?.AnimationRectangle ?? null,

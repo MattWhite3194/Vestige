@@ -23,7 +23,7 @@ namespace TheGreen.Game.Lighting
         public LightEngine(GraphicsDevice graphicsDevice)
         {
             _lightRange = 38;
-            _lightMap = new (Vector3, Vector3)[(Globals.DrawDistance.X + 2 * _lightRange) * (Globals.DrawDistance.Y + 2 * _lightRange)];
+            _lightMap = new (Vector3, Vector3)[(TheGreen.DrawDistance.X + 2 * _lightRange) * (TheGreen.DrawDistance.Y + 2 * _lightRange)];
             _dynamicLights = new Queue<(int, int, Vector3)>();
         }
         /// <summary>
@@ -35,7 +35,7 @@ namespace TheGreen.Game.Lighting
             {
                 for (int y = _paddedDrawBoxMin.Y; y < _paddedDrawBoxMax.Y; y++)
                 {
-                    int mapIndex = (y - _paddedDrawBoxMin.Y) * (Globals.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                    int mapIndex = (y - _paddedDrawBoxMin.Y) * (TheGreen.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
                     if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
                     {
                         _lightMap[mapIndex].light = Vector3.Zero;
@@ -48,7 +48,7 @@ namespace TheGreen.Game.Lighting
                     }
                     else
                     {
-                        _lightMap[mapIndex].light = new Vector3(Globals.GlobalLight / 255.0f);
+                        _lightMap[mapIndex].light = new Vector3(Main.GameClock.GlobalLight / 255.0f);
                         _lightMap[mapIndex].mask = _wallAbsorption;
                     }
                     if (WorldGen.World.GetLiquid(x, y) != 0)
@@ -71,7 +71,7 @@ namespace TheGreen.Game.Lighting
                 (int x, int y, Vector3 light) = _dynamicLights.Dequeue();
                 if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
                 {
-                    int mapIndex = (y - _paddedDrawBoxMin.Y) * (Globals.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                    int mapIndex = (y - _paddedDrawBoxMin.Y) * (TheGreen.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
                     Vector3.Max(light, _lightMap[mapIndex].light);
                 }
             }
@@ -86,8 +86,8 @@ namespace TheGreen.Game.Lighting
         }
         private void SpreadLight()
         {
-            int width = Globals.DrawDistance.X + 2 * _lightRange;
-            int height = Globals.DrawDistance.Y + 2 * _lightRange;
+            int width = TheGreen.DrawDistance.X + 2 * _lightRange;
+            int height = TheGreen.DrawDistance.Y + 2 * _lightRange;
             Parallel.For(0, width, x =>
             {
                 SpreadLightInLine(x, x + (height - 1) * width, width);
@@ -133,7 +133,7 @@ namespace TheGreen.Game.Lighting
         {
             if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
             {
-                int mapIndex = (y - _paddedDrawBoxMin.Y) * (Globals.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                int mapIndex = (y - _paddedDrawBoxMin.Y) * (TheGreen.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
                 return new Color(_lightMap[mapIndex].light.X, _lightMap[mapIndex].light.Y, _lightMap[mapIndex].light.Z);
             }
             return default;

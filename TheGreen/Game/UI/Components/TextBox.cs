@@ -47,6 +47,7 @@ namespace TheGreen.Game.UI.Components
                     else
                     {
                         FocusTextBox();
+                        InputManager.MarkInputAsHandled(@event);
                     }
                 }
             }

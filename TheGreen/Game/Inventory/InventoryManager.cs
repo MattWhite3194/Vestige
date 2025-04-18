@@ -23,13 +23,13 @@ namespace TheGreen.Game.Inventory
             //Temporary inventory
             
             Item[] inventoryItems = new Item[rows * cols];
-            inventoryItems[0] = ItemDatabase.InstantiateItemByID(0, quantity: 500);
-            inventoryItems[1] = ItemDatabase.InstantiateItemByID(1, quantity: 500);
-            inventoryItems[2] = ItemDatabase.InstantiateItemByID(2);
-            inventoryItems[3] = ItemDatabase.InstantiateItemByID(3, quantity: 500);
-            inventoryItems[4] = ItemDatabase.InstantiateItemByID(4, quantity: 500);
-            inventoryItems[5] = ItemDatabase.InstantiateItemByID(5, quantity: 500);
-            inventoryItems[6] = ItemDatabase.InstantiateItemByID(6);
+
+            for (int i = 0; i <= 6; i++)
+            {
+                Item item = ItemDatabase.InstantiateItemByID(i);
+                item.Quantity = item.MaxStack;
+                inventoryItems[i] = item;
+            }
             Anchor = Anchor.TopLeft;
             _dragItem = new DragItem(Vector2.Zero);
             _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20));

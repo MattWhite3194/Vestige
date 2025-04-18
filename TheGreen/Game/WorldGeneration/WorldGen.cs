@@ -56,22 +56,7 @@ namespace TheGreen.Game.WorldGeneration
         private LiquidUpdater _liquidUpdater;
         private OverlayTileUpdater _overlayTileUpdater;
         private Dictionary<Point, Item[]> _tileInventories;
-        public class DamagedTile
-        {
-            /// <summary>
-            /// The health left on the tile
-            /// </summary>
-            public int Health;
-            /// <summary>
-            /// The time left before the tile is removed from the dictionary and any damage done is reset
-            /// </summary>
-            public double Time;
-            public DamagedTile(int health, int time)
-            {
-                this.Health = health;
-                this.Time = time;
-            }
-        }
+        
         public void GenerateWorld(int size_x, int size_y)
         {
             WorldSize = new Point(size_x, size_y);
@@ -200,11 +185,13 @@ namespace TheGreen.Game.WorldGeneration
                 {
                     return false;
                 }
+                _tileInventories = new Dictionary<Point, Item[]>();
                 using (FileStream worldData = File.OpenRead(Path.Combine(worldPath, worldName + ".bin")))
                 using (BinaryReader binaryReader = new BinaryReader(worldData))
                 {
                     //TODO: load grass
                     //TODO: load water
+                    //TODO: load tile inventories
                     _spawnTile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
                     WorldSize = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
                     SurfaceDepth = binaryReader.ReadInt32();
@@ -248,6 +235,7 @@ namespace TheGreen.Game.WorldGeneration
                 {
                     //TODO: write grass
                     //TODO: write water
+                    //TODO: write tile inventories
                     binaryWriter.Write(_spawnTile.X);
                     binaryWriter.Write(_spawnTile.Y);
                     binaryWriter.Write(WorldSize.X);
@@ -353,7 +341,7 @@ namespace TheGreen.Game.WorldGeneration
             TileData tileData = TileDatabase.GetTileData(tileID);
             if (!tileData.CanTileBeDamaged(coordinates.X, coordinates.Y))
                 return;
-            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(tileData.Health, 0);
+            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, tileID, tileData.Health, tileData.Health, 0);
             damagedTileData.Health = damagedTileData.Health - damage;
             damagedTileData.Time = 0;
             if (damagedTileData.Health <= 0)
@@ -560,7 +548,7 @@ namespace TheGreen.Game.WorldGeneration
             Item item = ItemDatabase.InstantiateItemByTileID(tileID);
             if (item != null)
             {
-                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Globals.TILESIZE);
+                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * TheGreen.TILESIZE);
             }
         }
         private void SetLargeTile(int x, int y, ushort ID)
@@ -627,7 +615,7 @@ namespace TheGreen.Game.WorldGeneration
             _tiles[y * WorldSize.X + x].ID = 0;
         }
 
-        public Dictionary<Point, DamagedTile> GetMinedTiles()
+        public Dictionary<Point, DamagedTile> GetDamagedTiles()
         {
             return _minedTiles;
         }

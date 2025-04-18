@@ -95,7 +95,7 @@ namespace TheGreen.Game.Entities
         {
             if (!ItemActive)
                 return;
-            Point centerTilePosition = ((Position + Size / 2) / Globals.TILESIZE).ToPoint();
+            Point centerTilePosition = ((Position + Size / 2) / TheGreen.TILESIZE).ToPoint();
             spriteBatch.Draw(Item.Image,
                         Position,
                         null,

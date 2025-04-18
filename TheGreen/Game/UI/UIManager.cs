@@ -14,6 +14,10 @@ namespace TheGreen.Game.UIComponents
     {
         private static List<UIComponentContainer> _uiComponentContainers = new List<UIComponentContainer>();
         private static Point _screenSize;
+        private static RasterizerState rasterizerState = new RasterizerState()
+        {
+            ScissorTestEnable = true
+        };
 
         public static void Update(double delta)
         {
@@ -26,7 +30,7 @@ namespace TheGreen.Game.UIComponents
         {
             for (int i = 0; i < _uiComponentContainers.Count; i++) {
                 UIComponentContainer componentContainer = _uiComponentContainers[i];
-                spriteBatch.Begin(blendState: BlendState.AlphaBlend, sortMode: SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: componentContainer.AnchorMatrix);
+                spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, DepthStencilState.None, rasterizerState, transformMatrix: componentContainer.AnchorMatrix);
                 _uiComponentContainers[i].Draw(spriteBatch);
                 spriteBatch.End();
             }
@@ -50,7 +54,7 @@ namespace TheGreen.Game.UIComponents
             }
             else if (componentContainer.Anchor == Anchor.ScreenScale)
             {
-                return Matrix.CreateScale(Math.Max(screenWidth / (float)Globals.NativeResolution.X, screenHeight / (float)Globals.NativeResolution.Y));
+                return Matrix.CreateScale(Math.Max(screenWidth / (float)TheGreen.NativeResolution.X, screenHeight / (float)TheGreen.NativeResolution.Y));
             }
             Vector2 componentSize = Vector2.Transform(componentContainer.GetSize(), TheGreen.UIScaleMatrix);
             Vector2 anchorPos = componentContainer.Anchor switch

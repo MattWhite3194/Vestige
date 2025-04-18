@@ -134,7 +134,7 @@ namespace TheGreen.Game.Input
         }
         public static Point GetMouseWorldPosition()
         {
-            Vector2 mousePosition = (Mouse.GetState().Position.ToVector2() - TheGreen.RenderDestination.Location.ToVector2()) * new Vector2(Globals.NativeResolution.X / (float)TheGreen.RenderDestination.Width) ;
+            Vector2 mousePosition = (Mouse.GetState().Position.ToVector2() - TheGreen.RenderDestination.Location.ToVector2()) * new Vector2(TheGreen.NativeResolution.X / (float)TheGreen.RenderDestination.Width) ;
             Point translation = Main.GetCameraPosition().ToPoint();
             return mousePosition.ToPoint() + translation;
         }

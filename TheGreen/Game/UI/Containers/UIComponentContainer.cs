@@ -68,7 +68,6 @@ namespace TheGreen.Game.UI.Containers
                 if (component.IsFocused())
                 {
                     component.OnGuiInput(@event);
-                    InputManager.MarkInputAsHandled(@event);
                 }
                 else if (@event is MouseInputEvent)
                 {
@@ -111,7 +110,6 @@ namespace TheGreen.Game.UI.Containers
                     component.Draw(spritebatch);
                 }
             }
-            DebugHelper.DrawDebugRectangle(spritebatch, new Rectangle(Position.ToPoint(), Size.ToPoint()), Color.Blue);
         }
         private void UpdateChildPositions(Vector2 oldPosition, Vector2 newPosition)
         {

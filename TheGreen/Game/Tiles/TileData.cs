@@ -99,7 +99,7 @@ namespace TheGreen.Game.Tiles
         }
         public virtual void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
         {
-            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Globals.TILESIZE, TileDatabase.GetTileTextureAtlas(tileState), Main.LightEngine.GetLight(x, y));
+            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * TheGreen.TILESIZE, TileDatabase.GetTileTextureAtlas(tileState), Main.LightEngine.GetLight(x, y));
         }
     }
 }

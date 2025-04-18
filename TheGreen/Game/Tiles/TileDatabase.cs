@@ -30,7 +30,7 @@ namespace TheGreen.Game.Tiles
             ];
         private static Rectangle CreateAtlasRect(int x, int y)
         {
-            return new Rectangle(x * Globals.TILESIZE, y * Globals.TILESIZE, Globals.TILESIZE, Globals.TILESIZE);
+            return new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
         }
         /// <summary>
         /// Stores the texture atlas coords of a standard tile with the give tile state.

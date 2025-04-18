@@ -23,6 +23,11 @@ namespace TheGreen
         public static Matrix UIScaleMatrix;
         public static Rectangle RenderDestination;
         public static GameWindow GameWindow;
+        public static Point NativeResolution = new Point(960, 640);
+        public static readonly int TILESIZE = 16;
+        public static Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
+        public static readonly float GRAVITY = 1400.0f;
+        public static Point ScreenCenter = new Point(960 / 2, 640 / 2);
 
         public TheGreen()
         {
@@ -38,7 +43,7 @@ namespace TheGreen
             
             //Screen settings
             SetWindowProperties(1920, 1080, false);
-            _gameTarget = new RenderTarget2D(GraphicsDevice, Globals.NativeResolution.X * 2, Globals.NativeResolution.Y * 2, false, SurfaceFormat.Color, DepthFormat.None);
+            _gameTarget = new RenderTarget2D(GraphicsDevice, NativeResolution.X * 2, NativeResolution.Y * 2, false, SurfaceFormat.Color, DepthFormat.None);
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
@@ -112,15 +117,15 @@ namespace TheGreen
         }
         private void UpdateRenderDestination(int width, int height)
         {
-            int xScale = (int)Math.Ceiling(width / (float)Globals.NativeResolution.X);
-            int yScale = (int)Math.Ceiling(height / (float)Globals.NativeResolution.Y);
-            SetUIScaleMatrix(width / (float)Globals.NativeResolution.X);
+            int xScale = (int)Math.Ceiling(width / (float)NativeResolution.X);
+            int yScale = (int)Math.Ceiling(height / (float)NativeResolution.Y);
+            SetUIScaleMatrix(width / (float)NativeResolution.X);
             float scale = Math.Max(xScale, yScale);
             RenderDestination = new Rectangle(
-                width / 2 - (int)(Globals.NativeResolution.X * scale) / 2,
-                height / 2 - (int)(Globals.NativeResolution.Y * scale) / 2,
-                (int)(Globals.NativeResolution.X * scale),
-                (int)(Globals.NativeResolution.Y * scale)
+                width / 2 - (int)(NativeResolution.X * scale) / 2,
+                height / 2 - (int)(NativeResolution.Y * scale) / 2,
+                (int)(NativeResolution.X * scale),
+                (int)(NativeResolution.Y * scale)
                 );
         }
         public void SetUIScaleMatrix(float scale)

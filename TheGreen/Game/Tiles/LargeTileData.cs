@@ -57,8 +57,8 @@ namespace TheGreen.Game.Tiles
         }
         public override void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
         {
-            Rectangle textureAtlas = new Rectangle(tileState % 10 * Globals.TILESIZE, tileState / 10 * Globals.TILESIZE, Globals.TILESIZE, Globals.TILESIZE);
-            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Globals.TILESIZE, textureAtlas, Main.LightEngine.GetLight(x, y));
+            Rectangle textureAtlas = new Rectangle(tileState % 10 * TheGreen.TILESIZE, tileState / 10 * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * TheGreen.TILESIZE, textureAtlas, Main.LightEngine.GetLight(x, y));
         }
     }
 }

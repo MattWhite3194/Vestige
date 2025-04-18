@@ -50,7 +50,7 @@ namespace TheGreen.Game.Entities
             _invincibilityTimer.Elapsed += OnInvincibleTimeout;
             _respawnTimer = new Timer(5000);
             _respawnTimer.Elapsed += OnRespawnTimeout;
-            Position = WorldGen.World.SpawnTile.ToVector2() * Globals.TILESIZE - new Vector2(0, Size.Y - 1);
+            Position = WorldGen.World.SpawnTile.ToVector2() * TheGreen.TILESIZE - new Vector2(0, Size.Y - 1);
             Main.EntityManager.AddEntity(this);
             Main.EntityManager.AddEntity(ItemCollider);
             UIManager.RegisterContainer(Inventory);
@@ -85,7 +85,7 @@ namespace TheGreen.Game.Entities
             }
             else if (@event.InputButton == InputButton.RightMouse && @event.EventType == InputEventType.MouseButtonDown)
             {
-                Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Globals.TILESIZE);
+                Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(TheGreen.TILESIZE);
                 if (TileDatabase.GetTileData(WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y)) is IInteractableTile interactableTile)
                 {
                     interactableTile.OnRightClick(mouseTilePosition.X, mouseTilePosition.Y);
@@ -128,7 +128,7 @@ namespace TheGreen.Game.Entities
             }
 
             //add gravity
-            newVelocity.Y += Globals.GRAVITY * (float)delta;
+            newVelocity.Y += TheGreen.GRAVITY * (float)delta;
             if (newVelocity.Y > _maxFallSpeed)
                 newVelocity.Y = _maxFallSpeed;
 
@@ -137,9 +137,9 @@ namespace TheGreen.Game.Entities
             {
                 Direction.Y = 0;
                 //if the player falls for 10 tiles or more, take damage
-                if (_fallDistance / Globals.TILESIZE > 10)
+                if (_fallDistance / TheGreen.TILESIZE > 10)
                 {
-                    ApplyDamage((((int)(_fallDistance / Globals.TILESIZE) - 10) * 2));
+                    ApplyDamage((((int)(_fallDistance / TheGreen.TILESIZE) - 10) * 2));
                     
                 }
                 _fallDistance = 0;
@@ -223,7 +223,7 @@ namespace TheGreen.Game.Entities
             Active = true;
             ItemCollider.Active = true;
             _dead = false;
-            Position = WorldGen.World.SpawnTile.ToVector2() * Globals.TILESIZE - new Vector2(0, Size.Y - 1);
+            Position = WorldGen.World.SpawnTile.ToVector2() * TheGreen.TILESIZE - new Vector2(0, Size.Y - 1);
             Velocity = Vector2.Zero;
             _activeInputs.Clear();
             ItemCollider.ItemActive = false;

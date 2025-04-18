@@ -24,7 +24,7 @@ namespace TheGreen.Game.Entities
         {
             base.Update(delta);
             Vector2 newVelocity = Velocity;
-            newVelocity.Y += Globals.GRAVITY / 2 * (float)delta;
+            newVelocity.Y += TheGreen.GRAVITY / 2 * (float)delta;
             if (newVelocity.Y > _maxFallSpeed)
                 newVelocity.Y = _maxFallSpeed;
             Velocity = newVelocity;
@@ -32,7 +32,7 @@ namespace TheGreen.Game.Entities
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Point centerTilePosition = ((Position + Size / 2) / Globals.TILESIZE).ToPoint();
+            Point centerTilePosition = ((Position + Size / 2) / TheGreen.TILESIZE).ToPoint();
             spriteBatch.Draw(Image,
                 new Vector2((int)Position.X, (int)Position.Y) + Origin + new Vector2(-_item.Image.Width / 2 + 5, -_item.Image.Height + 10),
                 Animation?.AnimationRectangle ?? null,

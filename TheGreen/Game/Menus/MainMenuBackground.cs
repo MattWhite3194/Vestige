@@ -13,12 +13,12 @@ namespace TheGreen.Game.Menus
         public MainMenuBackground()
         {
             this.Anchor = Anchor.ScreenScale;
-            parallaxOffset = new Vector2(0, Globals.NativeResolution.Y);
+            parallaxOffset = new Vector2(0, TheGreen.NativeResolution.Y);
             parallaxManager = new ParallaxManager();
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(2f, 0), parallaxOffset, Globals.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(30f, 1), parallaxOffset, Globals.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(35f, 1), parallaxOffset, Globals.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(40f, 1), parallaxOffset, Globals.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(2f, 0), parallaxOffset, TheGreen.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(30f, 1), parallaxOffset, TheGreen.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(35f, 1), parallaxOffset, TheGreen.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(40f, 1), parallaxOffset, TheGreen.NativeResolution.Y + 50, -1));
         }
         public override void Update(double delta)
         {

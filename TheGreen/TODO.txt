@@ -1,36 +1,30 @@
 ﻿TODO:
 
+Up Next:
+Walls
+
+add public boolean in EntityManager that tracks whether or not the tile that the mouse is in also collides with an entity. use this for checking if tiles can be placed
+
 SpawnTile
 Add an entity that tracks if a player placed a tile in it, and if so, set the spawn point to the players current position
-Saving:
-Save and Load World
 
 Player
 make arm swing
 
-UIComponentContainer:
-Move Spritebatch.draw to UIComponentContainer Draw function, so I don't have to do annoying matrix dependency injection
-
 Collisions:
-Look up how to properly apply collisions, for now at least they're even
-Fix right side collisions not detecting properly
+fix jittery left side collisions on cricket
 Water:
 add shading for water
 draws above literally everything except backgrounds
 
 Fixes:
 Drawing order for sprites
-fix item collision with tiles floating downwards
 design better damage system
 Implement tile culling
-Fix Damaged tile sprite or change it's logic completely
-get rid of globals file, it's stupid. move the time stuff either to main or a seperate class called time. move static variables to TheGreen or Main depending on their scope
 
 Features:
-Define Max stack value for each item, and set a default to like 1000 or something
 add equipment (maybe make accessories input handlers, and store them in a list and call them before calling the players input)
 Add doors
-Save the game
 walls
 projectiles
 Ambitious Features:
@@ -50,13 +44,4 @@ Change TileData to abstract, and just implement each one seperately instead of t
 
 export tileUpdating to UpdateTileFunction in WorldGen, Update tiles when liquid is set, for removal of tiles like grass or torches.
 
-finish UIScaling
-Add BottomRight and bottomLeft Anchors
-Future note For sizes:
-components must be further down and further right than the containers position or else they willl not be calculated in the containers size correctly, obviously.
-
-GenerateWorldMenu
-Call GenerateWorldsFunction with the size from the selector
-Save the generated world to file
-Load the world from a list
 player inventory and world are tied together

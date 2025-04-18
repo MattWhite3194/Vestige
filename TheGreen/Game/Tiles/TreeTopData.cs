@@ -12,7 +12,7 @@ namespace TheGreen.Game.Tiles
         }
         public override void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
         {
-            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x * Globals.TILESIZE, y * Globals.TILESIZE) + _offset, Main.LightEngine.GetLight(x, y));
+            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE) + _offset, Main.LightEngine.GetLight(x, y));
         }
     }
 }

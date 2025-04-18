@@ -14,19 +14,20 @@ namespace TheGreen.Game.Items
         store other related attributes based on type
         instantiate the appropriate subclass based on type, add the attributes
         */
-        public int ID;
-        public string Name;
-        public string Description;
-        public Texture2D Image;
+        public readonly int ID;
+        public readonly string Name;
+        public readonly string Description;
+        public readonly Texture2D Image;
         public int Quantity;
-        public bool Stackable;
-        public double UseSpeed;
-        public bool AutoUse;
+        public readonly bool Stackable;
+        public readonly double UseSpeed;
+        public readonly bool AutoUse;
+        public readonly int MaxStack;
         public float Scale = 1f;
         
         public readonly UseStyle UseStyle;
 
-        protected Item(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, UseStyle useStyle = UseStyle.Swing)
+        protected Item(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, int maxStack = 999, UseStyle useStyle = UseStyle.Swing)
         {
             this.ID = id;
             this.Name = name;
@@ -36,6 +37,7 @@ namespace TheGreen.Game.Items
             this.UseSpeed = useSpeed;
             this.AutoUse = autoUse;
             this.UseStyle = useStyle;
+            this.MaxStack = maxStack;
         }
 
         public virtual bool UseItem()
