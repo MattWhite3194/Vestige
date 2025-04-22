@@ -69,12 +69,9 @@ namespace TheGreen.Game.UI.Containers
                 {
                     component.OnGuiInput(@event);
                 }
-                else if (@event is MouseInputEvent)
+                else if (@event is MouseInputEvent @mouseEvent && component.MouseInside)
                 {
-                    if (component.MouseInside)
-                    {
-                        component.OnGuiInput(@event);
-                    }
+                    component.OnMouseInput(@mouseEvent, GetLocalMouseCoordinates());
                 }
             }
         }
@@ -85,7 +82,7 @@ namespace TheGreen.Game.UI.Containers
             {
                 if (!component.IsVisible()) continue;
 
-                if (component.GetBounds().Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix)))
+                if (component.GetBounds().Contains(GetLocalMouseCoordinates()))
                 {
                     if (!component.MouseInside)
                     {
@@ -100,6 +97,11 @@ namespace TheGreen.Game.UI.Containers
                 }
                 component.Update(delta);
             }
+        }
+
+        protected Vector2 GetLocalMouseCoordinates()
+        {
+            return Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix);
         }
         public virtual void Draw(SpriteBatch spritebatch)
         {

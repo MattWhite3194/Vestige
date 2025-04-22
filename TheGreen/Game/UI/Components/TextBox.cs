@@ -31,24 +31,29 @@ namespace TheGreen.Game.UI.Components
             OnMouseExited += () => Mouse.SetCursor(MouseCursor.Arrow);
         }
 
-        protected override void HandleGuiInput(InputEvent @event)
+        protected override void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
         {
-            if (@event is MouseInputEvent mouseInputEvent)
+            if (@mouseEvent.EventType == InputEventType.MouseButtonDown && @mouseEvent.InputButton == InputButton.LeftMouse)
             {
-                if (mouseInputEvent.EventType == InputEventType.MouseButtonDown && @event.InputButton == InputButton.LeftMouse)
+                if (!MouseInside)
                 {
-                    if (IsFocused())
+                    UnfocusTextBox();
+                }
+                else
+                {
+                    if (!IsFocused())
                     {
-                        if (!MouseInside)
-                        {
-                            UnfocusTextBox();
-                        }
+                        FocusTextBox();
                     }
                     else
                     {
-                        FocusTextBox();
-                        InputManager.MarkInputAsHandled(@event);
+                        //cursor positioning is rounded so the cursor will position to whatever character edge the mouse is closest to.
+                        //Specifically so clicking between two characters results in that position.
+                        _cursorIndex = (int)Math.Round((mouseCoordinates.X - _stringPosition.X) / ContentLoader.GameFont.MeasureString("A").X);
+                        if (_cursorIndex < 0) _cursorIndex = 0;
+                        if (_cursorIndex > _text.Length) _cursorIndex = _text.Length;
                     }
+                    InputManager.MarkInputAsHandled(@mouseEvent);
                 }
             }
         }
@@ -85,10 +90,6 @@ namespace TheGreen.Game.UI.Components
             if (_drawTextCursor)
             {
                 Vector2 cursorPosition = _stringPosition + new Vector2(ContentLoader.GameFont.MeasureString(_text.Substring(0, _cursorIndex)).X, 0);
-                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin + _scale * new Vector2(-1, 0), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin + _scale * new Vector2(0, -1), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin + _scale * new Vector2(1, 0), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin + _scale * new Vector2(0, 1), Color.Black, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
                 spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin, _textColor, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
             }
         }

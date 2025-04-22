@@ -27,7 +27,7 @@ namespace TheGreen.Game
             EnemyTextures = new Texture2D[200];
             PlayerTexture = content.Load<Texture2D>("Assets/Textures/Player/Player");
             ItemSlotTexture = content.Load<Texture2D>("Assets/Textures/UIComponents/ItemSlot");
-            GameFont = content.Load<SpriteFont>("Assets/Fonts/File");
+            GameFont = content.Load<SpriteFont>("Assets/Fonts/RetroGaming");
             Cracks = content.Load<Texture2D>("Assets/Textures/Tiles/Extras/Cracks");
             TreesBackground = content.Load<Texture2D>("Assets/Textures/Backgrounds/Normal/Trees");
             TreesFartherBackground = content.Load<Texture2D>("Assets/Textures/Backgrounds/Normal/TreesFarther");

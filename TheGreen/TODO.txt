@@ -2,6 +2,9 @@
 
 Up Next:
 Walls
+Make WorldGen cooler
+Add different biomes (either as part of one map, or dedicate an entire map to one biome (preferred))
+Add stars and clouds, fix the ugly mountains texture
 
 add public boolean in EntityManager that tracks whether or not the tile that the mouse is in also collides with an entity. use this for checking if tiles can be placed
 

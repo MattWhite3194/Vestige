@@ -28,21 +28,21 @@ namespace TheGreen.Game.Inventory
                 int index = i;
                 _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
                 AddUIComponent(_inventoryItemSlots[i]);
-                _inventoryItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
+                _inventoryItemSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnItemSlotGuiInput(index, @mouseEvent);
             }
         }
 
-        private void OnItemSlotGuiInput(int index, InputEvent @event)
+        private void OnItemSlotGuiInput(int index, MouseInputEvent @mouseEvent)
         {
-            if (@event.InputButton == InputButton.LeftMouse && @event.EventType == InputEventType.MouseButtonDown)
+            if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 PlaceItem(index);
-                InputManager.MarkInputAsHandled(@event);
+                InputManager.MarkInputAsHandled(@mouseEvent);
             }
-            else if (@event.InputButton == InputButton.RightMouse && @event.EventType == InputEventType.MouseButtonDown)
+            else if (@mouseEvent.InputButton == InputButton.RightMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 SplitItem(index);
-                InputManager.MarkInputAsHandled(@event);
+                InputManager.MarkInputAsHandled(@mouseEvent);
             }
         }
         public Item AddItem(Item item)

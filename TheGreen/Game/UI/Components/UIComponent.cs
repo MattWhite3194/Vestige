@@ -8,6 +8,8 @@ namespace TheGreen.Game.UI.Components
     {
         public delegate void GuiInput(InputEvent @event);
         public GuiInput OnGuiInput;
+        public delegate void MouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates);
+        public MouseInput OnMouseInput;
         public delegate void MouseEntered();
         public delegate void MouseExited();
         public MouseEntered OnMouseEntered;
@@ -70,7 +72,8 @@ namespace TheGreen.Game.UI.Components
                 Size = new Vector2(image.Width, image.Height);
             else
                 Size = Vector2.Zero;
-            OnGuiInput += (@event) => HandleGuiInput(@event);
+            OnGuiInput += HandleGuiInput;
+            OnMouseInput += HandleMouseInput;
             OnMouseEntered += () => HandleMouseEntered();
             OnMouseExited += () => HandleMouseExited();
         }
@@ -127,6 +130,11 @@ namespace TheGreen.Game.UI.Components
         }
 
         protected virtual void HandleGuiInput(InputEvent @event)
+        {
+
+        }
+
+        protected virtual void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
         {
 
         }

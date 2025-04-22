@@ -20,17 +20,17 @@ namespace TheGreen.Game.Inventory
                 int index = i;
                 _hotbarItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, new Color(34, 139, 34, 150));
                 AddUIComponent(_hotbarItemSlots[i]);
-                _hotbarItemSlots[i].OnGuiInput += (@event) => OnItemSlotGuiInput(index, @event);
+                _hotbarItemSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnItemSlotGuiInput(index, @mouseEvent);
             }
             SetSelected(0);
         }
-        private void OnItemSlotGuiInput(int index, InputEvent @event)
+        private void OnItemSlotGuiInput(int index, InputEvent @mouseEvent)
         {
-            if (@event.InputButton == InputButton.LeftMouse && @event.EventType == InputEventType.MouseButtonDown)
+            if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 SetSelected(index);
                 _hotbarItemSlots[selected].SetColor(Color.Yellow);
-                InputManager.MarkInputAsHandled(@event);
+                InputManager.MarkInputAsHandled(@mouseEvent);
             }
         }
         public Item GetSelected()

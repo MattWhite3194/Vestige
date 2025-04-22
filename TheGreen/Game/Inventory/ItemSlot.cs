@@ -23,10 +23,6 @@ namespace TheGreen.Game.Inventory
                 string quantity = item.Quantity.ToString();
                 Vector2 stringOrigin = ContentLoader.GameFont.MeasureString(quantity) / 2;
                 Vector2 stringPosition = itemPosition + new Vector2(item.Image.Width / 2, item.Image.Height + 2);
-                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(1, 0), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(-1, 0), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(0, 1), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
-                spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition + new Vector2(0, -1), Color.Black, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
                 spriteBatch.DrawString(ContentLoader.GameFont, quantity, stringPosition, Color.White, _rotation, stringOrigin, 1.0f, SpriteEffects.None, 0.0f);
             }
         }

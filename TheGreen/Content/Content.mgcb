@@ -13,12 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin Assets/Fonts/File.spritefont
-/importer:FontDescriptionImporter
-/processor:LocalizedFontProcessor
+#begin Assets/Fonts/RetroGaming.png
+/importer:TextureImporter
+/processor:FontTextureProcessor
+/processorParam:FirstCharacter= 
 /processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Assets/Fonts/File.spritefont
+/processorParam:TextureFormat=Color
+/build:Assets/Fonts/RetroGaming.png
 
 #begin Assets/Textures/Backgrounds/Normal/Mountains.png
 /importer:TextureImporter

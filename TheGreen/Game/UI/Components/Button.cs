@@ -32,15 +32,15 @@ namespace TheGreen.Game.UI.Components
             OnMouseExited += ResetButton;
         }
 
-        protected override void HandleGuiInput(InputEvent @event)
+        protected override void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
         {
-            if (@event.InputButton == InputButton.LeftMouse && @event.EventType == InputEventType.MouseButtonDown)
+            if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 _textColor = _textClickedColor;
                 color = _clickedColor;
                 _clicked = true;
             }
-            else if (@event.InputButton == InputButton.LeftMouse && @event.EventType == InputEventType.MouseButtonUp)
+            else if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonUp)
             {
                 if (_clicked)
                 {

@@ -30,7 +30,7 @@ namespace TheGreen.Game.WorldGeneration
             }
         }
         private Tile[] _tiles;
-        private readonly Random _random = new Random();
+        private Random _random = new Random();
         private Point _spawnTile;
         public Point SpawnTile
         {
@@ -57,34 +57,39 @@ namespace TheGreen.Game.WorldGeneration
         private OverlayTileUpdater _overlayTileUpdater;
         private Dictionary<Point, Item[]> _tileInventories;
         
-        public void GenerateWorld(int size_x, int size_y)
+        public void GenerateWorld(int sizeX, int sizeY, int seed = 0)
         {
-            WorldSize = new Point(size_x, size_y);
-            _tiles = new Tile[size_x * size_y];
+            _random = seed != 0 ? new Random(seed) : new Random();
+            WorldSize = new Point(sizeX, sizeY);
+            _tiles = new Tile[sizeX * sizeY];
             _tileInventories = new Dictionary<Point, Item[]>();
-            int[] surfaceNoise = Generate1DNoise(size_x, 30, 200, 2, 0.5f);
-            int[] surfaceTerrain = new int[size_x];
+            int[] surfaceNoise = Generate1DNoise(sizeX, 150, 300, 4, 0.4f);
+            surfaceNoise = Smooth(surfaceNoise, 2);
+            int[] surfaceTerrain = new int[sizeX];
 
-            _surfaceHeight = size_y;
+            _surfaceHeight = sizeY;
             //place stone and get surface height
-            for (int i = 0; i < size_x; i++)
+            for (int i = 0; i < sizeX; i++)
             {
-                for (int j = size_y / 2 - size_y / 4 + surfaceNoise[i]; j < size_y; j++)
+                for (int j = sizeY / 2 - sizeY / 4 + surfaceNoise[i]; j < sizeY; j++)
                 {
                     SetInitialTile(i, j, 4);
                     SetInitialWall(i, j, 4);
-                    surfaceTerrain[i] = size_y / 2 - size_y / 4 + surfaceNoise[i];
+                    surfaceTerrain[i] = sizeY / 2 - sizeY / 4 + surfaceNoise[i];
 
-                    if (size_y - surfaceTerrain[i] < _surfaceHeight)
-                        _surfaceHeight = size_y - surfaceTerrain[i];
+                    if (sizeY - surfaceTerrain[i] < _surfaceHeight)
+                        _surfaceHeight = sizeY - surfaceTerrain[i];
                 }
             }
-            SurfaceDepth = size_y - _surfaceHeight;
+            SurfaceDepth = sizeY - _surfaceHeight;
             //place dirt
-            for (int i = 0; i < size_x; i++)
+            for (int i = 0; i < sizeX; i++)
             {
-                for (int j = 0; j < _dirtDepth; j++)
+                
+                for (int j = 0; j < _dirtDepth + _random.Next(0, 3); j++)
                 {
+                    if (surfaceTerrain[i] < SurfaceDepth - 100 - _random.Next(0, 30))
+                        continue;
                     if (j > 3)
                     {
                         SetInitialWall(i, surfaceTerrain[i] + j, 1);
@@ -97,16 +102,16 @@ namespace TheGreen.Game.WorldGeneration
                 }
             }
 
-            _spawnTile = new Point(size_x / 2, surfaceTerrain[size_x / 2]);
+            _spawnTile = new Point(sizeX / 2, surfaceTerrain[sizeX / 2]);
             //generate caves
             InitializeGradients();
-            double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(size_x, _surfaceHeight - _dirtDepth - 1, scale: 25, octaves: 4, persistence: 0.5);
+            double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(sizeX, _surfaceHeight - _dirtDepth - 1, scale: 25, octaves: 4, persistence: 0.5);
             //threshhold cave noise
             int[] cornersX = [0, 0, 1, -1];
             int[] cornersY = [1, -1, 0, 0];
             //flood fill top edge so there are no sharp cutoffs on caves.
             Queue<Point> fillPoints = new Queue<Point>();
-            for (int x = 0; x < size_x; x++)
+            for (int x = 0; x < sizeX; x++)
             {
                 if (perlinNoise[0, x] < -0.1)
                 {
@@ -131,21 +136,21 @@ namespace TheGreen.Game.WorldGeneration
                     }
                 }
             }
-            for (int x = 0; x < size_x; x++)
+            for (int x = 0; x < sizeX; x++)
             {
                 for (int y = 0; y < _surfaceHeight - _dirtDepth - 1; y++)
                 {
                     if (perlinNoise[y, x] < -0.1)
-                        RemoveInitialTile(x, size_y - _surfaceHeight + _dirtDepth + y);
+                        RemoveInitialTile(x, sizeY - _surfaceHeight + _dirtDepth + y);
                 }
             }
 
             perlinNoise = null;
 
             //calculate tile states
-            for (int i = 1; i < size_x - 1; i++)
+            for (int i = 1; i < sizeX - 1; i++)
             {
-                for (int j = 1; j < size_y - 1; j++)
+                for (int j = 1; j < sizeY - 1; j++)
                 {
                     SetTileState(i, j, TileDatabase.GetTileData(GetTileID(i, j)).GetUpdatedTileState(i, j));
                     UpdateWallState(i, j);
@@ -153,7 +158,7 @@ namespace TheGreen.Game.WorldGeneration
             }
 
             //spread grass
-            for (int i = 0; i < size_x; i++)
+            for (int i = 0; i < sizeX; i++)
             {
                 for (int j = 0; j < _grassDepth; j++)
                 {
@@ -167,10 +172,12 @@ namespace TheGreen.Game.WorldGeneration
             int minTreeDistance = 5;
             int lastTreeX = 10;
             //Plant Trees
-            for (int i = 10; i < size_x - 10; i++)
+            for (int i = 10; i < sizeX - 10; i++)
             {
                 if (_random.NextDouble() < 0.2 && i - lastTreeX > minTreeDistance)
                 {
+                    if (GetTileID(i, surfaceTerrain[i]) != 2)
+                        continue;
                     GenerateTree(i, surfaceTerrain[i] - 1);
                     lastTreeX = i;
                 }
@@ -381,8 +388,21 @@ namespace TheGreen.Game.WorldGeneration
                 for (int i = 0; i < size; i++)
                 {
                     int x0 = (i / scale) % 256;
-                    int x1 = (i / scale + 1) % 256;
-                    noise[i] += (int)CubicInterpolation(x0 * scale, values[x0] * height, x1 * scale, values[x1] * height, i);
+                    int x1 = (x0 + 1) % 256;
+                    int xMinus = (x0 - 1 + 256) % 256;
+                    int xPlus = (x1 + 1) % 256;
+
+                    float t = (float)Fade((i % scale) / (float)scale);
+
+                    float y = CatmullRom(
+                        values[xMinus] * height,
+                        values[x0] * height,
+                        values[x1] * height,
+                        values[xPlus] * height,
+                        t
+                    );
+
+                    noise[i] += (int)y;
                 }
                 scale /= 2;
                 height *= persistance;
@@ -390,14 +410,31 @@ namespace TheGreen.Game.WorldGeneration
 
             return noise;
         }
-
-        private float CubicInterpolation(float x0, float y0, float x1, float y1, float t)
+        private float CatmullRom(float y0, float y1, float y2, float y3, float t)
         {
-            float normalized_t = (t - x0) / (x1 - x0);
+            float t2 = t * t;
+            float t3 = t2 * t;
 
-            float mu2 = (1.0f - (float)Math.Cos(normalized_t * Math.PI)) / 2.0f;
+            return 0.5f * (
+                (2f * y1) +
+                (-y0 + y2) * t +
+                (2f * y0 - 5f * y1 + 4f * y2 - y3) * t2 +
+                (-y0 + 3f * y1 - 3f * y2 + y3) * t3
+            );
+        }
 
-            return y0 * (1.0f - mu2) + y1 * mu2;
+        public int[] Smooth(int[] noise, int passes)
+        {
+            int[] smoothed = new int[noise.Length];
+            for (int pass = 0; pass < passes; pass++)
+            {
+                for (int i = 0; i < noise.Length; i++)
+                {
+                    smoothed[i] = (noise[Math.Max(0, i - 1)] + noise[i] + noise[Math.Min(i + 1, noise.Length - 1)]) / 3;
+                }
+                noise = smoothed;
+            }
+            return smoothed;
         }
 
         void InitializeGradients()

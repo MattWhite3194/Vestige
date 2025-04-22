@@ -62,8 +62,10 @@ namespace TheGreen.Game.Renderer
             }
             foreach (DamagedTile damagedTile in WorldGen.World.GetDamagedTiles().Values)
             {
+                Color color = Color.Black;
+                color.A = 125;
                 int cracksTextureAtlasY = (5 - (int)(damagedTile.Health / (float)damagedTile.TotalTileHealth * 5)) * TheGreen.TILESIZE;
-                spriteBatch.Draw(ContentLoader.Cracks, new Vector2(damagedTile.X, damagedTile.Y) * TheGreen.TILESIZE, new Rectangle(0, cracksTextureAtlasY, TheGreen.TILESIZE, TheGreen.TILESIZE), Main.LightEngine.GetLight(damagedTile.X, damagedTile.Y));
+                spriteBatch.Draw(ContentLoader.Cracks, new Vector2(damagedTile.X, damagedTile.Y) * TheGreen.TILESIZE, new Rectangle(0, cracksTextureAtlasY, TheGreen.TILESIZE, TheGreen.TILESIZE), color);
             }
         }
 
