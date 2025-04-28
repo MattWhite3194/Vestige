@@ -67,7 +67,10 @@ namespace TheGreen.Game.UI.Containers
 
                 if (component.IsFocused())
                 {
-                    component.OnGuiInput(@event);
+                    if (@event is MouseInputEvent @mouseEvent)
+                        component.OnMouseInput(@mouseEvent, GetLocalMouseCoordinates());
+                    else
+                        component.OnGuiInput(@event);
                 }
                 else if (@event is MouseInputEvent @mouseEvent && component.MouseInside)
                 {

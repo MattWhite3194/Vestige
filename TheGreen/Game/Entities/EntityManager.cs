@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using TheGreen.Game.Entities.NPCs;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
@@ -18,9 +19,32 @@ namespace TheGreen.Game.Entities
         private Player _player;
         private List<Entity> _entities = new List<Entity>();
         public Entity MouseEntity;
+        public bool MouseCollidingWithEntityTile;
 
         public void Update(double delta)
         {
+            //check if mouse is over entity
+            //TODO: check here if the mouse is over an entity, and if so, save the entity
+            MouseEntity = null;
+            MouseCollidingWithEntityTile = false;
+            for (int i = 0; i < _entities.Count; i++)
+            {
+                if (_entities[i].GetBounds().Contains(InputManager.GetMouseWorldPosition()))
+                    MouseEntity = _entities[i];
+                //check if mouse tile is colliding with an entity
+                if (_entities[i].Layer != CollisionLayer.Enemy && _entities[i].Layer != CollisionLayer.Player)
+                    continue;
+                //add 1 pixel padding on every side since .Contains does not include edges
+                Point topLeft = (Vector2.Floor(_entities[i].Position / TheGreen.TILESIZE) * TheGreen.TILESIZE).ToPoint();
+                Point bottomRight = (Vector2.Ceiling((_entities[i].Position - new Vector2(1, 1) + _entities[i].Size) / TheGreen.TILESIZE) * TheGreen.TILESIZE).ToPoint() + new Point(1, 1);
+                Rectangle entityTileBounds = new Rectangle(
+                    topLeft, bottomRight - topLeft
+                    );
+                if (entityTileBounds.Contains(InputManager.GetMouseWorldPosition()))
+                {
+                    MouseCollidingWithEntityTile = true;
+                }
+            }
             //Handle tile collisions
             for (int i = _entities.Count - 1; i >= 0; i--)
             {
@@ -32,97 +56,59 @@ namespace TheGreen.Game.Entities
                 }
                 //Update Entities
                 entity.Update(delta);
-                if (entity.Velocity.X * (float)delta >= TheGreen.TILESIZE || entity.Velocity.Y * (float)delta >= TheGreen.TILESIZE)
-                {
-                    entity.Velocity = Vector2.Zero;
-                    continue;
-                }
-                
+
+                Vector2 minPos = Vector2.Zero;
+                Vector2 maxPos = new(WorldGen.World.WorldSize.X * TheGreen.TILESIZE - entity.Size.X, WorldGen.World.WorldSize.Y * TheGreen.TILESIZE - entity.Size.Y);
                 //update enemies positions that don't collide with tiles
                 if (!entity.CollidesWithTiles)
                 {
                     entity.Position += entity.Velocity * (float)delta;
+                    entity.Position = Vector2.Clamp(entity.Position, minPos, maxPos);
                     continue;
                 }
 
-                entity.Position.X += entity.Velocity.X * (float)delta;
-
-                Rectangle entityBounds = entity.GetBounds();
-                int startX = entityBounds.Left / TheGreen.TILESIZE;
-                int endX = entityBounds.Right / TheGreen.TILESIZE;
-                int startY = entityBounds.Top / TheGreen.TILESIZE;
-                int endY = entityBounds.Bottom / TheGreen.TILESIZE;
+                //horizontal tile collisions
+                int distanceFactor = (int)Math.Min(entity.Size.X, TheGreen.TILESIZE);
+                int tileWidth = (int)entity.Size.X / TheGreen.TILESIZE;
+                int tileHeight = (int)entity.Size.Y / TheGreen.TILESIZE;
+                float distanceX = entity.Velocity.X * (float)delta;
                 int horizontalCollisionDirection = 0;
-                
-                for (int x = startX; x <= endX; x++)
+                List<float> horizontalDistances = new List<float>();
+                for (int _ = 0; _ < Math.Floor(distanceX / (distanceFactor - 1)); _++)
                 {
-                    for (int y = startY; y <= endY; y++)
+                    horizontalDistances.Add(distanceFactor - 1);
+                }
+                horizontalDistances.Add(distanceX % (distanceFactor - 1));
+                foreach (float distance in horizontalDistances)
+                {
+                    horizontalCollisionDirection = HorizontalCollisionPass(entity, distance, minPos, maxPos);
+                    if (horizontalCollisionDirection != 0)
                     {
-                        if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
-                        {
-                            continue;
-                        }
-                        Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
-                        if (entity.GetBounds().Intersects(collision))
-                        {
-                            Vector2 penetrationDistance = GetPenetrationDepth(entity.GetBounds(), collision);
-                            entity.Position.X += penetrationDistance.X;
-                            horizontalCollisionDirection = -Math.Sign(penetrationDistance.X);
-                        }
+                        break;
                     }
                 }
 
-                bool floorCollision = false;
-                bool ceilingCollision = false;
-                if ((int)(entity.Position.Y + entity.Velocity.Y * (float)delta) == (int)entity.Position.Y)
+                //vertical tile collisions
+                distanceFactor = (int)Math.Min(entity.Size.Y, TheGreen.TILESIZE);
+                float distanceY = entity.Velocity.Y * (float)delta;
+                List<float> verticalDistances = new List<float>();
+                for (int _ = 0; _ < Math.Floor(distanceY / (distanceFactor - 1)); _++)
                 {
-                    floorCollision = entity.IsOnFloor;
-                    ceilingCollision = entity.IsOnCeiling;
+                    verticalDistances.Add(distanceFactor - 1);
                 }
-
-                entity.Position.Y += entity.Velocity.Y * (float)delta;
-                
-                entityBounds = entity.GetBounds();
-                startX = entityBounds.Left / TheGreen.TILESIZE;
-                endX = entityBounds.Right / TheGreen.TILESIZE;
-                startY = entityBounds.Top / TheGreen.TILESIZE;
-                endY = entityBounds.Bottom / TheGreen.TILESIZE;
-                for (int x = startX; x <= endX; x++)
+                verticalDistances.Add(distanceY % (distanceFactor - 1));
+                foreach (float distance in verticalDistances)
                 {
-                    for (int y = startY; y <= endY; y++)
+                    if (VerticalCollisionPass(entity, distance, minPos, maxPos))
                     {
-                        if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
-                        {
-                            continue;
-                        }
-                        Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
-                        if (entity.GetBounds().Intersects(collision))
-                        {
-                            if (collision.Y > entity.Position.Y)
-                            {
-                                floorCollision = true;
-                            }
-                            else if (collision.Y < entity.Position.Y && entity.Velocity.Y < 0.0f)
-                            {
-                                ceilingCollision = true;
-                            }
-                            Vector2 penetrationDistance = GetPenetrationDepth(entity.GetBounds(), collision);
-                            entity.Position.Y += penetrationDistance.Y;
-                            
-                            if (penetrationDistance.Y != 0)
-                            {
-                                entity.Velocity.Y = 0;
-                            }
-                            
-                        }
+                        break;
                     }
                 }
-                entity.IsOnFloor = floorCollision;
-                entity.IsOnCeiling = ceilingCollision;
+
 
                 if (horizontalCollisionDirection != 0)
                 {
-                    if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.Position / TheGreen.TILESIZE).ToPoint(), entityBounds.Width / TheGreen.TILESIZE, entityBounds.Height / TheGreen.TILESIZE, horizontalCollisionDirection))
+                    if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.Position / TheGreen.TILESIZE).ToPoint(), entity.GetBounds().Width / TheGreen.TILESIZE, entity.GetBounds().Height / TheGreen.TILESIZE, horizontalCollisionDirection))
                     {
                         entity.Position.Y -= TheGreen.TILESIZE;
                         entity.Position.X += 2 * Math.Sign(entity.Velocity.X);
@@ -133,14 +119,10 @@ namespace TheGreen.Game.Entities
                     }
                 }
             }
-            //TODO: check here if the mouse is over an entity, and if so, save the entity
-            //MouseEntity = null
             for (int i = 0; i < _entities.Count; i++)
             {
                 for (int j = i + 1; j < _entities.Count; j++)
                 {
-                    //if (_entities[i].Contains(InputManager.GetMouseWorldCoordinates()))
-                    //  MouseEntity = _entities[i]
                     if ((_entities[i].CollidesWith & _entities[j].Layer) == 0 && (_entities[j].CollidesWith & _entities[i].Layer) == 0)
                         continue;
                     if (!_entities[i].GetBounds().Intersects(_entities[j].GetBounds()))
@@ -153,6 +135,110 @@ namespace TheGreen.Game.Entities
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <param name=""></param>
+        /// <returns>The direction of the horizontal collision, 0 if there is none</returns>
+        private int HorizontalCollisionPass(Entity entity, float distance, Vector2 minPos, Vector2 maxPos)
+        {
+            //handle horizontal collisions
+            entity.Position.X += distance;
+            entity.Position.X = float.Clamp(entity.Position.X, minPos.X, maxPos.X);
+
+            Rectangle entityBounds = entity.GetBounds();
+            int startX = entityBounds.Left / TheGreen.TILESIZE;
+            int endX = entityBounds.Right / TheGreen.TILESIZE;
+            int startY = entityBounds.Top / TheGreen.TILESIZE;
+            int endY = entityBounds.Bottom / TheGreen.TILESIZE;
+            int horizontalCollisionDirection = 0;
+
+            for (int x = startX; x <= endX; x++)
+            {
+                for (int y = startY; y <= endY; y++)
+                {
+                    if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
+                    {
+                        continue;
+                    }
+                    Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+
+                    //IMPORTANT: entity bounds will not intersect a tile or other collision if the position update is less than a pixels width, since bounds are calculated using integers. Players Velocity will get up to 30 before the player actually moves enough to detect a collision.
+                    if (entity.GetBounds().Intersects(collision))
+                    {
+                        Vector2 penetrationDistance = GetPenetrationDepth(entity.GetBounds(), collision);
+                        if (penetrationDistance.X < 0)
+                        {
+                            entity.Position.X = collision.Left - entity.Size.X;
+                            horizontalCollisionDirection = 1;
+                        }
+                        else if (penetrationDistance.X > 0)
+                        {
+                            entity.Position.X = collision.Right;
+                            horizontalCollisionDirection = -1;
+                        }
+                    }
+                }
+            }
+            return horizontalCollisionDirection;
+        }
+
+        private bool VerticalCollisionPass(Entity entity, float distance, Vector2 minPos, Vector2 maxPos)
+        {
+            //handle vertical collisions
+            bool floorCollision = false;
+            bool ceilingCollision = false;
+            bool collisionDetected = false;
+            if ((int)(entity.Position.Y + distance) == (int)entity.Position.Y)
+            {
+                floorCollision = entity.IsOnFloor;
+                ceilingCollision = entity.IsOnCeiling;
+            }
+
+            entity.Position.Y += distance;
+
+            Rectangle entityBounds = entity.GetBounds();
+            int startX = entityBounds.Left / TheGreen.TILESIZE;
+            int endX = entityBounds.Right / TheGreen.TILESIZE;
+            int startY = entityBounds.Top / TheGreen.TILESIZE;
+            int endY = entityBounds.Bottom / TheGreen.TILESIZE;
+            for (int x = startX; x <= endX; x++)
+            {
+                for (int y = startY; y <= endY; y++)
+                {
+                    if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
+                    {
+                        continue;
+                    }
+                    Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+                    if (entity.GetBounds().Intersects(collision))
+                    {
+                        collisionDetected = true;
+                        if (collision.Y > entity.Position.Y)
+                        {
+                            floorCollision = true;
+                        }
+                        else if (collision.Y < entity.Position.Y && entity.Velocity.Y < 0.0f)
+                        {
+                            ceilingCollision = true;
+                        }
+                        Vector2 penetrationDistance = GetPenetrationDepth(entity.GetBounds(), collision);
+                        entity.Position.Y += penetrationDistance.Y;
+
+                        if (penetrationDistance.Y != 0)
+                        {
+                            entity.Velocity.Y = 0;
+                        }
+
+                    }
+                }
+            }
+            entity.IsOnFloor = floorCollision;
+            entity.IsOnCeiling = ceilingCollision;
+            return collisionDetected;
+        }
+
         public void Draw(SpriteBatch spriteBatch)
         {
             //TODO: add drawing order using SpriteSortMode based on collision layer
@@ -160,6 +246,7 @@ namespace TheGreen.Game.Entities
             {
                 entity.Draw(spriteBatch);
             }
+
         }
 
         Vector2 GetPenetrationDepth(Rectangle a, Rectangle b)

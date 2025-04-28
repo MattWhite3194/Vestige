@@ -104,10 +104,12 @@ namespace TheGreen.Game.Entities
             Direction.X = 0;
             if (_activeInputs.Contains(InputButton.Left)) Direction.X -= 1;
             if (_activeInputs.Contains(InputButton.Right)) Direction.X += 1;
-            //Slow down player if they stopped moving
+            Animation.SetCurrentAnimation(1);
+            Animation.SetAnimationSpeed(Math.Abs(Velocity.X / 10));
+
             if (Direction.X == 0.0f)
             {
-                if (MathF.Abs(newVelocity.X) < 20)
+                if (MathF.Abs(newVelocity.X) < 5f)
                 {
                     newVelocity.X = 0;
                     Animation.SetCurrentAnimation(0);
@@ -123,10 +125,8 @@ namespace TheGreen.Game.Entities
                     newVelocity.X += Direction.X * _acceleration * (float)delta;
                 if (MathF.Abs(newVelocity.X) > _maxSpeed)
                     newVelocity.X = Math.Sign(newVelocity.X) * _maxSpeed;
-                Animation.SetCurrentAnimation(1);
-                Animation.SetAnimationSpeed(Math.Abs(Velocity.X / 10));
+                
             }
-
             //add gravity
             newVelocity.Y += TheGreen.GRAVITY * (float)delta;
             if (newVelocity.Y > _maxFallSpeed)

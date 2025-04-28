@@ -28,7 +28,6 @@
     <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.2.1105" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\Assets\Shaders\" />
     <Folder Include="Content\Assets\Textures\Walls\" />
     <Folder Include="Game\Entities\Projectiles\ProjectileBehaviors\" />
     <Folder Include="Game\WorldMap\" />

@@ -20,6 +20,9 @@ namespace TheGreen.Game
         public static Texture2D MountainsBackground;
         public static Texture2D LiquidTexture;
 
+        //Shaders
+        public static Effect WaterShader;
+
         public static void Load(ContentManager content)
         {
             TileTextures = new Texture2D[200];
@@ -53,6 +56,9 @@ namespace TheGreen.Game
             {
                 EnemyTextures[i] = content.Load<Texture2D>("Assets/Textures/Enemies/Enemy" + i);
             }
+
+            //load shaders
+            WaterShader = content.Load<Effect>("Assets/Shaders/WaterShader");
         }
     }
 }

@@ -14,8 +14,6 @@ Add an entity that tracks if a player placed a tile in it, and if so, set the sp
 Player
 make arm swing
 
-Collisions:
-fix jittery left side collisions on cricket
 Water:
 add shading for water
 draws above literally everything except backgrounds
@@ -24,6 +22,7 @@ Fixes:
 Drawing order for sprites
 design better damage system
 Implement tile culling
+Grass still grows on blocks that have been cut off if it remains in the queue - need to check if a block is touching it's overlay tile before setting it to the overlay.
 
 Features:
 add equipment (maybe make accessories input handlers, and store them in a list and call them before calling the players input)

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
 using System.Linq;
 
 namespace TheGreen.Game.UI.Components
@@ -71,7 +70,7 @@ namespace TheGreen.Game.UI.Components
             }
             if (maxWidth == 0)
                 return _stringSize;
-            if (_stringSize.X < maxWidth)
+            if (_stringSize.X <= maxWidth)
                 return new Vector2(maxWidth, _stringSize.Y);
             float characterWidth = _stringSize.X / _text.Length;
             int charsPerLine = (int)(maxWidth / characterWidth);

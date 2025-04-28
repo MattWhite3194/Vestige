@@ -77,8 +77,8 @@ namespace TheGreen.Game.Renderer
                 {
                     if (WorldGen.World.GetLiquid(i, j) != 0)
                     {
-                        int rectY = WorldGen.World.GetLiquid(i, j - 1) != 0 ? 15 * 17 : (int)(WorldGen.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * 14) * 17;
-                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * TheGreen.TILESIZE - 1, j * TheGreen.TILESIZE), new Rectangle(0, rectY, 18, 17), Main.LightEngine.GetLight(i, j));
+                        int rectX = WorldGen.World.GetLiquid(i, j - 1) != 0 ? 15 * 18 : (int)(WorldGen.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * 14) * 18;
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * TheGreen.TILESIZE - 1, j * TheGreen.TILESIZE), new Rectangle(rectX, 0, 18, 17), Main.LightEngine.GetLight(i, j));
                     }
                 }
             }

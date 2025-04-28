@@ -19,7 +19,6 @@ namespace TheGreen
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         private Main _gameManager;
-        private RenderTarget2D _gameTarget;
         public static Matrix UIScaleMatrix;
         public static Rectangle RenderDestination;
         public static GameWindow GameWindow;
@@ -43,7 +42,6 @@ namespace TheGreen
             
             //Screen settings
             SetWindowProperties(1920, 1080, false);
-            _gameTarget = new RenderTarget2D(GraphicsDevice, NativeResolution.X * 2, NativeResolution.Y * 2, false, SurfaceFormat.Color, DepthFormat.None);
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
@@ -83,16 +81,7 @@ namespace TheGreen
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.BlanchedAlmond);
-            if (_gameManager != null)
-            {
-                GraphicsDevice.SetRenderTarget(_gameTarget);
-                _gameManager.Draw(_spriteBatch);
-                GraphicsDevice.SetRenderTarget(null);
-
-                _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
-                _spriteBatch.Draw(_gameTarget, RenderDestination, Color.White);
-                _spriteBatch.End();
-            }
+            _gameManager?.Draw(_spriteBatch, gameTime);
             
             UIManager.Draw(_spriteBatch);
 

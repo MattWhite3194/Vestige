@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 using TheGreen.Game.Drawables;
 using TheGreen.Game.Entities;
 using TheGreen.Game.Lighting;
@@ -23,6 +24,8 @@ namespace TheGreen.Game
         public static EntityManager EntityManager = null;
         public static ParallaxManager ParallaxManager = null;
         public static GameClock GameClock;
+        private RenderTarget2D _gameTarget;
+        private RenderTarget2D _liquidRenderTarget;
 
         public Main(Player player, GraphicsDevice graphicsDevice)
         {
@@ -31,11 +34,14 @@ namespace TheGreen.Game
             EntityManager = new EntityManager();
             ParallaxManager = new ParallaxManager();
             GameClock = new GameClock();
+            _gameTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X * 2, TheGreen.NativeResolution.Y * 2);
+            _liquidRenderTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X * 2, TheGreen.NativeResolution.Y * 2);
             GameClock.StartGameClock(1000, 2000);
             WorldGen.World.InitializeGameUpdates();
             player.InitializeGameUpdates();
             _graphicsDevice = graphicsDevice;
-            
+            _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
+
             EntityManager.SetPlayer(player);
             //EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
             //EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
@@ -53,10 +59,12 @@ namespace TheGreen.Game
             EntityManager.Update(delta);
             CalculateTranslation();
         }
-        public void Draw(SpriteBatch spriteBatch)
+        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            Point drawBoxMin = new Point(((int)-_translation.Translation.X / TheGreen.TILESIZE), ((int)-_translation.Translation.Y / TheGreen.TILESIZE));
-            Point drawBoxMax = new Point(((int)-_translation.Translation.X / TheGreen.TILESIZE) + TheGreen.DrawDistance.X, ((int)-_translation.Translation.Y / TheGreen.TILESIZE) + TheGreen.DrawDistance.Y);
+            _graphicsDevice.SetRenderTarget(_gameTarget);
+
+            Point drawBoxMin = (GetCameraPosition() / TheGreen.TILESIZE).ToPoint();
+            Point drawBoxMax = (GetCameraPosition() / TheGreen.TILESIZE).ToPoint() + TheGreen.DrawDistance;
             _tileRenderer.SetDrawBox(drawBoxMin, drawBoxMax);
             LightEngine.SetDrawBox(drawBoxMin, drawBoxMax);
             LightEngine.CalculateLightMap();
@@ -67,15 +75,31 @@ namespace TheGreen.Game
             ParallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             spriteBatch.End();
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.NonPremultiplied);
+            spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend);
             
             _tileRenderer.DrawWalls(spriteBatch);
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
             _tileRenderer.DrawTiles(spriteBatch);
-            //_tileRenderer.DrawDebug(spriteBatch);
             EntityManager.Draw(spriteBatch);
+            spriteBatch.End();
+            
+            _graphicsDevice.SetRenderTarget(_liquidRenderTarget);
+            _graphicsDevice.Clear(Color.Transparent);
+            
+            spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend, effect: ContentLoader.WaterShader);
+            ContentLoader.WaterShader.Parameters["BackgroundTexture"].SetValue(_gameTarget);
+            ContentLoader.WaterShader.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+            ContentLoader.WaterShader.Parameters["ModelMatrix"].SetValue(Matrix.Invert(_translation * Matrix.CreateScale(2.0f)));
             _tileRenderer.DrawLiquids(spriteBatch);
             spriteBatch.End();
+
+            _graphicsDevice.SetRenderTarget(null);
+            
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
+            spriteBatch.Draw(_gameTarget, TheGreen.RenderDestination, Color.White);
+            spriteBatch.Draw(_liquidRenderTarget, TheGreen.RenderDestination, Color.White);
+            spriteBatch.End();
+            _graphicsDevice.SetRenderTarget(null);
         }
         public static Vector2 GetCameraPosition()
         {
