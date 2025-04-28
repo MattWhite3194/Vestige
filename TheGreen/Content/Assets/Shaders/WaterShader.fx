@@ -54,14 +54,14 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     if (fgColor.g != 1.0)
     {
         float2 coords = float2(uv.x, uv.y + (sin(2.0 * (transform.x * waves / 10.0 - (Time * speed))) * 0.5 + cos(3.0 * transform.x * waves / 10.0 - (Time * speed)) * 0.5) * wave_amplitude + wave_offset);
-        fgColor = tex2D(SpriteTextureSampler, coords);
+        fgColor = tex2D(SpriteTextureSampler, coords) * input.Color;
     }
     else if (fgColor.g == 1.0)
     {
-        fgColor = float4(0.0, 0.6902, 1.0, 1.0);
+        fgColor = float4(0.0, 0.6902, 1.0, 1.0) * input.Color;
     }
         
-    if (fgColor.r + fgColor.g + fgColor.b == 0.0) 
+    if (fgColor.a == 0.0) 
         return float4(0.0, 0.0, 0.0, 0.0);
     
     float value = (sin(2.0 * (transform.x * waves / 10.0 - (Time * speed))) * 0.5 + cos(3.0 * transform.x * waves / 10.0 - (Time * speed)) * 0.5) * amplitude;
@@ -71,6 +71,9 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     screenUV = frac(screenUV);
 	
     float4 bgColor = tex2D(BackgroundTextureSampler, screenUV);
+
+    if (bgColor.a == 0.0) 
+        bgColor = fgColor;
     
     return lerp(bgColor, fgColor, 0.5);
 }

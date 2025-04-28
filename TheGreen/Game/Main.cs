@@ -24,6 +24,7 @@ namespace TheGreen.Game
         public static EntityManager EntityManager = null;
         public static ParallaxManager ParallaxManager = null;
         public static GameClock GameClock;
+        private RenderTarget2D _bgTarget;
         private RenderTarget2D _gameTarget;
         private RenderTarget2D _liquidRenderTarget;
 
@@ -36,6 +37,7 @@ namespace TheGreen.Game
             GameClock = new GameClock();
             _gameTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X * 2, TheGreen.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X * 2, TheGreen.NativeResolution.Y * 2);
+            _bgTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X, TheGreen.NativeResolution.Y);
             GameClock.StartGameClock(1000, 2000);
             WorldGen.World.InitializeGameUpdates();
             player.InitializeGameUpdates();
@@ -61,22 +63,22 @@ namespace TheGreen.Game
         }
         public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            _graphicsDevice.SetRenderTarget(_gameTarget);
-
             Point drawBoxMin = (GetCameraPosition() / TheGreen.TILESIZE).ToPoint();
             Point drawBoxMax = (GetCameraPosition() / TheGreen.TILESIZE).ToPoint() + TheGreen.DrawDistance;
             _tileRenderer.SetDrawBox(drawBoxMin, drawBoxMax);
             LightEngine.SetDrawBox(drawBoxMin, drawBoxMax);
             LightEngine.CalculateLightMap();
-
             float normalizedGlobalLight = (GameClock.GlobalLight - 50) / 205.0f;
+
+            _graphicsDevice.SetRenderTarget(_bgTarget);
             _graphicsDevice.Clear(new Color((int)(100 * normalizedGlobalLight), (int)(149 * normalizedGlobalLight), (int)(237 * normalizedGlobalLight)));
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(2.0f));
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
             ParallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             spriteBatch.End();
 
+            _graphicsDevice.SetRenderTarget(_gameTarget);
+            _graphicsDevice.Clear(Color.Transparent);
             spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend);
-            
             _tileRenderer.DrawWalls(spriteBatch);
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
             _tileRenderer.DrawTiles(spriteBatch);
@@ -85,7 +87,6 @@ namespace TheGreen.Game
             
             _graphicsDevice.SetRenderTarget(_liquidRenderTarget);
             _graphicsDevice.Clear(Color.Transparent);
-            
             spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend, effect: ContentLoader.WaterShader);
             ContentLoader.WaterShader.Parameters["BackgroundTexture"].SetValue(_gameTarget);
             ContentLoader.WaterShader.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
@@ -96,6 +97,7 @@ namespace TheGreen.Game
             _graphicsDevice.SetRenderTarget(null);
             
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
+            spriteBatch.Draw(_bgTarget, TheGreen.RenderDestination, Color.White);
             spriteBatch.Draw(_gameTarget, TheGreen.RenderDestination, Color.White);
             spriteBatch.Draw(_liquidRenderTarget, TheGreen.RenderDestination, Color.White);
             spriteBatch.End();
