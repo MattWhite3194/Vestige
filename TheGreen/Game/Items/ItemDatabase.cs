@@ -17,7 +17,8 @@ namespace TheGreen.Game.Items
             {3, new TileItem(3, "Torch", "Light it up!", ContentLoader.ItemTextures[3], 7) },
             {4, new LiquidItem(4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], 1) },
             {5, new TileItem(5, "Chest", "For storing shiny things!", ContentLoader.ItemTextures[5], 8) },
-            {6, new WeaponItem(6, "Steel Axe", "Don't take from my pile.", ContentLoader.ItemTextures[6], false, 0.2f, true, true, 12, 1, UseStyle.Swing, new Axe(10)) }
+            {6, new WeaponItem(6, "Steel Axe", "Don't take from my pile.", ContentLoader.ItemTextures[6], false, 0.2f, true, true, 12, 1, UseStyle.Swing, new Axe(10)) },
+            {7, new TileItem(7, "Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[5], 9) }
         };
 
         /// <summary>

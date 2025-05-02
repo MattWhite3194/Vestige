@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
+using TheGreen.Game.Tiles.TileData;
 using TheGreen.Game.WorldGeneration.WorldUpdaters;
 
 namespace TheGreen.Game.WorldGeneration
@@ -345,7 +346,7 @@ namespace TheGreen.Game.WorldGeneration
             ushort tileID = GetTileID(coordinates.X, coordinates.Y);
             if (tileID == 0)
                 return;
-            TileData tileData = TileDatabase.GetTileData(tileID);
+            DefaultTileData tileData = TileDatabase.GetTileData(tileID);
             if (!tileData.CanTileBeDamaged(coordinates.X, coordinates.Y))
                 return;
             DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, tileID, tileData.Health, tileData.Health, 0);
@@ -536,8 +537,12 @@ namespace TheGreen.Game.WorldGeneration
                 //TODO: add tiles updated to a list, and then update the tiles in the list and around the tiles in the list
                 return true;
             }
-            else 
+            else
+            {
                 _tiles[y * WorldSize.X + x].ID = ID;
+                if (TileDatabase.TileHasProperty(ID, TileProperty.Solid))
+                    SetLiquid(x, y, 0);
+            }
             //tile states need to be updated first before calling any other checks
             for (int i = -1; i <= 1; i++)
             {
@@ -560,10 +565,10 @@ namespace TheGreen.Game.WorldGeneration
                     {
                         _liquidUpdater.QueueLiquidUpdate(x + i, y + j);
                     }
-                    if (TileDatabase.TileHasProperty(GetTileID(x + i, y + j), TileProperty.Overlay))
+                    if (TileDatabase.GetTileData(GetTileID(x + i, y + j)) is OverlayTileData overlayTile)
                     {
                         if (GetTileState(x + i, y + j) == 255)
-                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = TileDatabase.GetTileData(GetTileID(x + i, y + j)).BaseTileID;
+                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = overlayTile.BaseTileID;
                         else
                             _overlayTileUpdater.EnqueueOverlayTile(x + i, y + j, GetTileID(x + i, y + j));
                     }
@@ -599,6 +604,10 @@ namespace TheGreen.Game.WorldGeneration
                 {
                     _tiles[(topLeft.Y + j) * WorldSize.X + (topLeft.X + i)].ID = ID;
                     SetTileState(topLeft.X + i, topLeft.Y + j, (byte)(j * 10 + i));
+                    if (TileDatabase.TileHasProperty(ID, TileProperty.Solid))
+                    {
+                        SetLiquid(topLeft.X + i, topLeft.Y + j, 0);
+                    }
                 }
             }
         }

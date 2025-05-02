@@ -102,12 +102,13 @@ namespace TheGreen.Game.Menus
             UIManager.UnregisterContainer(_createWorldMenu);
             await Task.Run(() =>
             {
-                WorldGen.World.GenerateWorld(500, 500);
+                WorldGen.World.GenerateWorld(4200, 1200);
                 worldGenSuccessful = WorldGen.World.SaveWorld(_worldNameTextBox.GetText());
             });
+            UIManager.RegisterContainer(_createWorldMenu);
+
             if (!worldGenSuccessful)
             {
-                UIManager.RegisterContainer(_createWorldMenu);
                 return;
             }
             for (int i = 0; i < numMenus; i++)

@@ -1,8 +1,6 @@
-﻿
+﻿using TheGreen.Game.Entities;
 
-using TheGreen.Game.Entities;
-
-namespace TheGreen.Game.Tiles
+namespace TheGreen.Game.Tiles.TileData
 {
     internal interface ICollideableTile
     {

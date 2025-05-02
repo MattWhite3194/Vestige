@@ -7,7 +7,7 @@
 #endif
 
 Texture2D SpriteTexture;
-Texture2D BackgroundTexture : register(t1);
+Texture2D BackgroundTexture;
 float Time;
 matrix ModelMatrix;
 
@@ -25,7 +25,7 @@ sampler2D SpriteTextureSampler
 	Texture = <SpriteTexture>;
 };
 
-sampler2D BackgroundTextureSampler : register(s1)
+sampler2D BackgroundTextureSampler
 {
     Texture = <BackgroundTexture>;
 };

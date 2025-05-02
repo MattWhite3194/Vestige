@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace TheGreen.Game.Tiles
+namespace TheGreen.Game.Tiles.TileData
 {
     public class TreeTopData : TreeData
     {

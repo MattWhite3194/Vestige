@@ -219,6 +219,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Tiles/Tile1.png
 
+#begin Assets/Textures/Tiles/Tile10.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Tiles/Tile10.png
+
 #begin Assets/Textures/Tiles/Tile2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -302,6 +314,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Tiles/Tile8.png
+
+#begin Assets/Textures/Tiles/Tile9.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Tiles/Tile9.png
 
 #begin Assets/Textures/UIComponents/ItemSlot.png
 /importer:TextureImporter

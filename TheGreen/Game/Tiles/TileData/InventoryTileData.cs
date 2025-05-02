@@ -2,7 +2,7 @@
 using TheGreen.Game.Items;
 using TheGreen.Game.WorldGeneration;
 
-namespace TheGreen.Game.Tiles
+namespace TheGreen.Game.Tiles.TileData
 {
     public class InventoryTileData : LargeTileData, IInteractableTile
     {

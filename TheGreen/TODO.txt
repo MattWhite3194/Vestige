@@ -6,17 +6,11 @@ Make WorldGen cooler
 Add different biomes (either as part of one map, or dedicate an entire map to one biome (preferred))
 Add stars and clouds, fix the ugly mountains texture
 
-add public boolean in EntityManager that tracks whether or not the tile that the mouse is in also collides with an entity. use this for checking if tiles can be placed
-
 SpawnTile
 Add an entity that tracks if a player placed a tile in it, and if so, set the spawn point to the players current position
 
 Player
 make arm swing
-
-Water:
-add shading for water
-draws above literally everything except backgrounds
 
 Fixes:
 Drawing order for sprites
@@ -41,8 +35,6 @@ Drawing Order:
 player and entities draw above tiles, unless bool is set
 item drops draw above everything
 player draws above all enemies
-
-Change TileData to abstract, and just implement each one seperately instead of the overriding mess I currently have.
 
 export tileUpdating to UpdateTileFunction in WorldGen, Update tiles when liquid is set, for removal of tiles like grass or torches.
 

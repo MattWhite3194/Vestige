@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
-using TheGreen.Game.Tiles;
+using TheGreen.Game.Tiles.TileData;
 using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UIComponents;
 
@@ -24,7 +24,7 @@ namespace TheGreen.Game.Inventory
             
             Item[] inventoryItems = new Item[rows * cols];
 
-            for (int i = 0; i <= 6; i++)
+            for (int i = 0; i <= 7; i++)
             {
                 Item item = ItemDatabase.InstantiateItemByID(i);
                 item.Quantity = item.MaxStack;

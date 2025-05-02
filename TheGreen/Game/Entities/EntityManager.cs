@@ -7,6 +7,7 @@ using TheGreen.Game.Entities.NPCs;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
+using TheGreen.Game.Tiles.TileData;
 using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen.Game.Entities
@@ -105,7 +106,6 @@ namespace TheGreen.Game.Entities
                     }
                 }
 
-
                 if (horizontalCollisionDirection != 0)
                 {
                     if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.Position / TheGreen.TILESIZE).ToPoint(), entity.GetBounds().Width / TheGreen.TILESIZE, entity.GetBounds().Height / TheGreen.TILESIZE, horizontalCollisionDirection))
@@ -158,15 +158,16 @@ namespace TheGreen.Game.Entities
             {
                 for (int y = startY; y <= endY; y++)
                 {
-                    if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
-                    {
-                        continue;
-                    }
                     Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
-
                     //IMPORTANT: entity bounds will not intersect a tile or other collision if the position update is less than a pixels width, since bounds are calculated using integers. Players Velocity will get up to 30 before the player actually moves enough to detect a collision.
                     if (entity.GetBounds().Intersects(collision))
                     {
+                        if (TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)) is ICollideableTile collideableTile)
+                            collideableTile.OnCollision(x, y, entity);
+                        if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
+                        {
+                            continue;
+                        }
                         Vector2 penetrationDistance = GetPenetrationDepth(entity.GetBounds(), collision);
                         if (penetrationDistance.X < 0)
                         {
@@ -207,13 +208,15 @@ namespace TheGreen.Game.Entities
             {
                 for (int y = startY; y <= endY; y++)
                 {
-                    if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
-                    {
-                        continue;
-                    }
                     Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
                     if (entity.GetBounds().Intersects(collision))
                     {
+                        if (TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)) is ICollideableTile collideableTile)
+                            collideableTile.OnCollision(x, y, entity);
+                        if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
+                        {
+                            continue;
+                        }
                         collisionDetected = true;
                         if (collision.Y > entity.Position.Y)
                         {

@@ -2,11 +2,11 @@
 using System;
 using TheGreen.Game.WorldGeneration;
 
-namespace TheGreen.Game.Tiles
+namespace TheGreen.Game.Tiles.TileData
 {
-    public class TorchData : TileData
+    public class TorchData : DefaultTileData
     {
-        public TorchData(int tileID, TileProperty properties, Color color, int itemID = -1) : base(tileID, properties, color, itemID)
+        public TorchData(int tileID, TileProperty properties, Color color, int itemID = -1) : base(tileID, properties | TileProperty.LightEmitting, color, itemID)
         {
         }
         public override int VerifyTile(int x, int y)

@@ -17,13 +17,10 @@ namespace TheGreen.Game.Tiles
         /// The tile emits light.
         /// </summary>
         LightEmitting = 1 << 2,
-        /// <summary>
-        /// The tile does damage to entities.
-        /// </summary>
-        Overlay = 1 << 4,
         PickaxeMineable = 1 << 5,
         AxeMineable = 1 << 6,
         HammerMineable = 1 << 7,
         LargeTile = 1 << 8,
+        TileCollider = 1 << 9,
     }
 }

@@ -42,6 +42,8 @@ namespace TheGreen.Game
             WorldGen.World.InitializeGameUpdates();
             player.InitializeGameUpdates();
             _graphicsDevice = graphicsDevice;
+
+            //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
 
             EntityManager.SetPlayer(player);
@@ -78,7 +80,7 @@ namespace TheGreen.Game
 
             _graphicsDevice.SetRenderTarget(_gameTarget);
             _graphicsDevice.Clear(Color.Transparent);
-            spriteBatch.Begin(SpriteSortMode.Immediate, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend);
+            spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend);
             _tileRenderer.DrawWalls(spriteBatch);
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
             _tileRenderer.DrawTiles(spriteBatch);

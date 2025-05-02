@@ -8,6 +8,7 @@ using TheGreen.Game.Entities.NPCs;
 using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 using TheGreen.Game.Tiles;
+using TheGreen.Game.Tiles.TileData;
 using TheGreen.Game.UIComponents;
 using TheGreen.Game.WorldGeneration;
 
@@ -115,7 +116,11 @@ namespace TheGreen.Game.Entities
                     Animation.SetCurrentAnimation(0);
                 }
                 else
-                    newVelocity.X -= MathF.Sign(newVelocity.X) * (_acceleration * 2.0f) * (float)delta;             
+                {
+                    newVelocity.X -= MathF.Sign(newVelocity.X) * (_acceleration * 2.0f) * (float)delta;
+                    if (MathF.Sign(newVelocity.X) != 0 && MathF.Sign(newVelocity.X) != MathF.Sign(Velocity.X))
+                        newVelocity.X = 0;
+                }
             }
             else
             {

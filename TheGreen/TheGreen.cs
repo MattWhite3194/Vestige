@@ -8,7 +8,6 @@ using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 using TheGreen.Game.Menus;
 using TheGreen.Game.UIComponents;
-using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen
 {

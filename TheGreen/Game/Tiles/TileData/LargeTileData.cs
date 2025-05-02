@@ -2,9 +2,9 @@
 using Microsoft.Xna.Framework.Graphics;
 using TheGreen.Game.WorldGeneration;
 
-namespace TheGreen.Game.Tiles
+namespace TheGreen.Game.Tiles.TileData
 {
-    public class LargeTileData : TileData
+    public class LargeTileData : DefaultTileData
     {
         public readonly Point TileSize;
         /// <summary>
@@ -13,10 +13,10 @@ namespace TheGreen.Game.Tiles
         /// </summary>
         public readonly Point Origin;
         private int _animations;
-        public LargeTileData(int tileID, TileProperty properties, Color color, Point tileSize, Point origin = default, int itemID = -1, int health = 0, int animations = 0) : base(tileID, properties, color, itemID, health)
+        public LargeTileData(int tileID, TileProperty properties, Color color, Point tileSize, Point origin = default, int itemID = -1, int health = 0, int animations = 0) : base(tileID, properties | TileProperty.LargeTile, color, itemID, health)
         {
-            this.TileSize = tileSize;
-            this.Origin = origin == default ? new Point(0, TileSize.Y - 1) : origin;
+            TileSize = tileSize;
+            Origin = origin == default ? new Point(0, TileSize.Y - 1) : origin;
             _animations = animations;
         }
         public override int VerifyTile(int x, int y)
@@ -51,8 +51,8 @@ namespace TheGreen.Game.Tiles
             if (WorldGen.World.GetTileID(x, y) != TileID)
                 return new Point(x, y) - Origin;
             int tileState = WorldGen.World.GetTileState(x, y);
-            int xOff = (tileState % 10) % TileSize.X;
-            int yOff = (tileState / 10) % TileSize.Y;
+            int xOff = tileState % 10 % TileSize.X;
+            int yOff = tileState / 10 % TileSize.Y;
             return new Point(x - xOff, y - yOff);
         }
         public override void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)

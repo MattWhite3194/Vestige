@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using TheGreen.Game.Tiles.TileData;
 
 namespace TheGreen.Game.Tiles
 {
@@ -17,16 +18,18 @@ namespace TheGreen.Game.Tiles
         /// Use & on TileProperties to check if it has a property.
         /// e.x. Dirt: _tileProperties[1].TileProperties & Solid; returns true
         /// </summary>
-        private static readonly TileData[] _tileProperties = [
-            new TileData(0, TileProperty.None, Color.CornflowerBlue),                     //Air
-            new TileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Brown, itemID: 0, health: 40),           //Dirt
-            new TileData(2, TileProperty.Solid | TileProperty.Overlay | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
-            new TileData(3, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100), //CobbleStone
-            new TileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100),  //Stone
+        private static readonly DefaultTileData[] _tileProperties = [
+            new DefaultTileData(0, TileProperty.None, Color.CornflowerBlue),                     //Air
+            new DefaultTileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Brown, itemID: 0, health: 40, tileMerges: [2]),           //Dirt
+            new OverlayTileData(2, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
+            new DefaultTileData(3, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100, tileMerges: [1, 4]), //CobbleStone
+            new DefaultTileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100, tileMerges: [1]),  //Stone
             new TreeData(5, TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
             new TreeTopData(6, TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
-            new TorchData(7, TileProperty.LightEmitting | TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),  //Torch
-            new InventoryTileData(8, TileProperty.PickaxeMineable | TileProperty.LargeTile, Color.Brown, itemID: 5, cols: 5, rows: 3)
+            new TorchData(7, TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),  //Torch
+            new InventoryTileData(8, TileProperty.PickaxeMineable, Color.Brown, itemID: 5, cols: 5, rows: 3),
+            new ClosedDoorData(9, TileProperty.PickaxeMineable | TileProperty.Solid, Color.Brown, 10, itemID: 7),
+            new OpenDoorData(10, TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7)
             ];
         private static Rectangle CreateAtlasRect(int x, int y)
         {
@@ -53,7 +56,7 @@ namespace TheGreen.Game.Tiles
             return (_tileProperties[tileID].Properties & property) == property;
         }
 
-        public static TileData GetTileData(ushort tileID)
+        public static DefaultTileData GetTileData(ushort tileID)
         {
             return _tileProperties[tileID];
         }
