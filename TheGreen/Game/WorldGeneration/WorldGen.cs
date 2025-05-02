@@ -75,7 +75,7 @@ namespace TheGreen.Game.WorldGeneration
                 for (int j = sizeY / 2 - sizeY / 4 + surfaceNoise[i]; j < sizeY; j++)
                 {
                     SetInitialTile(i, j, 4);
-                    SetInitialWall(i, j, 4);
+                    SetInitialWall(i, j, 2);
                     surfaceTerrain[i] = sizeY / 2 - sizeY / 4 + surfaceNoise[i];
 
                     if (sizeY - surfaceTerrain[i] < _surfaceHeight)
@@ -154,7 +154,7 @@ namespace TheGreen.Game.WorldGeneration
                 for (int j = 1; j < sizeY - 1; j++)
                 {
                     SetTileState(i, j, TileDatabase.GetTileData(GetTileID(i, j)).GetUpdatedTileState(i, j));
-                    UpdateWallState(i, j);
+                    SetWallState(i, j, TileDatabase.GetWallData(GetWallID(i, j)).GetUpdatedWallState(i,j));
                 }
             }
 
@@ -632,7 +632,7 @@ namespace TheGreen.Game.WorldGeneration
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    UpdateWallState(x + i, y + j);
+                    SetWallState(x, y, TileDatabase.GetWallData(WallID).GetUpdatedWallState(x + i, y + j));
                 }
             }
         }
@@ -664,22 +664,7 @@ namespace TheGreen.Game.WorldGeneration
         public Dictionary<Point, DamagedTile> GetDamagedTiles()
         {
             return _minedTiles;
-        }
-        private void UpdateWallState(int x, int y)
-        {
-            if (GetWallID(x, y) == 0)
-            {
-                _tiles[y * WorldSize.X + x].WallState = 0;
-                return;
-            }
-            //Important: if a corner doesn't have both sides touching it, it won't be counted
-            ushort top = GetWallID(x, y - 1);
-            ushort right = GetWallID(x + 1, y);
-            ushort bottom = GetWallID(x, y + 1);
-            ushort left = GetWallID(x - 1, y);
-
-            SetWallState(x, y, (byte)((Math.Sign(top) * 2) + (Math.Sign(right) * 8) + (Math.Sign(bottom) * 32) + (Math.Sign(left) * 128)));
-        }
+        } 
         public byte GetTileState(int x, int y)
         {
             return _tiles[y * WorldSize.X + x].State;

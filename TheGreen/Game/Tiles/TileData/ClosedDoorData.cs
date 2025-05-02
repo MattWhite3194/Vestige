@@ -36,7 +36,6 @@ namespace TheGreen.Game.Tiles.TileData
             Point topLeft = GetTopLeft(x, y);
             Point playerPosition = (Main.EntityManager.GetPlayer().Position / TheGreen.TILESIZE).ToPoint();
 
-            //  -1 - left     1 - right
             int playerDirection = Math.Sign(topLeft.X - playerPosition.X);
             OpenDoor(x, y, playerDirection);
         }
@@ -79,14 +78,11 @@ namespace TheGreen.Game.Tiles.TileData
             }
 
             WorldGen.World.SetTile(topLeft.X + direction, topLeft.Y + TileSize.Y - 1, _openDoorID);
-            if (direction != -1)
-                return;
-
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    WorldGen.World.SetTileState(topLeft.X - 1 + i, topLeft.Y + j, (byte)(j * 10 + i + 2));
+                    WorldGen.World.SetTileState(topLeft.X - (direction == -1 ? 1 : 0) + i, topLeft.Y + j, (byte)(j * 10 + i + (direction == -1 ? 2 : 0) + (forceDirection != 0 ? 100 : 0)));
                 }
             }
         }

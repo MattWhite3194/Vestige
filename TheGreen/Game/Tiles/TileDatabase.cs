@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using TheGreen.Game.Tiles.TileData;
+using TheGreen.Game.Tiles.WallData;
 
 namespace TheGreen.Game.Tiles
 {
@@ -18,7 +19,7 @@ namespace TheGreen.Game.Tiles
         /// Use & on TileProperties to check if it has a property.
         /// e.x. Dirt: _tileProperties[1].TileProperties & Solid; returns true
         /// </summary>
-        private static readonly DefaultTileData[] _tileProperties = [
+        private static readonly DefaultTileData[] _tileData = [
             new DefaultTileData(0, TileProperty.None, Color.CornflowerBlue),                     //Air
             new DefaultTileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Brown, itemID: 0, health: 40, tileMerges: [2]),           //Dirt
             new OverlayTileData(2, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
@@ -30,15 +31,27 @@ namespace TheGreen.Game.Tiles
             new InventoryTileData(8, TileProperty.PickaxeMineable, Color.Brown, itemID: 5, cols: 5, rows: 3),
             new ClosedDoorData(9, TileProperty.PickaxeMineable | TileProperty.Solid, Color.Brown, 10, itemID: 7),
             new OpenDoorData(10, TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7)
-            ];
+        ];
+
+        //Only add walls here that require special functions, all walls should more or less work the exact same way.
+        private static readonly DefaultWallData[] _wallData = [
+            new DefaultWallData(0),
+            new DefaultWallData(1),
+            new DefaultWallData(2)
+        ];
+
         private static Rectangle CreateAtlasRect(int x, int y)
         {
             return new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
         }
+        private static Rectangle CreateWallAtlasRect(int x, int y)
+        {
+            return new Rectangle(x * (TheGreen.TILESIZE + 4), y * (TheGreen.TILESIZE + 4), TheGreen.TILESIZE + 4, TheGreen.TILESIZE + 4);
+        }
         /// <summary>
         /// Stores the texture atlas coords of a standard tile with the give tile state.
         /// </summary>
-        private static Dictionary<byte, Rectangle> _textureAtlasRects = new Dictionary<byte, Rectangle>()
+        private static Dictionary<byte, Rectangle> _tileTextureAtlasRects = new Dictionary<byte, Rectangle>()
         {
             {0, CreateAtlasRect(0,0)}, {2, CreateAtlasRect(1,0)}, {8, CreateAtlasRect(2,0)}, {10, CreateAtlasRect(3,0)}, {14, CreateAtlasRect(4,0)}, {32, CreateAtlasRect(5,0)},
             {34, CreateAtlasRect(0,1)}, {40, CreateAtlasRect(1,1)}, {42, CreateAtlasRect(2,1)}, {46, CreateAtlasRect(3,1)}, {56, CreateAtlasRect(4,1)}, {58, CreateAtlasRect(5,1)},
@@ -50,19 +63,35 @@ namespace TheGreen.Game.Tiles
             {248, CreateAtlasRect(0,7)}, {250, CreateAtlasRect(1,7)}, {251, CreateAtlasRect(2,7)}, {254, CreateAtlasRect(3,7)}, {255, CreateAtlasRect(4,7)}
         };
 
+        private static Dictionary<byte, Rectangle> _wallTextureAtlasRects = new Dictionary<byte, Rectangle>()
+        {
+            {0, CreateWallAtlasRect(0,0)}, {2, CreateWallAtlasRect(1,0)}, {8, CreateWallAtlasRect(2,0)}, {10, CreateWallAtlasRect(3,0)}, {32, CreateWallAtlasRect(4,0)}, {34, CreateWallAtlasRect(5,0)},
+            {40, CreateWallAtlasRect(0,1)}, {42, CreateWallAtlasRect(1,1)}, {128, CreateWallAtlasRect(2,1)}, {130, CreateWallAtlasRect(3,1)}, {136, CreateWallAtlasRect(4,1)}, {138, CreateWallAtlasRect(5,1)},
+            {160, CreateWallAtlasRect(0,2)}, {162, CreateWallAtlasRect(1,2)}, {168, CreateWallAtlasRect(2,2)}, {170, CreateWallAtlasRect(3,2)}
+        };
+
         public static bool TileHasProperty(ushort tileID, TileProperty property)
         {
-            if (property == TileProperty.None) return _tileProperties[tileID].Properties == TileProperty.None;
-            return (_tileProperties[tileID].Properties & property) == property;
+            if (property == TileProperty.None) return _tileData[tileID].Properties == TileProperty.None;
+            return (_tileData[tileID].Properties & property) == property;
         }
 
         public static DefaultTileData GetTileData(ushort tileID)
         {
-            return _tileProperties[tileID];
+            return _tileData[tileID];
+        }
+
+        public static DefaultWallData GetWallData(ushort wallID)
+        {
+            return _wallData[wallID];
         }
         public static Rectangle GetTileTextureAtlas(byte state)
         {
-            return _textureAtlasRects[state];
+            return _tileTextureAtlasRects[state];
+        }
+        public static Rectangle GetWallTextureAtlas(byte state)
+        {
+            return _wallTextureAtlasRects[state];
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Diagnostics;
 using TheGreen.Game.Entities;
@@ -27,13 +28,29 @@ namespace TheGreen.Game.Tiles.TileData
             return 1;
         }
 
+        public override Point GetTopLeft(int x, int y)
+        {
+            if (WorldGen.World.GetTileID(x, y) != TileID)
+                return new Point(x, y) - Origin;
+            int tileState = WorldGen.World.GetTileState(x, y);
+            int xOff = tileState % 10 % TileSize.X;
+            int yOff = tileState % 100 / 10 % TileSize.Y;
+            return new Point(x - xOff, y - yOff);
+        }
+
         public void OnCollision(int x, int y, Entity entity)
         {
-            //Add a dictionary of door positions with an open indicator, on collision, set its open indicator to 1, a world updater will check these doors and subtract one from them each pass
-            //if the indicator reaches 0 and the updater checks it at 0, the door will close
+            //Check here if the door was right click opened or not force opened, either or open door if so
+            if (WorldGen.World.GetTileState(x, y) < 100)
+                return;
+            CloseDoor(x, y);
         }
 
         public void OnRightClick(int x, int y)
+        {
+            CloseDoor(x, y);
+        }
+        private void CloseDoor(int x, int y)
         {
             Point topLeft = GetTopLeft(x, y);
             int closeDirection = WorldGen.World.GetTileState(topLeft.X, topLeft.Y) % 10 >= TileSize.X ? 1 : 0;
@@ -53,6 +70,11 @@ namespace TheGreen.Game.Tiles.TileData
                 }
             }
             WorldGen.World.SetTile(topLeft.X + closeDirection, topLeft.Y + TileSize.Y - 1, _closedDoorID);
+        }
+        public override void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
+        {
+            Rectangle textureAtlas = new Rectangle(tileState % 10 * TheGreen.TILESIZE, tileState % 100 / 10 * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * TheGreen.TILESIZE, textureAtlas, Main.LightEngine.GetLight(x, y));
         }
     }
 }

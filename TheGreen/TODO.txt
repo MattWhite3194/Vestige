@@ -1,7 +1,8 @@
 ﻿TODO:
 
+Walls: -50 on brightness photo editor (future reference)
+
 Up Next:
-Walls
 Make WorldGen cooler
 Add different biomes (either as part of one map, or dedicate an entire map to one biome (preferred))
 Add stars and clouds, fix the ugly mountains texture
@@ -20,8 +21,6 @@ Grass still grows on blocks that have been cut off if it remains in the queue - 
 
 Features:
 add equipment (maybe make accessories input handlers, and store them in a list and call them before calling the players input)
-Add doors
-walls
 projectiles
 Ambitious Features:
 Split Screen

@@ -9,6 +9,7 @@ namespace TheGreen.Game
     {
         public static Texture2D PlayerTexture;
         public static Texture2D[] TileTextures;
+        public static Texture2D[] WallTextures;
         public static Texture2D[] ItemTextures;
         public static Texture2D[] EnemyTextures;
         public static Texture2D ItemSlotTexture;
@@ -25,9 +26,12 @@ namespace TheGreen.Game
 
         public static void Load(ContentManager content)
         {
+            //TODO: probably change this to the exact amount when the game is finished
             TileTextures = new Texture2D[200];
+            WallTextures = new Texture2D[200];
             ItemTextures = new Texture2D[200];
             EnemyTextures = new Texture2D[200];
+
             PlayerTexture = content.Load<Texture2D>("Assets/Textures/Player/Player");
             ItemSlotTexture = content.Load<Texture2D>("Assets/Textures/UIComponents/ItemSlot");
             GameFont = content.Load<SpriteFont>("Assets/Fonts/RetroGaming");
@@ -43,6 +47,12 @@ namespace TheGreen.Game
             for (int i = 1; i <= numTiles; i++)
             {
                 TileTextures[i] = content.Load<Texture2D>("Assets/Textures/Tiles/Tile" + i);
+            }
+
+            int numWalls = Directory.GetFiles(content.RootDirectory + "/Assets/Textures/Walls").Length;
+            for (int i = 1; i <= numWalls; i++)
+            {
+                WallTextures[i] = content.Load<Texture2D>("Assets/Textures/Walls/Wall" + i);
             }
 
             int numItems = Directory.GetFiles(content.RootDirectory + "/Assets/Textures/Items").Length;

@@ -2,12 +2,10 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TheGreen.Game.Input;
-using TheGreen.Game.UI;
 using TheGreen.Game.UI.Components;
 using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UIComponents;

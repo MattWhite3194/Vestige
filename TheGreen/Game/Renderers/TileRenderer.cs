@@ -16,19 +16,10 @@ namespace TheGreen.Game.Renderer
             {
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
-                    if (i >= 0 && i < WorldGen.World.WorldSize.X && j >= 0 && j < WorldGen.World.WorldSize.Y)
-                    {
-                        //TEMPORARY
-                        ushort wallID = WorldGen.World.GetWallID(i, j);
-                        if (wallID != 0)
-                        {
-                            Color light = Main.LightEngine.GetLight(i, j);
-                            light.R = (byte)Math.Max(0, light.R - 30);
-                            light.G = (byte)Math.Max(0, light.G - 30);
-                            light.B = (byte)Math.Max(0, light.B - 30);
-                            spriteBatch.Draw(ContentLoader.TileTextures[wallID], new Vector2(i * TheGreen.TILESIZE, j * TheGreen.TILESIZE), TileDatabase.GetTileTextureAtlas(255), light);
-                        }
-                    }
+                    ushort wallID = WorldGen.World.GetWallID(i, j);
+                    if (wallID == 0)
+                        continue;
+                    TileDatabase.GetWallData(wallID).Draw(spriteBatch, i, j);
                 }
             }
         }
