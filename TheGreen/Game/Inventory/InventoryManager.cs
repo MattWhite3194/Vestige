@@ -34,7 +34,7 @@ namespace TheGreen.Game.Inventory
             _dragItem = new DragItem(Vector2.Zero);
             _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20));
             _hotbar = new Hotbar(cols, inventoryItems, margin: 2, position: new Vector2(20, 20));
-            _craftingMenu = new CraftingGrid(2, _dragItem, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: Color.BurlyWood, anchor: UI.Anchor.TopLeft);
+            _craftingMenu = new CraftingGrid(3, _dragItem, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: Color.BurlyWood, anchor: UI.Anchor.TopLeft);
             _activeMenu = _hotbar;
             AddContainerChild(_hotbar);
         }

@@ -6,6 +6,7 @@ using TheGreen.Game.Items;
 using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UI;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace TheGreen.Game.Inventory
 {
@@ -17,13 +18,15 @@ namespace TheGreen.Game.Inventory
         private ItemSlot _craftingOutputSlot;
         private Item _craftingOutputItem;
         private GridContainer _grid;
+        private int _gridSize;
 
         public CraftingGrid(int size, DragItem dragItem, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.BottomLeft) : base(anchor: anchor)
         {
             _craftingInputItems = new Item[size * size];
             _craftingInputSlots = new ItemSlot[size * size];
             _grid = new GridContainer(size, margin, position, anchor: anchor);
-            this._dragItem = dragItem;
+            _gridSize = size;
+            _dragItem = dragItem;
             if (itemSlotColor == default)
             {
                 itemSlotColor = Color.ForestGreen;
@@ -77,12 +80,36 @@ namespace TheGreen.Game.Inventory
         }
         private void FindRecipe()
         {
+            //TODO:
+            /*
+             Get grid size of recipe, max distance between the leftmost and rightmost item, and topmost and bottom most item, create a new array with of that num elements and their position local to the recipe size, search recipes in crafting recipes
+             */
             _craftingOutputItem = null;
-            if (_craftingInputItems[0] != null && _craftingInputItems[0].ID == 1)
+            
+            int startX = -1, startY = -1;
+            int endX = -1, endY = -1;
+            List<(byte, byte, int)> recipeInputs = new List<(byte, byte, int)>();
+            for (int i = 0; i < _craftingInputItems.Length; i++)
             {
-                _craftingOutputItem = ItemDatabase.InstantiateItemByID(2);
-                Debug.WriteLine("Ouput recipe");
+                if (_craftingInputItems[i] != null)
+                {
+                    startX = startX == -1 ? i % _gridSize : Math.Min(startX, i % _gridSize);
+                    startY = startY == -1 ? i / _gridSize : Math.Min(startY, i / _gridSize);
+                    endX = endX == -1 ? i % _gridSize : Math.Max(endX, i % _gridSize);
+                    endY = endY == -1 ? i / _gridSize : Math.Max(endY, i / _gridSize);
+                    recipeInputs.Add(((byte)(i % _gridSize), (byte)(i/_gridSize), _craftingInputItems[i].ID));
+                }
             }
+            Point recipeSize = new Point(endX -  startX + 1, endY - startY + 1);
+            Debug.WriteLine(recipeSize.ToString());
+            for (int i = 0; i < recipeInputs.Count; i++)
+            {
+                recipeInputs[i] = ((byte)(recipeInputs[i].Item1 - startX), (byte)(recipeInputs[i].Item2 - startY), recipeInputs[i].Item3);
+                Debug.WriteLine((byte)(recipeInputs[i].Item1 - startX) + " " + (byte)(recipeInputs[i].Item2 - startY) + " " + recipeInputs[i].Item3);
+            }
+
+            
+            _craftingOutputItem = CraftingRecipes.GetItemFromRecipe(recipeSize, recipeInputs);
         }
         private void PlaceItem(int index)
         {
