@@ -120,7 +120,7 @@ namespace TheGreen.Game.Inventory
 
         private void SplitItem(int index)
         {
-            if (_inventoryItems[index] == null)
+            if (_inventoryItems[index] == null && (_dragItem.Item == null))
                 return;
             if (_dragItem.Item == null)
             {
@@ -135,8 +135,24 @@ namespace TheGreen.Game.Inventory
                 {
                     _dragItem.Item = _inventoryItems[index];
                     SetItem(null, index);
-
                 }
+            }
+            else if (_inventoryItems[index] == null || (_dragItem.Item.ID == _inventoryItems[index].ID && _dragItem.Item.Stackable))
+            {
+                if (_inventoryItems[index] == null)
+                {
+                    SetItem(ItemDatabase.InstantiateItemByID(_dragItem.Item.ID), index);
+                }
+                else
+                {
+                    int newQuantity = _inventoryItems[index].Quantity + 1;
+                    if (newQuantity > _inventoryItems[index].MaxStack)
+                        return;
+                    SetItemQuantity(index, newQuantity);
+                }
+                _dragItem.Item.Quantity -= 1;
+                if (_dragItem.Item.Quantity <= 0)
+                    _dragItem.Item = null;
             }
         }
         private void SetItem(Item item, int index)

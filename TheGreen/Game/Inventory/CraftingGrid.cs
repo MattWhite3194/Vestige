@@ -5,21 +5,24 @@ using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UI;
+using System.Diagnostics;
 
 namespace TheGreen.Game.Inventory
 {
-    public class CraftingGrid : GridContainer
+    public class CraftingGrid : UIComponentContainer
     {
         private Item[] _craftingInputItems;
         private ItemSlot[] _craftingInputSlots;
         private DragItem _dragItem;
         private ItemSlot _craftingOutputSlot;
         private Item _craftingOutputItem;
+        private GridContainer _grid;
 
-        public CraftingGrid(int size, DragItem dragItem, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.BottomLeft) : base(size, margin, position, anchor: anchor)
+        public CraftingGrid(int size, DragItem dragItem, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.BottomLeft) : base(anchor: anchor)
         {
             _craftingInputItems = new Item[size * size];
             _craftingInputSlots = new ItemSlot[size * size];
+            _grid = new GridContainer(size, margin, position, anchor: anchor);
             this._dragItem = dragItem;
             if (itemSlotColor == default)
             {
@@ -30,26 +33,28 @@ namespace TheGreen.Game.Inventory
             {
                 int index = i;
                 _craftingInputSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
-                AddComponentChild(_craftingInputSlots[i]);
+                _grid.AddComponentChild(_craftingInputSlots[i]);
                 _craftingInputSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnCraftingInputSlotGUIInput(index, @mouseEvent);
             }
+            AddContainerChild(_grid);
             itemSlotColor *= 0.8f;
-            _craftingOutputSlot = new ItemSlot(Position + new Vector2(Size.X + margin * 3, Size.Y / size), ContentLoader.ItemSlotTexture, itemSlotColor);
+            _craftingOutputSlot = new ItemSlot(_grid.Position + new Vector2(_grid.Size.X + margin * 3, _grid.Size.Y / 2 - ContentLoader.ItemSlotTexture.Height / 2), ContentLoader.ItemSlotTexture, itemSlotColor);
             _craftingOutputSlot.OnMouseInput += (@mouseEvent, mouseCoordinates) => OnCraftingOutputSlotGUIInput(@mouseEvent);
+            AddComponentChild(_craftingOutputSlot);
         }
         private void OnCraftingInputSlotGUIInput(int index, MouseInputEvent @mouseEvent)
         {
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 PlaceItem(index);
-                InputManager.MarkInputAsHandled(@mouseEvent);
+                FindRecipe();
             }
             else if (@mouseEvent.InputButton == InputButton.RightMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 SplitItem(index);
-                InputManager.MarkInputAsHandled(@mouseEvent);
+                FindRecipe();
             }
-            FindRecipe();
+            InputManager.MarkInputAsHandled(@mouseEvent);
         }
         private void OnCraftingOutputSlotGUIInput(MouseInputEvent @mouseEvent)
         {
@@ -59,15 +64,25 @@ namespace TheGreen.Game.Inventory
                     return;
                 _dragItem.Item = _craftingOutputItem;
                 _craftingOutputItem = null;
+                //change this to subtract from recipe
+                //store recipe as class variable
+                
                 for (int i = 0; i < _craftingInputItems.Length; i++)
                 {
                     _craftingInputItems[i] = null;
                 }
+                //delete this^^^
             }
+            InputManager.MarkInputAsHandled(@mouseEvent);
         }
         private void FindRecipe()
         {
-            //TODO: implementation
+            _craftingOutputItem = null;
+            if (_craftingInputItems[0] != null && _craftingInputItems[0].ID == 1)
+            {
+                _craftingOutputItem = ItemDatabase.InstantiateItemByID(2);
+                Debug.WriteLine("Ouput recipe");
+            }
         }
         private void PlaceItem(int index)
         {
@@ -107,7 +122,7 @@ namespace TheGreen.Game.Inventory
 
         private void SplitItem(int index)
         {
-            if (_craftingInputItems[index] == null)
+            if (_craftingInputItems[index] == null && (_dragItem.Item == null))
                 return;
             if (_dragItem.Item == null)
             {
@@ -122,8 +137,24 @@ namespace TheGreen.Game.Inventory
                 {
                     _dragItem.Item = _craftingInputItems[index];
                     SetItem(null, index);
-
                 }
+            }
+            else if (_craftingInputItems[index] == null || (_dragItem.Item.ID == _craftingInputItems[index].ID && _dragItem.Item.Stackable))
+            {
+                if (_craftingInputItems[index] == null)
+                {
+                    SetItem(ItemDatabase.InstantiateItemByID(_dragItem.Item.ID), index);
+                }
+                else
+                {
+                    int newQuantity = _craftingInputItems[index].Quantity + 1;
+                    if (newQuantity > _craftingInputItems[index].MaxStack)
+                        return;
+                    SetItemQuantity(index, newQuantity);
+                }
+                _dragItem.Item.Quantity -= 1;
+                if (_dragItem.Item.Quantity <= 0)
+                    _dragItem.Item = null;
             }
         }
         private void SetItem(Item item, int index)
@@ -139,15 +170,16 @@ namespace TheGreen.Game.Inventory
                 SetItem(null, index);
             }
         }
-        protected override void DrawComponents(SpriteBatch spritebatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
+            base.Draw(spriteBatch);
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: AnchorMatrix);
             for (int i = 0; i < _craftingInputSlots.Length; i++)
             {
-                _craftingInputSlots[i].Draw(spritebatch);
-                _craftingInputSlots[i].DrawItem(spritebatch, _craftingInputItems[i]);
+                _craftingInputSlots[i].DrawItem(spriteBatch, _craftingInputItems[i]);
             }
-            _craftingOutputSlot.Draw(spritebatch);
-            _craftingOutputSlot.DrawItem(spritebatch, _craftingOutputItem);
+            _craftingOutputSlot.DrawItem(spriteBatch, _craftingOutputItem);
+            spriteBatch.End();
         }
     }
 }
