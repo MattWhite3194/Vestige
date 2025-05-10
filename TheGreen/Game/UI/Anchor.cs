@@ -1,5 +1,5 @@
 ﻿
-namespace TheGreen.Game.UIComponents
+namespace TheGreen.Game.UI
 {
     public enum Anchor
     {

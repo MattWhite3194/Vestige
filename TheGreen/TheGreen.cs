@@ -7,7 +7,7 @@ using TheGreen.Game.Entities;
 using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 using TheGreen.Game.Menus;
-using TheGreen.Game.UIComponents;
+using TheGreen.Game.UI;
 
 namespace TheGreen
 {
@@ -26,6 +26,7 @@ namespace TheGreen
         public static Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
         public static readonly float GRAVITY = 1400.0f;
         public static Point ScreenCenter = new Point(960 / 2, 640 / 2);
+        public static Point ScreenResolution;
 
         public TheGreen()
         {
@@ -105,6 +106,7 @@ namespace TheGreen
         }
         private void UpdateRenderDestination(int width, int height)
         {
+            ScreenResolution = new Point(width, height);
             int xScale = (int)Math.Ceiling(width / (float)NativeResolution.X);
             int yScale = (int)Math.Ceiling(height / (float)NativeResolution.Y);
             SetUIScaleMatrix(width / (float)NativeResolution.X);

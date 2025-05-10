@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using TheGreen.Game.Drawables;
 using TheGreen.Game.UI.Containers;
-using TheGreen.Game.UIComponents;
+using TheGreen.Game.UI;
 
 namespace TheGreen.Game.Menus
 {
@@ -10,9 +10,8 @@ namespace TheGreen.Game.Menus
     {
         private ParallaxManager parallaxManager;
         private Vector2 parallaxOffset;
-        public MainMenuBackground()
+        public MainMenuBackground() : base(anchor: Anchor.ScreenScale)
         {
-            this.Anchor = Anchor.ScreenScale;
             parallaxOffset = new Vector2(0, TheGreen.NativeResolution.Y);
             parallaxManager = new ParallaxManager();
             parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(2f, 0), parallaxOffset, TheGreen.NativeResolution.Y + 50, -1));
@@ -25,7 +24,7 @@ namespace TheGreen.Game.Menus
             parallaxOffset.X += (float)delta;
             parallaxManager.Update(delta, parallaxOffset);
         }
-        public override void Draw(SpriteBatch spritebatch)
+        protected override void DrawComponents(SpriteBatch spritebatch)
         {
             parallaxManager.Draw(spritebatch, Color.White);
         }

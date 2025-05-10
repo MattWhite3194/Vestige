@@ -9,8 +9,11 @@ namespace TheGreen.Game.UI.Containers
         private int _viewHeight;
         private int _initialPositionY;
         private int _scrollSpeed;
-
-        public ScrollContainer(Vector2 position, int viewHeight, int margin = 5, int scrollSpeed = 2, Vector2 size = default) : base(1, margin, position, size)
+        private RasterizerState rasterizerState = new RasterizerState()
+        {
+            ScissorTestEnable = true
+        };
+        public ScrollContainer(Vector2 position, int viewHeight, int margin = 5, int scrollSpeed = 2, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle) : base(1, margin, position, size, anchor)
         {
             _viewHeight = viewHeight;
             _initialPositionY = (int)position.Y;
@@ -53,12 +56,13 @@ namespace TheGreen.Game.UI.Containers
             }
             Position = new Vector2(Position.X, Position.Y + scrollAmount);
         }
-        public override void Draw(SpriteBatch spritebatch)
+        protected override void DrawComponents(SpriteBatch spriteBatch)
         {
-            Rectangle clippingRectangle = spritebatch.GraphicsDevice.ScissorRectangle;
-            spritebatch.GraphicsDevice.ScissorRectangle = new Rectangle(Vector2.Transform(new Vector2((int)Position.X, _initialPositionY), AnchorMatrix).ToPoint(), Vector2.Transform(new Vector2((int)Size.X, _viewHeight), TheGreen.UIScaleMatrix).ToPoint());
-            base.Draw(spritebatch);
-            spritebatch.GraphicsDevice.ScissorRectangle = clippingRectangle;
+            spriteBatch.GraphicsDevice.RasterizerState = rasterizerState;
+            Rectangle clippingRectangle = spriteBatch.GraphicsDevice.ScissorRectangle;
+            spriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle(Vector2.Transform(new Vector2((int)Position.X, _initialPositionY), AnchorMatrix).ToPoint(), Vector2.Transform(new Vector2((int)Size.X, _viewHeight), TheGreen.UIScaleMatrix).ToPoint());
+            base.DrawComponents(spriteBatch);
+            spriteBatch.GraphicsDevice.ScissorRectangle = clippingRectangle;
         }
         public override Vector2 GetSize()
         {

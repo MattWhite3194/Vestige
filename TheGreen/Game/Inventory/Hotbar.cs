@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.UI.Containers;
+using TheGreen.Game.UI;
 
 namespace TheGreen.Game.Inventory
 {
@@ -11,7 +12,7 @@ namespace TheGreen.Game.Inventory
         private Item[] _inventoryItems;
         private ItemSlot[] _hotbarItemSlots;
         private int selected;
-        public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default) : base(cols, margin, position)
+        public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default, Anchor anchor = Anchor.TopLeft) : base(cols, margin, position, anchor: anchor)
         {
             _inventoryItems = inventoryItems;
             _hotbarItemSlots = new ItemSlot[cols];
@@ -19,7 +20,7 @@ namespace TheGreen.Game.Inventory
             {
                 int index = i;
                 _hotbarItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, new Color(34, 139, 34, 150));
-                AddUIComponent(_hotbarItemSlots[i]);
+                AddComponentChild(_hotbarItemSlots[i]);
                 _hotbarItemSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnItemSlotGuiInput(index, @mouseEvent);
             }
             SetSelected(0);
@@ -66,7 +67,7 @@ namespace TheGreen.Game.Inventory
                 InputManager.MarkInputAsHandled(@event);
             }
         }
-        public override void Draw(SpriteBatch spritebatch)
+        protected override void DrawComponents(SpriteBatch spritebatch)
         {
             for (int i = 0; i < _hotbarItemSlots.Length; i++)
             {

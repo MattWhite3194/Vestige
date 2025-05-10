@@ -1,11 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles.TileData;
 using TheGreen.Game.UI.Containers;
-using TheGreen.Game.UIComponents;
 
 namespace TheGreen.Game.Inventory
 {
@@ -18,6 +16,7 @@ namespace TheGreen.Game.Inventory
         private Point _inventoryTileDataCoordinates;
         private Inventory _tileInventory;
         private GridContainer _activeMenu;
+        private CraftingGrid _craftingMenu;
         public InventoryManager(int rows, int cols)
         {
             //Temporary inventory
@@ -30,11 +29,12 @@ namespace TheGreen.Game.Inventory
                 item.Quantity = item.MaxStack;
                 inventoryItems[i] = item;
             }
-            Anchor = Anchor.TopLeft;
             _dragItem = new DragItem(Vector2.Zero);
             _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20));
             _hotbar = new Hotbar(cols, inventoryItems, margin: 2, position: new Vector2(20, 20));
+            _craftingMenu = new CraftingGrid(3, _dragItem, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: Color.BurlyWood, anchor: UI.Anchor.TopLeft);
             _activeMenu = _hotbar;
+            AddContainerChild(_hotbar);
         }
         public override void HandleInput(InputEvent @event)
         {
@@ -57,8 +57,7 @@ namespace TheGreen.Game.Inventory
             }
             else
             {
-                _activeMenu.HandleInput(@event);
-                _tileInventory?.HandleInput(@event);
+                base.HandleInput(@event);
             }
             if (InputManager.IsEventHandled(@event))
                 return;
@@ -75,18 +74,18 @@ namespace TheGreen.Game.Inventory
 
         public override void Update(double delta)
         {
-            _activeMenu.Update(delta);
-            _tileInventory?.Update(delta);
+            base.Update(delta);
             _dragItem.Update(delta);
         }
 
-        public override void Draw(SpriteBatch spritebatch)
+        public override void Draw(SpriteBatch spriteBatch)
         {
-            _activeMenu.Draw(spritebatch);
-            _tileInventory?.Draw(spritebatch);
-            _dragItem.Draw(spritebatch);
+            base.Draw(spriteBatch);
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: TheGreen.UIScaleMatrix);
+            _dragItem.Draw(spriteBatch);
+            spriteBatch.End();
         }
-        
+
         public Item GetSelected()
         {
             if (InventoryVisible())
@@ -103,28 +102,46 @@ namespace TheGreen.Game.Inventory
 
         public void DisplayTileInventory(InventoryTileData inventoryTileData, Point coordinates, Item[] items)
         {
-            //TODO: close active tileinventory if there is one
             SetInventoryOpen(true);
+            if (_tileInventory != null)
+            {
+                RemoveContainerChild(_tileInventory);
+            }
             if (_inventoryTileData != null && coordinates != _inventoryTileDataCoordinates)
             {
                 _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
             }
-            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, items, margin: 2, position: _inventoryMenu.Position + new Vector2(_inventoryMenu.Size.X + 30, 0 ), itemSlotColor: Color.Crimson);
-            _tileInventory.SetAnchorMatrix(AnchorMatrix);
+            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20 ), itemSlotColor: Color.Crimson);
             _inventoryTileDataCoordinates = coordinates;
             _inventoryTileData = inventoryTileData;
+            AddContainerChild(_tileInventory);
         }
         public void SetInventoryOpen(bool open)
         {
+            if (open == InventoryVisible())
+                return;
             _activeMenu = open ? _inventoryMenu : _hotbar;
-            if (!InventoryVisible())
+            if (open)
             {
-                _tileInventory = null;
-                
-                if (_inventoryTileData != null)
+                AddContainerChild(_inventoryMenu);
+                AddContainerChild(_craftingMenu);
+                RemoveContainerChild(_hotbar);
+            }
+            else
+            {
+                RemoveContainerChild(_inventoryMenu);
+                RemoveContainerChild(_craftingMenu);
+                AddContainerChild(_hotbar);
+                if (_tileInventory != null)
                 {
-                    _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
-                    _inventoryTileData = null;
+                    RemoveContainerChild(_tileInventory);
+                    _tileInventory = null;
+
+                    if (_inventoryTileData != null)
+                    {
+                        _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
+                        _inventoryTileData = null;
+                    }
                 }
             }
         }
@@ -150,16 +167,10 @@ namespace TheGreen.Game.Inventory
         {
             return _inventoryMenu.AddItem(item);
         }
-        //Why do they need to be updated? - future me, I forgor
-        //Since the inventories are tied to this UIComponentContainer and not the UIManager, The anchor matrices will not be updated by default by the UIManager. They must be updated here so input handles correctly
-        //For future reference in case I do something stupid like this again
-        //Maybe add a list of UIComponentContainers as children, and the UIComponentContainer will auto-magically update it's children
-        public override void SetAnchorMatrix(Matrix anchorMatrix)
+        public override void UpdateAnchorMatrix(int parentSizeX, int parentSizeY)
         {
-            base.SetAnchorMatrix(anchorMatrix);
-            _inventoryMenu.SetAnchorMatrix(anchorMatrix);
-            _hotbar.SetAnchorMatrix(anchorMatrix);
-            _tileInventory?.SetAnchorMatrix(anchorMatrix);
+            this.Size = new Vector2(parentSizeX, parentSizeY);
+            base.UpdateAnchorMatrix(parentSizeX, parentSizeY);
         }
     }
 }

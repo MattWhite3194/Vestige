@@ -2,6 +2,9 @@
 
 Walls: -50 on brightness photo editor (future reference)
 
+Make Entity/NPC scope knockback function. Fix when it's applied
+
+Apply position of parent UIContainer to child containers
 Up Next:
 Make WorldGen cooler
 Add different biomes (either as part of one map, or dedicate an entire map to one biome (preferred))

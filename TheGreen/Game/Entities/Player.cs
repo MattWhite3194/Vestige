@@ -9,7 +9,7 @@ using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.Tiles.TileData;
-using TheGreen.Game.UIComponents;
+using TheGreen.Game.UI;
 using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen.Game.Entities

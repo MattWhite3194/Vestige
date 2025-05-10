@@ -4,6 +4,7 @@ using System;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.UI.Containers;
+using TheGreen.Game.UI;
 
 namespace TheGreen.Game.Inventory
 {
@@ -13,7 +14,7 @@ namespace TheGreen.Game.Inventory
         private ItemSlot[] _inventoryItemSlots;
         private DragItem _dragItem;
 
-        public Inventory(int cols, DragItem dragItem, Item[] inventoryItems, int margin = 5, Vector2 position = default, Color itemSlotColor = default) : base(cols, margin, position)
+        public Inventory(int cols, DragItem dragItem, Item[] inventoryItems, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.TopLeft) : base(cols, margin, position, anchor: anchor)
         {
             _inventoryItems = inventoryItems;
             _inventoryItemSlots = new ItemSlot[_inventoryItems.Length];
@@ -27,7 +28,7 @@ namespace TheGreen.Game.Inventory
             {
                 int index = i;
                 _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
-                AddUIComponent(_inventoryItemSlots[i]);
+                AddComponentChild(_inventoryItemSlots[i]);
                 _inventoryItemSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnItemSlotGuiInput(index, @mouseEvent);
             }
         }
@@ -151,7 +152,7 @@ namespace TheGreen.Game.Inventory
                 SetItem(null, index);
             }
         }
-        public override void Draw(SpriteBatch spritebatch)
+        protected override void DrawComponents(SpriteBatch spritebatch)
         {
             for (int i = 0; i < _inventoryItemSlots.Length; i++)
             {
