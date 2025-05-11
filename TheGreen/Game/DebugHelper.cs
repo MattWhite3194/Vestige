@@ -13,7 +13,7 @@ namespace TheGreen.Game
         {
             //Initialize everything with graphics device here
             _pixel = new Texture2D(graphicsDevice, 1, 1);
-            _pixel.SetData(new[] { Color.White });
+            _pixel.SetData([Color.White]);
         }
         public static void DrawDebugRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color)
         {

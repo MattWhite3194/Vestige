@@ -1,14 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TheGreen.Game.Items;
 
 namespace TheGreen.Game.Inventory
 {
     //TODO: convert this to JSON: For real this time
+    //TODO: shapeless recipes
+    /*
+     Add a ShapelessCraftingKey struct and another dictionary, compare lists by sorting by item id, and check if the item ids in the list are equal. Check Shaped recipes first, if there are none found, then check ShapelessRecipes
+     */
     public static class CraftingRecipes
     {
         //crafting recipe size variable. etc: 1x2 3x3 2x2, so the recipes with smaller grids can be placed anywhere on the table
@@ -44,6 +46,10 @@ namespace TheGreen.Game.Inventory
                 return hash;
             }
         }
+        private struct ShapelessCraftingKey
+        {
+            //TODO: implementation
+        }
         private static Dictionary<CraftingKey, int> _recipes = new Dictionary<CraftingKey, int>()
         {
             {new CraftingKey(
@@ -55,11 +61,14 @@ namespace TheGreen.Game.Inventory
                     ]
             ), 7},
         };
+        private static Dictionary<ShapelessCraftingKey, int> _shapelessRecipes = new Dictionary<ShapelessCraftingKey, int>()
+        {
+
+        };
         public static Item GetItemFromRecipe(Point size, List<(byte, byte, int)> inputs)
         {
             if (_recipes.TryGetValue(new CraftingKey(size, inputs), out int itemID)) 
             {
-                Debug.WriteLine("Recipe Found.");
                 return ItemDatabase.InstantiateItemByID(itemID);
             }
             return null;

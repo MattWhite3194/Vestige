@@ -12,14 +12,18 @@ namespace TheGreen.Game.Inventory
         private Item[] _inventoryItems;
         private ItemSlot[] _hotbarItemSlots;
         private int selected;
-        public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default, Anchor anchor = Anchor.TopLeft) : base(cols, margin, position, anchor: anchor)
+        public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.TopLeft) : base(cols, margin, position, anchor: anchor)
         {
             _inventoryItems = inventoryItems;
             _hotbarItemSlots = new ItemSlot[cols];
+            if (itemSlotColor == default)
+            {
+                itemSlotColor = Color.White;
+            }
             for (int i = 0; i < cols; i++)
             {
                 int index = i;
-                _hotbarItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, new Color(34, 139, 34, 150));
+                _hotbarItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
                 AddComponentChild(_hotbarItemSlots[i]);
                 _hotbarItemSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnItemSlotGuiInput(index, @mouseEvent);
             }
@@ -30,7 +34,7 @@ namespace TheGreen.Game.Inventory
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 SetSelected(index);
-                _hotbarItemSlots[selected].SetColor(Color.Yellow);
+                _hotbarItemSlots[selected].Color = Color.Yellow;
                 InputManager.MarkInputAsHandled(@mouseEvent);
             }
         }
@@ -40,9 +44,9 @@ namespace TheGreen.Game.Inventory
         }
         public void SetSelected(int index)
         {
-            _hotbarItemSlots[selected].SetColor(new Color(34, 139, 34, 150));
+            _hotbarItemSlots[selected].Color = new Color(34, 139, 34, 150);
             selected = index;
-            _hotbarItemSlots[selected].SetColor(Color.Yellow);
+            _hotbarItemSlots[selected].Color = Color.Yellow;
         }
         public void SetSelectedQuantity(int quantity)
         {

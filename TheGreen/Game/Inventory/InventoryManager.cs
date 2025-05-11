@@ -7,7 +7,7 @@ using TheGreen.Game.UI.Containers;
 
 namespace TheGreen.Game.Inventory
 {
-    public class InventoryManager : UIComponentContainer
+    public class InventoryManager : UIContainer
     {
         private Hotbar _hotbar;
         private Inventory _inventoryMenu;
@@ -15,9 +15,9 @@ namespace TheGreen.Game.Inventory
         private InventoryTileData _inventoryTileData;
         private Point _inventoryTileDataCoordinates;
         private Inventory _tileInventory;
-        private GridContainer _activeMenu;
+        private bool _inventoryOpen;
         private CraftingGrid _craftingMenu;
-        public InventoryManager(int rows, int cols)
+        public InventoryManager(int rows, int cols) : base(anchor: UI.Anchor.TopLeft)
         {
             //Temporary inventory
             
@@ -32,10 +32,10 @@ namespace TheGreen.Game.Inventory
 
 
             _dragItem = new DragItem(Vector2.Zero);
-            _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20));
-            _hotbar = new Hotbar(cols, inventoryItems, margin: 2, position: new Vector2(20, 20));
-            _craftingMenu = new CraftingGrid(3, _dragItem, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: Color.BurlyWood, anchor: UI.Anchor.TopLeft);
-            _activeMenu = _hotbar;
+            _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20), itemSlotColor: new Color(34, 139, 34, 250));
+            _hotbar = new Hotbar(cols, inventoryItems, margin: 2, itemSlotColor: new Color(34, 139, 34, 200), position: new Vector2(20, 20));
+            _craftingMenu = new CraftingGrid(3, _dragItem, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: new Color(222, 184, 135, 230), anchor: UI.Anchor.TopLeft);
+            _inventoryOpen = false;
             AddContainerChild(_hotbar);
         }
         public override void HandleInput(InputEvent @event)
@@ -99,7 +99,7 @@ namespace TheGreen.Game.Inventory
 
         public bool InventoryVisible()
         {
-            return _activeMenu == _inventoryMenu;
+            return _inventoryOpen;
         }
 
         public void DisplayTileInventory(InventoryTileData inventoryTileData, Point coordinates, Item[] items)
@@ -122,7 +122,7 @@ namespace TheGreen.Game.Inventory
         {
             if (open == InventoryVisible())
                 return;
-            _activeMenu = open ? _inventoryMenu : _hotbar;
+            _inventoryOpen = open;
             if (open)
             {
                 AddContainerChild(_inventoryMenu);
@@ -168,11 +168,6 @@ namespace TheGreen.Game.Inventory
         public Item AddItemToPlayerInventory(Item item)
         {
             return _inventoryMenu.AddItem(item);
-        }
-        public override void UpdateAnchorMatrix(int parentSizeX, int parentSizeY)
-        {
-            this.Size = new Vector2(parentSizeX, parentSizeY);
-            base.UpdateAnchorMatrix(parentSizeX, parentSizeY);
         }
     }
 }

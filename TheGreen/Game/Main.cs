@@ -73,7 +73,7 @@ namespace TheGreen.Game
             float normalizedGlobalLight = (GameClock.GlobalLight - 50) / 205.0f;
 
             _graphicsDevice.SetRenderTarget(_bgTarget);
-            _graphicsDevice.Clear(new Color((int)(100 * normalizedGlobalLight), (int)(149 * normalizedGlobalLight), (int)(237 * normalizedGlobalLight)));
+            _graphicsDevice.Clear(new Color((int)(50 * normalizedGlobalLight), (int)(109 * normalizedGlobalLight), (int)(255 * normalizedGlobalLight)));
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
             ParallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             spriteBatch.End();

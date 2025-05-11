@@ -18,12 +18,11 @@ namespace TheGreen.Game.Inventory
         {
             _inventoryItems = inventoryItems;
             _inventoryItemSlots = new ItemSlot[_inventoryItems.Length];
-            this._dragItem = dragItem;
             if (itemSlotColor == default)
             {
-                itemSlotColor = Color.ForestGreen;
+                itemSlotColor = Color.White;
             }
-            itemSlotColor.A = 200;
+            this._dragItem = dragItem;
             for (int i = 0; i < _inventoryItemSlots.Length; i++)
             {
                 int index = i;

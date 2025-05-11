@@ -9,7 +9,7 @@ namespace TheGreen.Game.UI
     /// </summary>
     public static class UIManager
     {
-        private static List<UIComponentContainer> _uiComponentContainers = new List<UIComponentContainer>();
+        private static List<UIContainer> _uiComponentContainers = new List<UIContainer>();
 
         public static void Update(double delta)
         {
@@ -26,13 +26,13 @@ namespace TheGreen.Game.UI
             }
         }
 
-        public static void RegisterContainer(UIComponentContainer container)
+        public static void RegisterContainer(UIContainer container)
         {
             _uiComponentContainers.Add(container);
             container.UpdateAnchorMatrix(TheGreen.ScreenResolution.X, TheGreen.ScreenResolution.Y);
         }
 
-        public static void UnregisterContainer(UIComponentContainer container)
+        public static void UnregisterContainer(UIContainer container)
         {
             _uiComponentContainers.Remove(container);
         }

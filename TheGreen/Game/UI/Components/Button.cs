@@ -37,7 +37,7 @@ namespace TheGreen.Game.UI.Components
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 _textColor = _textClickedColor;
-                color = _clickedColor;
+                Color = _clickedColor;
                 _clicked = true;
             }
             else if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonUp)
@@ -56,12 +56,12 @@ namespace TheGreen.Game.UI.Components
             _clicked = false;
             Scale = Scale - 0.2f;
             _textColor = _defaultTextColor;
-            color = _defaultColor;
+            Color = _defaultColor;
         }
 
         private void HoverButton()
         {
-            color = _hoveredColor;
+            Color = _hoveredColor;
             Scale = Scale + 0.2f;
             _textColor = _textHoveredColor;
         }

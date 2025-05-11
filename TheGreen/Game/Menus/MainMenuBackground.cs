@@ -6,7 +6,7 @@ using TheGreen.Game.UI;
 
 namespace TheGreen.Game.Menus
 {
-    public class MainMenuBackground : UIComponentContainer
+    public class MainMenuBackground : UIContainer
     {
         private ParallaxManager parallaxManager;
         private Vector2 parallaxOffset;

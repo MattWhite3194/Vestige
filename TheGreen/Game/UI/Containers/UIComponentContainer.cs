@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using TheGreen.Game.Input;
 using TheGreen.Game.UI.Components;
 
@@ -11,7 +12,7 @@ namespace TheGreen.Game.UI.Containers
     /// A collection of UIComponents.
     /// Should be used to create menu sections or UIComponent groups.
     /// </summary>
-    public class UIComponentContainer : IInputHandler
+    public class UIContainer : IInputHandler
     {
 
         private static UIComponent _focusedUIComponent;
@@ -27,10 +28,9 @@ namespace TheGreen.Game.UI.Containers
                 _position = value;
             }
         }
-        private Vector2 _defaultSize;
         public Vector2 Size;
         private List<UIComponent> _componentChildren = new List<UIComponent>();
-        private List<UIComponentContainer> _containerChildren = new List<UIComponentContainer>();
+        private List<UIContainer> _containerChildren = new List<UIContainer>();
         private Anchor _anchor;
         private Matrix _anchorMatrix;
         public Matrix AnchorMatrix
@@ -42,10 +42,9 @@ namespace TheGreen.Game.UI.Containers
         }
         protected Matrix invertedAnchorMatrix;
 
-        public UIComponentContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null, Anchor anchor = Anchor.MiddleMiddle)
+        public UIContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null, Anchor anchor = Anchor.MiddleMiddle)
         {
             Position = position;
-            _defaultSize = size;
             Size = size;
             this.graphicsDevice = graphicsDevice;
             ComponentCount = 0;
@@ -111,10 +110,11 @@ namespace TheGreen.Game.UI.Containers
         }
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix);
+            spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix);
             DrawComponents(spriteBatch);
+            DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle(Position.ToPoint(), GetSize().ToPoint()), Color.Red);
             spriteBatch.End();
-            foreach (UIComponentContainer uiComponentContainer in _containerChildren)
+            foreach (UIContainer uiComponentContainer in _containerChildren)
             {
                 uiComponentContainer.Draw(spriteBatch);
             }
@@ -142,24 +142,22 @@ namespace TheGreen.Game.UI.Containers
             component.Position = component.Position + Position;
             _componentChildren.Add(component);
             ComponentCount++;
-            RecalculateSize();
         }
         public virtual void RemoveComponentChild(UIComponent component)
         {
             _componentChildren.Remove(component);
             ComponentCount--;
-            RecalculateSize();
         }
         public UIComponent GetComponentChild(int index)
         {
             return _componentChildren[index];
         }
-        public void AddContainerChild(UIComponentContainer uiComponentContainer)
+        public void AddContainerChild(UIContainer uiComponentContainer)
         {
             _containerChildren.Add(uiComponentContainer);
             uiComponentContainer.UpdateAnchorMatrix((int)Size.X, (int)Size.Y);
         }
-        public void RemoveContainerChild(UIComponentContainer uiComponentContainer)
+        public void RemoveContainerChild(UIContainer uiComponentContainer)
         {
             _containerChildren.Remove(uiComponentContainer);
         }
@@ -177,60 +175,60 @@ namespace TheGreen.Game.UI.Containers
             InputManager.UnregisterHandler(this);
             UIManager.UnregisterContainer(this);
         }
-        private void RecalculateSize()
-        {
-            Vector2 newSize = Vector2.Zero;
-            foreach (UIComponent component in _componentChildren)
-            {
-               newSize = Vector2.Max(newSize, component.Position - Position + component.Size);
-            }
-            Size.X = _defaultSize.X != 0 ? _defaultSize.X : newSize.X;
-            Size.Y = _defaultSize.Y != 0 ? _defaultSize.Y : newSize.Y;
-        }
         public virtual Vector2 GetSize()
         {
             return Size;
         }
-        public virtual void UpdateAnchorMatrix(int parentSizeX, int parentSizeY)
+        public virtual void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
-            _anchorMatrix = GetAnchorMatrix(parentSizeX, parentSizeY);
+            _anchorMatrix = GetAnchorMatrix(parentWidth, parentHeight, parentMatrix);
             invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);
-            foreach (UIComponentContainer uiComponentContainer in _containerChildren)
+            foreach (UIContainer uiComponentContainer in _containerChildren)
             {
-                uiComponentContainer.UpdateAnchorMatrix((int)Size.X, (int)Size.Y);
+                uiComponentContainer.UpdateAnchorMatrix((int)Size.X, (int)Size.Y, AnchorMatrix);
             } 
         }
-        private Matrix GetAnchorMatrix(int screenWidth, int screenHeight)
+        private Matrix GetAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
+            if (parentMatrix == default)
+            {
+                parentMatrix = TheGreen.UIScaleMatrix;
+            }
+            else
+            {
+                Vector2 transformedSize = Vector2.Transform(new Vector2(parentWidth, parentHeight), TheGreen.UIScaleMatrix);
+                parentWidth = (int)transformedSize.X;
+                parentHeight = (int)transformedSize.Y;
+            }
             if (_anchor == Anchor.None)
             {
-                return Matrix.Identity;
+                return parentMatrix;
             }
             else if (_anchor == Anchor.ScreenScale)
             {
-                return Matrix.CreateScale(Math.Max(screenWidth / (float)TheGreen.NativeResolution.X, screenHeight / (float)TheGreen.NativeResolution.Y));
+                return Matrix.CreateScale(Math.Max(parentWidth / (float)TheGreen.NativeResolution.X, parentHeight / (float)TheGreen.NativeResolution.Y));
             }
-            Vector2 componentSize = Vector2.Transform(GetSize(), TheGreen.UIScaleMatrix);
+            Vector2 containerSize = Vector2.Transform(GetSize(), TheGreen.UIScaleMatrix);
             Vector2 anchorPos = _anchor switch
             {
                 Anchor.TopLeft => new Vector2(0, 0),
-                Anchor.TopMiddle => new Vector2(screenWidth / 2 - componentSize.X / 2, 0),
-                Anchor.TopRight => new Vector2(screenWidth - componentSize.X, 0),
+                Anchor.TopMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, 0),
+                Anchor.TopRight => new Vector2(parentWidth - containerSize.X, 0),
 
-                Anchor.MiddleLeft => new Vector2(0, screenHeight / 2 - componentSize.Y / 2),
-                Anchor.MiddleMiddle => new Vector2(screenWidth / 2 - componentSize.X / 2, screenHeight / 2 - componentSize.Y / 2),
-                Anchor.MiddleRight => new Vector2(screenWidth - componentSize.X, screenHeight / 2 - componentSize.Y / 2),
+                Anchor.MiddleLeft => new Vector2(0, parentHeight / 2 - containerSize.Y / 2),
+                Anchor.MiddleMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight / 2 - containerSize.Y / 2),
+                Anchor.MiddleRight => new Vector2(parentWidth - containerSize.X, parentHeight / 2 - containerSize.Y / 2),
 
-                Anchor.BottomLeft => new Vector2(0, screenHeight - componentSize.Y),
-                Anchor.BottomMiddle => new Vector2(screenWidth / 2 - componentSize.X / 2, screenHeight - componentSize.Y),
-                Anchor.BottomRight => new Vector2(screenWidth - componentSize.X, screenHeight - componentSize.Y),
+                Anchor.BottomLeft => new Vector2(0, parentHeight - containerSize.Y),
+                Anchor.BottomMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight - containerSize.Y),
+                Anchor.BottomRight => new Vector2(parentWidth - containerSize.X, parentHeight - containerSize.Y),
 
                 _ => Vector2.Zero
             };
 
             Matrix translation = Matrix.CreateTranslation(anchorPos.X, anchorPos.Y, 0);
 
-            return TheGreen.UIScaleMatrix * translation;
+            return parentMatrix * translation;
         }
     }
 }

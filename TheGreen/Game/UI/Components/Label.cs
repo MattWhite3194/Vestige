@@ -20,7 +20,7 @@ namespace TheGreen.Game.UI.Components
         public Label(Vector2 position, string text, Vector2 padding, int borderRadius = 0, Color color = default, Color textColor = default,
             GraphicsDevice graphicsDevice = null, bool drawCentered = false, int maxWidth = 0, float rotation = 0.0f, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, null, color, graphicsDevice, drawCentered, rotation, scale)
         {
-            this.color = color;
+            this.Color = color;
             _textColor = textColor == default ? Color.White : textColor;
             _padding = padding;
             _borderRadius = borderRadius;
@@ -92,7 +92,7 @@ namespace TheGreen.Game.UI.Components
             //TODO: possibly move the custom logic to a new spritefont class with it's own draw function
             if (image != null)
             {
-                spriteBatch.Draw(image, _drawPosition, null, color, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+                spriteBatch.Draw(image, _drawPosition, null, Color, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
             }
 
             spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + _stringOrigin, _textColor, _rotation, _stringOrigin, _scale, SpriteEffects.None, 0.0f);

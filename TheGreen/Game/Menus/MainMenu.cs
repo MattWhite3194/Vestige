@@ -15,12 +15,12 @@ namespace TheGreen.Game.Menus
 {
     public class MainMenu
     {
-        private UIComponentContainer _startMenu;
+        private UIContainer _startMenu;
         private GridContainer _createWorldMenu;
         private GridContainer _settingsMenu;
         private ScrollContainer _loadGameMenu;
         private Button _backButton;
-        private Stack<UIComponentContainer> _menus;
+        private Stack<UIContainer> _menus;
         private TheGreen _game;
         private MainMenuBackground _mainMenuBackground;
         private TextBox _worldNameTextBox;
@@ -28,17 +28,15 @@ namespace TheGreen.Game.Menus
 
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
-        //TODO: export each menu to its own class so this doesn't become a nightmare file
-
-        //TODO: base menu class, extend for other menus
+        //TODO: Make each menu a separate UIComponentContainer, use this class to add and remove them from the UIManager and InputHandler
         public MainMenu(TheGreen game, GraphicsDevice graphicsDevice)
         {
             _game = game;
             _graphicsDevice = graphicsDevice;
-            _menus = new Stack<UIComponentContainer>();
+            _menus = new Stack<UIContainer>();
 
 
-            _startMenu = new UIComponentContainer(position: new Vector2(0, 40), anchor: Anchor.TopMiddle);
+            _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
             _createWorldMenu = new GridContainer(1);
             _settingsMenu = new GridContainer(1);
 
@@ -145,7 +143,7 @@ namespace TheGreen.Game.Menus
             }
             AddSubMenu(_loadGameMenu);
         }
-        private void AddSubMenu(UIComponentContainer menu)
+        private void AddSubMenu(UIContainer menu)
         {
             if (_menus.Count != 0)
             {

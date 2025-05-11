@@ -22,6 +22,7 @@ Drawing order for sprites
 design better damage system
 Implement tile culling
 Grass still grows on blocks that have been cut off if it remains in the queue - need to check if a block is touching it's overlay tile before setting it to the overlay.
+Overlay blocks will set to their base tile when mined
 
 Features:
 add equipment (maybe make accessories input handlers, and store them in a list and call them before calling the players input)

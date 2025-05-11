@@ -3,7 +3,7 @@ using TheGreen.Game.UI.Components;
 
 namespace TheGreen.Game.UI.Containers
 {
-    public class GridContainer : UIComponentContainer
+    public class GridContainer : UIContainer
     {
         private int _cols, _margin;
 
@@ -18,6 +18,7 @@ namespace TheGreen.Game.UI.Containers
             int i = ComponentCount % _cols;
             int j = ComponentCount / _cols;
             component.Position = new Vector2(_margin * i + component.Size.X * i, _margin * j + component.Size.Y * j);
+            Size = Vector2.Max(Size, component.Position + component.Size);
             base.AddComponentChild(component);
         }
     }

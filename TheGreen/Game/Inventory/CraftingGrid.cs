@@ -5,12 +5,12 @@ using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UI;
-using System.Diagnostics;
 using System.Collections.Generic;
 
 namespace TheGreen.Game.Inventory
 {
-    public class CraftingGrid : UIComponentContainer
+    //TODO: add ability to hold down on crafting output slot and automatically pick up items.
+    public class CraftingGrid : UIContainer
     {
         private Item[] _craftingInputItems;
         private ItemSlot[] _craftingInputSlots;
@@ -19,6 +19,8 @@ namespace TheGreen.Game.Inventory
         private Item _craftingOutputItem;
         private GridContainer _grid;
         private int _gridSize;
+        private Point _recipeLocation;
+        private List<(byte, byte, int)> _currentRecipe;
 
         public CraftingGrid(int size, DragItem dragItem, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.BottomLeft) : base(anchor: anchor)
         {
@@ -29,9 +31,8 @@ namespace TheGreen.Game.Inventory
             _dragItem = dragItem;
             if (itemSlotColor == default)
             {
-                itemSlotColor = Color.ForestGreen;
+                itemSlotColor = Color.White;
             }
-            itemSlotColor.A = 200;
             for (int i = 0; i < _craftingInputSlots.Length; i++)
             {
                 int index = i;
@@ -40,8 +41,8 @@ namespace TheGreen.Game.Inventory
                 _craftingInputSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnCraftingInputSlotGUIInput(index, @mouseEvent);
             }
             AddContainerChild(_grid);
-            itemSlotColor *= 0.8f;
-            _craftingOutputSlot = new ItemSlot(_grid.Position + new Vector2(_grid.Size.X + margin * 3, _grid.Size.Y / 2 - ContentLoader.ItemSlotTexture.Height / 2), ContentLoader.ItemSlotTexture, itemSlotColor);
+            itemSlotColor.A = 100;
+            _craftingOutputSlot = new ItemSlot(_grid.Position + new Vector2(_grid.Size.X + margin * 10, _grid.Size.Y / 2 - ContentLoader.ItemSlotTexture.Height / 2), ContentLoader.ItemSlotTexture, itemSlotColor);
             _craftingOutputSlot.OnMouseInput += (@mouseEvent, mouseCoordinates) => OnCraftingOutputSlotGUIInput(@mouseEvent);
             AddComponentChild(_craftingOutputSlot);
         }
@@ -67,23 +68,22 @@ namespace TheGreen.Game.Inventory
                     return;
                 _dragItem.Item = _craftingOutputItem;
                 _craftingOutputItem = null;
-                //change this to subtract from recipe
-                //store recipe as class variable
-                
-                for (int i = 0; i < _craftingInputItems.Length; i++)
+
+                for (int i = 0; i < _currentRecipe.Count; i++)
                 {
-                    _craftingInputItems[i] = null;
+                    int index = (_recipeLocation.Y + _currentRecipe[i].Item2) * _gridSize + _recipeLocation.X + _currentRecipe[i].Item1;
+                    _craftingInputItems[index].Quantity -= 1;
+                    if (_craftingInputItems[index].Quantity <= 0)
+                    {
+                        _craftingInputItems[index] = null;
+                    }
                 }
-                //delete this^^^
+                FindRecipe();
             }
             InputManager.MarkInputAsHandled(@mouseEvent);
         }
         private void FindRecipe()
         {
-            //TODO:
-            /*
-             Get grid size of recipe, max distance between the leftmost and rightmost item, and topmost and bottom most item, create a new array with of that num elements and their position local to the recipe size, search recipes in crafting recipes
-             */
             _craftingOutputItem = null;
             
             int startX = -1, startY = -1;
@@ -101,15 +101,21 @@ namespace TheGreen.Game.Inventory
                 }
             }
             Point recipeSize = new Point(endX -  startX + 1, endY - startY + 1);
-            Debug.WriteLine(recipeSize.ToString());
             for (int i = 0; i < recipeInputs.Count; i++)
             {
                 recipeInputs[i] = ((byte)(recipeInputs[i].Item1 - startX), (byte)(recipeInputs[i].Item2 - startY), recipeInputs[i].Item3);
-                Debug.WriteLine((byte)(recipeInputs[i].Item1 - startX) + " " + (byte)(recipeInputs[i].Item2 - startY) + " " + recipeInputs[i].Item3);
             }
-
-            
+            _currentRecipe = recipeInputs;
+            _recipeLocation = new Point(startX, startY);
             _craftingOutputItem = CraftingRecipes.GetItemFromRecipe(recipeSize, recipeInputs);
+            if (_craftingOutputItem != null)
+            {
+                _craftingOutputSlot.Color.A = 200;
+            }
+            else
+            {
+                _craftingOutputSlot.Color.A = 100;
+            }
         }
         private void PlaceItem(int index)
         {

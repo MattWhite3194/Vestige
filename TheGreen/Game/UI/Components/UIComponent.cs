@@ -16,7 +16,7 @@ namespace TheGreen.Game.UI.Components
         public MouseExited OnMouseExited;
         protected bool hidden = false;
         protected Texture2D image;
-        protected Color color = Color.White;
+        public Color Color;
         //for textbox implementation
         private bool focused = false;
         protected Vector2 _drawPosition;
@@ -62,7 +62,7 @@ namespace TheGreen.Game.UI.Components
         {
             _position = position;
             this.image = image;
-            this.color = color;
+            this.Color = color == default ? Color.White : color;
             _graphicsDevice = graphicsDevice;
             _drawCentered = drawCentered;
             _rotation = rotation;
@@ -82,7 +82,7 @@ namespace TheGreen.Game.UI.Components
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(image, _drawPosition, null, color, 0.0f, _anchorOrigin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(image, _drawPosition, null, Color, 0.0f, _anchorOrigin, _scale, SpriteEffects.None, 0.0f);
         }
 
         public bool IsFocused()
@@ -93,11 +93,6 @@ namespace TheGreen.Game.UI.Components
         public void SetFocused(bool isFocused)
         {
             focused = isFocused;
-        }
-
-        public void SetColor(Color color)
-        {
-            this.color = color;
         }
 
         protected virtual void UpdateDrawPosition()
