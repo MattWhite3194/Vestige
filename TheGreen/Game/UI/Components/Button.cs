@@ -20,7 +20,7 @@ namespace TheGreen.Game.UI.Components
         public Button(Vector2 position, string text, Vector2 padding, int borderRadius = 0,
             Color color = default, Color clickedColor = default, Color hoveredColor = default,
             Color textColor = default, Color textClickedColor = default, Color textHoveredColor = default,
-            GraphicsDevice graphicsDevice = null, bool drawCentered = false, int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, borderRadius, color, textColor, graphicsDevice, drawCentered, maxWidth, scale: scale, textAlign: textAlign)
+            bool drawCentered = false, int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, borderRadius, color, textColor, drawCentered, maxWidth, scale: scale, textAlign: textAlign)
         {
             _clickedColor = clickedColor;
             _hoveredColor = hoveredColor;

@@ -18,7 +18,7 @@ namespace TheGreen.Game.Menus
         private UIContainer _startMenu;
         private GridContainer _createWorldMenu;
         private GridContainer _settingsMenu;
-        private ScrollContainer _loadGameMenu;
+        private PanelContainer _loadGameMenu;
         private Button _backButton;
         private Stack<UIContainer> _menus;
         private TheGreen _game;
@@ -29,11 +29,15 @@ namespace TheGreen.Game.Menus
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
         //TODO: Make each menu a separate UIComponentContainer, use this class to add and remove them from the UIManager and InputHandler
+        //make the back button return menu a paramater in the menu declaration so the back button can be placed anywhere in the menu
         public MainMenu(TheGreen game, GraphicsDevice graphicsDevice)
         {
             _game = game;
             _graphicsDevice = graphicsDevice;
             _menus = new Stack<UIContainer>();
+
+
+            PanelContainer testPanelContainer = new PanelContainer(Vector2.Zero, new Vector2(288, 400), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 10, 2, 20, graphicsDevice);
 
 
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
@@ -129,7 +133,8 @@ namespace TheGreen.Game.Menus
         }
         private void ListWorlds()
         {
-            _loadGameMenu = new ScrollContainer(Vector2.Zero, 100, size: new Vector2(288, 0));
+            _loadGameMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 350), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 20, _graphicsDevice);
+            ScrollContainer worldList = new ScrollContainer(Vector2.Zero, 300, size: new Vector2(288, 0), anchor: Anchor.None);
             string worldPath = Path.Combine(TheGreen.SavePath, "Worlds");
             if (!Path.Exists(worldPath))
                 return;
@@ -139,8 +144,9 @@ namespace TheGreen.Game.Menus
                 string worldName = worldDirectory.Split('\\').Last();
                 Button worldButton = new Button(Vector2.Zero, worldName, Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
                 worldButton.OnButtonPress += () => LoadWorld(worldName);
-                _loadGameMenu.AddComponentChild(worldButton);
+                worldList.AddComponentChild(worldButton);
             }
+            _loadGameMenu.AddContainerChild(worldList);
             AddSubMenu(_loadGameMenu);
         }
         private void AddSubMenu(UIContainer menu)
@@ -153,6 +159,7 @@ namespace TheGreen.Game.Menus
             UIManager.RegisterContainer(menu);
             InputManager.RegisterHandler(menu);
             _menus.Push(menu);
+            _backButton.Position = new Vector2(0, menu.Size.Y);
             menu.AddComponentChild(_backButton);
         }
         private void RemoveSubMenu()

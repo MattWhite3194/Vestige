@@ -44,7 +44,6 @@ namespace TheGreen.Game.UI.Components
         }
         public Vector2 Origin;
         public bool MouseInside = false;
-        protected GraphicsDevice _graphicsDevice;
         protected bool _drawCentered;
         protected float _rotation;
         protected float _scale;
@@ -58,12 +57,11 @@ namespace TheGreen.Game.UI.Components
             }
         }
 
-        public UIComponent(Vector2 position, Texture2D image = null, Color color = default, GraphicsDevice graphicsDevice = null, bool drawCentered = false, float rotation = 0.0f, float scale = 1.0f)
+        public UIComponent(Vector2 position, Texture2D image = null, Color color = default, bool drawCentered = false, float rotation = 0.0f, float scale = 1.0f)
         {
             _position = position;
             this.image = image;
             this.Color = color == default ? Color.White : color;
-            _graphicsDevice = graphicsDevice;
             _drawCentered = drawCentered;
             _rotation = rotation;
             _scale = scale;

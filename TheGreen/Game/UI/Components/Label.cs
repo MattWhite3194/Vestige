@@ -18,7 +18,7 @@ namespace TheGreen.Game.UI.Components
         private int _maxWidth;
         private TextAlign _textAlign;
         public Label(Vector2 position, string text, Vector2 padding, int borderRadius = 0, Color color = default, Color textColor = default,
-            GraphicsDevice graphicsDevice = null, bool drawCentered = false, int maxWidth = 0, float rotation = 0.0f, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, null, color, graphicsDevice, drawCentered, rotation, scale)
+            bool drawCentered = false, int maxWidth = 0, float rotation = 0.0f, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, null, color, drawCentered, rotation, scale)
         {
             this.Color = color;
             _textColor = textColor == default ? Color.White : textColor;
@@ -102,18 +102,7 @@ namespace TheGreen.Game.UI.Components
         public void SetText(string text)
         {
             _text = text;
-            if (_graphicsDevice != null)
-            {
-                Vector2 imageSize = Vector2.Add(WrapText(_maxWidth), 2 * _padding);
-                image = new Texture2D(_graphicsDevice, (int)imageSize.X, (int)imageSize.Y);
-                var data = Enumerable.Repeat(Color.White, (int)(imageSize.X * imageSize.Y)).ToArray();
-                image.SetData(data);
-                Size = imageSize;
-            }
-            else
-            {
-                Size = WrapText(_maxWidth);
-            }
+            Size = WrapText(_maxWidth);
         }
     }
 }

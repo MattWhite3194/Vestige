@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using TheGreen.Game.Input;
+using TheGreen.Game.UI.Components;
 
 namespace TheGreen.Game.UI.Containers
 {
@@ -9,11 +11,15 @@ namespace TheGreen.Game.UI.Containers
         private int _viewHeight;
         private int _initialPositionY;
         private int _scrollSpeed;
+        private float _scrollerSize;
+
+        //TODO: implement button as the scroller, when clicked, it will follow the y position of the mouse, and the scrollContainers position will be updated based on it
+        private Button _scroller;
         private RasterizerState rasterizerState = new RasterizerState()
         {
             ScissorTestEnable = true
         };
-        public ScrollContainer(Vector2 position, int viewHeight, int margin = 5, int scrollSpeed = 2, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle) : base(1, margin, position, size, anchor)
+        public ScrollContainer(Vector2 position, int viewHeight, int margin = 5, int scrollSpeed = 4, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle) : base(1, margin, position, size, anchor)
         {
             _viewHeight = viewHeight;
             _initialPositionY = (int)position.Y;
@@ -56,12 +62,19 @@ namespace TheGreen.Game.UI.Containers
             }
             Position = new Vector2(Position.X, Position.Y + scrollAmount);
         }
+        public override void AddComponentChild(UIComponent component)
+        {
+            base.AddComponentChild(component);
+            _scrollerSize = Math.Max(Math.Min(1f, _viewHeight / Size.Y), 0.1f) * _viewHeight;
+        }
         protected override void DrawComponents(SpriteBatch spriteBatch)
         {
             spriteBatch.GraphicsDevice.RasterizerState = rasterizerState;
             Rectangle clippingRectangle = spriteBatch.GraphicsDevice.ScissorRectangle;
             spriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle(Vector2.Transform(new Vector2((int)Position.X, _initialPositionY), AnchorMatrix).ToPoint(), Vector2.Transform(new Vector2((int)Size.X, _viewHeight), TheGreen.UIScaleMatrix).ToPoint());
             base.DrawComponents(spriteBatch);
+            DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle((int)Size.X - 5, 0, 4, _viewHeight - 1), Color.Red);
+            DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle((int)Size.X - 5, (int)((_initialPositionY - Position.Y) / (Size.Y - _viewHeight) * (_viewHeight - _scrollerSize)), 4, (int)_scrollerSize), Color.Blue);
             spriteBatch.GraphicsDevice.ScissorRectangle = clippingRectangle;
         }
         public override Vector2 GetSize()

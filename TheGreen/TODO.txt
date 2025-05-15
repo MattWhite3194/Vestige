@@ -4,6 +4,12 @@ Walls: -50 on brightness photo editor (future reference)
 
 Make Entity/NPC scope knockback function. Fix when it's applied
 
+Make panel containers that have a transparent green backgroun for UI
+Make World List back button not in scroll container.
+Finish UI, make it look nice
+Add Map
+
+Finish ScrollContainer scroll bar.
 Change parallax background to fade out consistently once it's reached min or max. the background will have a set time to fade in/out instead of fading as the player reaches the min/max height.
 Apply position of parent UIContainer to child containers
 Up Next:

@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using TheGreen.Game.Input;
 using TheGreen.Game.UI.Components;
 
@@ -16,7 +15,6 @@ namespace TheGreen.Game.UI.Containers
     {
 
         private static UIComponent _focusedUIComponent;
-        protected GraphicsDevice graphicsDevice;
         public int ComponentCount;
         private Vector2 _position;
         public Vector2 Position
@@ -42,11 +40,10 @@ namespace TheGreen.Game.UI.Containers
         }
         protected Matrix invertedAnchorMatrix;
 
-        public UIContainer(Vector2 position = default, Vector2 size = default, GraphicsDevice graphicsDevice = null, Anchor anchor = Anchor.MiddleMiddle)
+        public UIContainer(Vector2 position = default, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle)
         {
             Position = position;
             Size = size;
-            this.graphicsDevice = graphicsDevice;
             ComponentCount = 0;
             _anchor = anchor;
         }
@@ -112,7 +109,7 @@ namespace TheGreen.Game.UI.Containers
         {
             spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix);
             DrawComponents(spriteBatch);
-            DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle(Position.ToPoint(), GetSize().ToPoint()), Color.Red);
+            //DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle(Position.ToPoint(), GetSize().ToPoint()), Color.Red);
             spriteBatch.End();
             foreach (UIContainer uiComponentContainer in _containerChildren)
             {
