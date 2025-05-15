@@ -20,6 +20,11 @@ namespace TheGreen.Game.Items.Weapons
                 WorldGen.World.DamageTile(mouseTilePosition, _hammerPower);
                 return true;
             }
+            else if (WorldGen.World.GetWallID(mouseTilePosition.X, mouseTilePosition.Y) != 0)
+            {
+                WorldGen.World.DamageWall(mouseTilePosition, _hammerPower);
+                return true;
+            }
             return false;
         }
     }

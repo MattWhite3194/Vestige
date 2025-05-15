@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 using TheGreen.Game.Drawables;
 using TheGreen.Game.Entities;
 using TheGreen.Game.Lighting;
@@ -103,7 +102,6 @@ namespace TheGreen.Game
             spriteBatch.Draw(_gameTarget, TheGreen.RenderDestination, Color.White);
             spriteBatch.Draw(_liquidRenderTarget, TheGreen.RenderDestination, Color.White);
             spriteBatch.End();
-            _graphicsDevice.SetRenderTarget(null);
         }
         public static Vector2 GetCameraPosition()
         {

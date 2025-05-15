@@ -28,7 +28,7 @@ namespace TheGreen.Game.Tiles.TileData
             Vector2 topLeft = GetTopLeft(x, y).ToVector2() * TheGreen.TILESIZE;
 
             int forceDirection = Math.Sign(topLeft.X - entity.Position.X);
-            OpenDoor(x, y, forceDirection, forceDirection);
+            OpenDoor(x, y, forceDirection, true);
         }
 
         public void OnRightClick(int x, int y)
@@ -39,7 +39,7 @@ namespace TheGreen.Game.Tiles.TileData
             int playerDirection = Math.Sign(topLeft.X - playerPosition.X);
             OpenDoor(x, y, playerDirection);
         }
-        private void OpenDoor(int x, int y, int openDirection, int forceDirection = 0)
+        private void OpenDoor(int x, int y, int openDirection, bool openedByCollision = false)
         {
             Point topLeft = GetTopLeft(x, y);
 
@@ -66,9 +66,6 @@ namespace TheGreen.Game.Tiles.TileData
             if (openDirection == 1 && right != 0)
                 direction = 1;
 
-            if (direction != forceDirection && forceDirection != 0)
-                return;
-
             if (direction == 1)
                 direction = 0;
 
@@ -82,7 +79,7 @@ namespace TheGreen.Game.Tiles.TileData
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    WorldGen.World.SetTileState(topLeft.X - (direction == -1 ? 1 : 0) + i, topLeft.Y + j, (byte)(j * 10 + i + (direction == -1 ? 2 : 0) + (forceDirection != 0 ? 100 : 0)));
+                    WorldGen.World.SetTileState(topLeft.X - (direction == -1 ? 1 : 0) + i, topLeft.Y + j, (byte)(j * 10 + i + (direction == -1 ? 2 : 0) + (openedByCollision ? 100 : 0)));
                 }
             }
         }

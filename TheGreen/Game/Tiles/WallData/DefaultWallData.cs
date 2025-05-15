@@ -8,9 +8,11 @@ namespace TheGreen.Game.Tiles.WallData
     public class DefaultWallData
     {
         public readonly ushort WallID;
-        public DefaultWallData(ushort wallID) 
+        public readonly int Health;
+        public DefaultWallData(ushort wallID, int health = 100) 
         { 
             this.WallID = wallID;
+            this.Health = health;
         }
 
         public virtual byte GetUpdatedWallState(int x, int y)

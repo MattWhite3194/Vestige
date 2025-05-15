@@ -17,23 +17,24 @@ namespace TheGreen.Game.Inventory
         private Inventory _tileInventory;
         private bool _inventoryOpen;
         private CraftingGrid _craftingMenu;
+        private Item[] _inventoryItems;
         public InventoryManager(int rows, int cols) : base(anchor: UI.Anchor.TopLeft)
         {
             //Temporary inventory
             
-            Item[] inventoryItems = new Item[rows * cols];
+            _inventoryItems = new Item[rows * cols];
 
-            for (int i = 0; i <= 7; i++)
+            for (int i = 0; i <= 8; i++)
             {
                 Item item = ItemDatabase.InstantiateItemByID(i);
                 item.Quantity = item.MaxStack;
-                inventoryItems[i] = item;
+                _inventoryItems[i] = item;
             }
 
 
             _dragItem = new DragItem(Vector2.Zero);
-            _inventoryMenu = new Inventory(cols, _dragItem, inventoryItems, margin: 2, position: new Vector2(20, 20), itemSlotColor: new Color(34, 139, 34, 250));
-            _hotbar = new Hotbar(cols, inventoryItems, margin: 2, itemSlotColor: new Color(34, 139, 34, 200), position: new Vector2(20, 20));
+            _inventoryMenu = new Inventory(cols, _dragItem, _inventoryItems, margin: 2, position: new Vector2(20, 20), itemSlotColor: new Color(34, 139, 34, 250));
+            _hotbar = new Hotbar(cols, _inventoryItems, margin: 2, itemSlotColor: new Color(34, 139, 34, 200), position: new Vector2(20, 20));
             _craftingMenu = new CraftingGrid(3, _dragItem, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: new Color(222, 184, 135, 230), anchor: UI.Anchor.TopLeft);
             _inventoryOpen = false;
             AddContainerChild(_hotbar);
@@ -77,6 +78,16 @@ namespace TheGreen.Game.Inventory
         public override void Update(double delta)
         {
             base.Update(delta);
+            for (int i = 0; i < _inventoryItems.Length; i++)
+            {
+                if (_inventoryItems[i] != null && _inventoryItems[i].Stackable)
+                {
+                    if (_inventoryItems[i].Quantity <= 0)
+                        _inventoryItems[i] = null;
+                    if (_dragItem.Item != null && _dragItem.Item.Quantity <= 0)
+                        _dragItem.Item = null;
+                }
+            }
             _dragItem.Update(delta);
         }
 
@@ -146,24 +157,6 @@ namespace TheGreen.Game.Inventory
                     }
                 }
             }
-        }
-        public bool UseSelected()
-        {
-            Item item = GetSelected();
-            if (item == null)
-                return false;
-            bool itemUsed = item.UseItem();
-            if (!item.Stackable || !itemUsed)
-                return itemUsed;
-            if (InventoryVisible())
-            {
-                _dragItem.Item.Quantity -= 1;
-                if (_dragItem.Item.Quantity <= 0)
-                    _dragItem.Item = null;
-            }
-            else
-                _hotbar.SetSelectedQuantity(item.Quantity - 1);
-            return itemUsed;
         }
         public Item AddItemToPlayerInventory(Item item)
         {

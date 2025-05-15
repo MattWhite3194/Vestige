@@ -4,14 +4,12 @@ Walls: -50 on brightness photo editor (future reference)
 
 Make Entity/NPC scope knockback function. Fix when it's applied
 
-Make panel containers that have a transparent green backgroun for UI
-Make World List back button not in scroll container.
+
 Finish UI, make it look nice
 Add Map
 
 Finish ScrollContainer scroll bar.
 Change parallax background to fade out consistently once it's reached min or max. the background will have a set time to fade in/out instead of fading as the player reaches the min/max height.
-Apply position of parent UIContainer to child containers
 Up Next:
 Make WorldGen cooler
 Add different biomes (either as part of one map, or dedicate an entire map to one biome (preferred))
@@ -24,6 +22,7 @@ Player
 make arm swing
 
 Fixes:
+Fix Door collision automatic closing so it works in both directions
 Drawing order for sprites
 design better damage system
 Implement tile culling

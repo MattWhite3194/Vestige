@@ -15,7 +15,7 @@ namespace TheGreen.Game.Items
         { 
             this.TileID = tileID;
         }
-        public override bool UseItem()
+        public override bool OnUse()
         {
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(TheGreen.TILESIZE, TheGreen.TILESIZE);
             //TODO: check if the mouse is colliding with an entity or colliding with a tile that the entity is colliding with (will happen in entity manager)

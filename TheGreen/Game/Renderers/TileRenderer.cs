@@ -22,6 +22,13 @@ namespace TheGreen.Game.Renderer
                     TileDatabase.GetWallData(wallID).Draw(spriteBatch, i, j);
                 }
             }
+            foreach (DamagedTile damagedWall in WorldGen.World.GetDamagedWalls().Values)
+            {
+                Color color = Color.Black;
+                color.A = 125;
+                int cracksTextureAtlasY = (5 - (int)(damagedWall.Health / (float)damagedWall.TotalTileHealth * 5)) * TheGreen.TILESIZE;
+                spriteBatch.Draw(ContentLoader.Cracks, new Vector2(damagedWall.X, damagedWall.Y) * TheGreen.TILESIZE, new Rectangle(0, cracksTextureAtlasY, TheGreen.TILESIZE, TheGreen.TILESIZE), color);
+            }
         }
 
         public void DrawBackgroundTiles(SpriteBatch spriteBatch)

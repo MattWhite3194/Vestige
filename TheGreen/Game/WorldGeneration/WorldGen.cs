@@ -8,6 +8,7 @@ using System.IO;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.Tiles.TileData;
+using TheGreen.Game.Tiles.WallData;
 using TheGreen.Game.WorldGeneration.WorldUpdaters;
 
 namespace TheGreen.Game.WorldGeneration
@@ -52,6 +53,7 @@ namespace TheGreen.Game.WorldGeneration
         /// Stores the location and damage information of any tiles that are actively being mined by the player
         /// </summary>
         private Dictionary<Point, DamagedTile> _minedTiles = new Dictionary<Point, DamagedTile>();
+        private Dictionary<Point, DamagedTile> _minedWalls = new Dictionary<Point, DamagedTile>();
         
         private List<WorldUpdater> _worldUpdaters;
         private LiquidUpdater _liquidUpdater;
@@ -331,7 +333,18 @@ namespace TheGreen.Game.WorldGeneration
                 else
                     _minedTiles[point] = damagedTileData;
             }
-            
+            foreach (Point point in _minedWalls.Keys)
+            {
+                DamagedTile damagedWallData = _minedWalls[point];
+                damagedWallData.Time += delta;
+                if (damagedWallData.Time > 5 || GetWallID(point.X, point.Y) == 0)
+                {
+                    _minedWalls.Remove(point);
+                }
+                else
+                    _minedWalls[point] = damagedWallData;
+            }
+
         }
 
         /// <summary>
@@ -360,6 +373,29 @@ namespace TheGreen.Game.WorldGeneration
             else
             {
                 _minedTiles[coordinates] = damagedTileData;
+            }
+            //TODO: play tile specific damage sound here, so it only plays if the tile was actually damaged. any mining sounds or item use sounds will be playes by the item collider or the inventory useItem
+        }
+        public void DamageWall(Point coordinates, int damage)
+        {
+            if (!IsTileInBounds(coordinates.X, coordinates.Y))
+                return;
+            ushort wallID = GetWallID(coordinates.X, coordinates.Y);
+            if (wallID == 0)
+                return;
+            //Reusing DamagedTile since it would be redundant to add another
+            DefaultWallData wallData = TileDatabase.GetWallData(wallID);
+            DamagedTile DamagedWallData = _minedWalls.ContainsKey(coordinates) ? _minedWalls[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, wallID, wallData.Health, wallData.Health, 0);
+            DamagedWallData.Health = DamagedWallData.Health - damage;
+            DamagedWallData.Time = 0;
+            if (DamagedWallData.Health <= 0)
+            {
+                SetWall(coordinates.X, coordinates.Y, 0);
+                _minedWalls.Remove(coordinates);
+            }
+            else
+            {
+                _minedWalls[coordinates] = DamagedWallData;
             }
             //TODO: play tile specific damage sound here, so it only plays if the tile was actually damaged. any mining sounds or item use sounds will be playes by the item collider or the inventory useItem
         }
@@ -665,6 +701,11 @@ namespace TheGreen.Game.WorldGeneration
         {
             return _minedTiles;
         } 
+
+        public Dictionary<Point, DamagedTile> GetDamagedWalls()
+        {
+            return _minedWalls;
+        }
         public byte GetTileState(int x, int y)
         {
             return _tiles[y * WorldSize.X + x].State;

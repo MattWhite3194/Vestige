@@ -57,7 +57,7 @@ namespace TheGreen.Game.Entities
             FlipSprite = Main.EntityManager.GetPlayer().FlipSprite;
             Position = Main.EntityManager.GetPlayer().Position + new Vector2(0, 20) + (FlipSprite ? new Vector2(12, 0) : new Vector2(8, 0));
             Origin = FlipSprite ? new Vector2(Item.Image.Width + 8, Item.Image.Height) : new Vector2(-8, Item.Image.Height);
-            if (_canUseItem && _inventory.UseSelected())
+            if (_canUseItem && Item.UseItem())
             {
                 _canUseItem = false;
             }

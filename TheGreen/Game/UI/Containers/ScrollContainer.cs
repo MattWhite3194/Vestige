@@ -73,8 +73,8 @@ namespace TheGreen.Game.UI.Containers
             Rectangle clippingRectangle = spriteBatch.GraphicsDevice.ScissorRectangle;
             spriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle(Vector2.Transform(new Vector2((int)Position.X, _initialPositionY), AnchorMatrix).ToPoint(), Vector2.Transform(new Vector2((int)Size.X, _viewHeight), TheGreen.UIScaleMatrix).ToPoint());
             base.DrawComponents(spriteBatch);
-            DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle((int)Size.X - 5, 0, 4, _viewHeight - 1), Color.Red);
-            DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle((int)Size.X - 5, (int)((_initialPositionY - Position.Y) / (Size.Y - _viewHeight) * (_viewHeight - _scrollerSize)), 4, (int)_scrollerSize), Color.Blue);
+            DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, 0, 4, _viewHeight - 1), Color.DimGray);
+            DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, (int)((_initialPositionY - Position.Y) / (Size.Y - _viewHeight) * (_viewHeight - _scrollerSize)), 4, (int)_scrollerSize), Color.LightGray);
             spriteBatch.GraphicsDevice.ScissorRectangle = clippingRectangle;
         }
         public override Vector2 GetSize()

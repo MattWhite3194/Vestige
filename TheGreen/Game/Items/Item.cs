@@ -40,7 +40,16 @@ namespace TheGreen.Game.Items
             this.MaxStack = maxStack;
         }
 
-        public virtual bool UseItem()
+        public bool UseItem()
+        {
+            bool itemUsed = OnUse();
+            if (itemUsed && Stackable)
+            {
+                Quantity -= 1;
+            }
+            return itemUsed;
+        }
+        public virtual bool OnUse()
         {
             return true;
         }

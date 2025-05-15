@@ -197,11 +197,6 @@ namespace TheGreen.Game.Inventory
         private void SetItemQuantity(int index, int quantity)
         {
             _craftingInputItems[index].Quantity = quantity;
-            SetItem(_craftingInputItems[index], index);
-            if (quantity <= 0)
-            {
-                SetItem(null, index);
-            }
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
