@@ -136,7 +136,6 @@ namespace TheGreen.Game.UI.Containers
         }
         public virtual void AddComponentChild(UIComponent component)
         {
-            component.Position = component.Position + Position;
             _componentChildren.Add(component);
             ComponentCount++;
         }
@@ -187,6 +186,7 @@ namespace TheGreen.Game.UI.Containers
         }
         private Matrix GetAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
+            Vector2 transformedPosition = Position;
             if (parentMatrix == default)
             {
                 parentMatrix = TheGreen.UIScaleMatrix;
@@ -196,29 +196,30 @@ namespace TheGreen.Game.UI.Containers
                 Vector2 transformedSize = Vector2.Transform(new Vector2(parentWidth, parentHeight), TheGreen.UIScaleMatrix);
                 parentWidth = (int)transformedSize.X;
                 parentHeight = (int)transformedSize.Y;
+                transformedPosition = Vector2.Transform(Position, TheGreen.UIScaleMatrix);
             }
-            Matrix positionMatrix = Matrix.CreateTranslation(new Vector3(Vector2.Transform(Position, TheGreen.UIScaleMatrix), 0));
+            
             Vector2 containerSize = Vector2.Transform(GetSize(), TheGreen.UIScaleMatrix);
             Vector2 anchorPos = _anchor switch
             {
-                Anchor.TopLeft => new Vector2(0, 0),
-                Anchor.TopMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, 0),
-                Anchor.TopRight => new Vector2(parentWidth - containerSize.X, 0),
+                Anchor.TopLeft => transformedPosition,
+                Anchor.TopMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, 0) + transformedPosition,
+                Anchor.TopRight => new Vector2(parentWidth - containerSize.X, 0) + transformedPosition,
 
-                Anchor.MiddleLeft => new Vector2(0, parentHeight / 2 - containerSize.Y / 2),
-                Anchor.MiddleMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight / 2 - containerSize.Y / 2),
-                Anchor.MiddleRight => new Vector2(parentWidth - containerSize.X, parentHeight / 2 - containerSize.Y / 2),
+                Anchor.MiddleLeft => new Vector2(0, parentHeight / 2 - containerSize.Y / 2) + transformedPosition,
+                Anchor.MiddleMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight / 2 - containerSize.Y / 2) + transformedPosition,
+                Anchor.MiddleRight => new Vector2(parentWidth - containerSize.X, parentHeight / 2 - containerSize.Y / 2) + transformedPosition,
 
-                Anchor.BottomLeft => new Vector2(0, parentHeight - containerSize.Y),
-                Anchor.BottomMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight - containerSize.Y),
-                Anchor.BottomRight => new Vector2(parentWidth - containerSize.X, parentHeight - containerSize.Y),
+                Anchor.BottomLeft => new Vector2(0, parentHeight - containerSize.Y) + transformedPosition,
+                Anchor.BottomMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight - containerSize.Y) + transformedPosition,
+                Anchor.BottomRight => new Vector2(parentWidth - containerSize.X, parentHeight - containerSize.Y) + transformedPosition,
 
                 _ => Vector2.Zero
             };
 
             Matrix translation = Matrix.CreateTranslation(anchorPos.X, anchorPos.Y, 0);
 
-            return parentMatrix * translation * positionMatrix;
+            return parentMatrix * translation;
         }
     }
 }

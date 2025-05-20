@@ -22,7 +22,7 @@ namespace TheGreen.Game.Inventory
         private Point _recipeLocation;
         private List<(byte, byte, int)> _currentRecipe;
 
-        public CraftingGrid(int size, DragItem dragItem, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.BottomLeft) : base(anchor: anchor)
+        public CraftingGrid(int size, DragItem dragItem, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.TopLeft) : base(anchor: anchor)
         {
             _craftingInputItems = new Item[size * size];
             _craftingInputSlots = new ItemSlot[size * size];

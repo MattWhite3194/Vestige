@@ -41,9 +41,12 @@ namespace TheGreen.Game.WorldGeneration
         private int _dirtDepth = 20;
         private int _grassDepth = 8;
         /// <summary>
-        /// The lowest point of the surface in the world. Y-Down
+        /// The lowest point of the surface in the world. Relative to the bottom of the world
         /// </summary>
         private int _surfaceHeight;
+        /// <summary>
+        /// The Lowest point of the surface in the world. Relative to the top of the world
+        /// </summary>
         public int SurfaceDepth;
         public Point WorldSize;
         public static readonly byte MaxLiquid = 255;
@@ -53,6 +56,9 @@ namespace TheGreen.Game.WorldGeneration
         /// Stores the location and damage information of any tiles that are actively being mined by the player
         /// </summary>
         private Dictionary<Point, DamagedTile> _minedTiles = new Dictionary<Point, DamagedTile>();
+        /// <summary>
+        /// Stores the location and damage information of any walls that are actively being mined by the player
+        /// </summary>
         private Dictionary<Point, DamagedTile> _minedWalls = new Dictionary<Point, DamagedTile>();
         
         private List<WorldUpdater> _worldUpdaters;
@@ -66,7 +72,7 @@ namespace TheGreen.Game.WorldGeneration
             WorldSize = new Point(sizeX, sizeY);
             _tiles = new Tile[sizeX * sizeY];
             _tileInventories = new Dictionary<Point, Item[]>();
-            int[] surfaceNoise = Generate1DNoise(sizeX, 150, 300, 4, 0.4f);
+            int[] surfaceNoise = Generate1DNoise(sizeX, 50, 300, 4, 0.5f);
             surfaceNoise = Smooth(surfaceNoise, 2);
             int[] surfaceTerrain = new int[sizeX];
 
@@ -261,35 +267,6 @@ namespace TheGreen.Game.WorldGeneration
             return true;
         }
 
-        private byte[] _randTreeTileStates = [0, 2, 8, 10];
-        private void GenerateTree(int x, int y)
-        {
-            
-            //generate base
-            SetInitialTile(x, y, 5);
-            SetTileState(x, y, 128);
-            if (GetTileID(x-1, y) == 0)
-            {
-                SetInitialTile(x - 1, y, 5);
-                SetTileState(x - 1, y, 62);
-            }
-            if (GetTileID(x + 1, y) == 0)
-            {
-                SetInitialTile(x + 1, y, 5);
-                SetTileState(x + 1, y, 130);
-            }
-            //Generate trunk
-            int height = _random.Next(5, 20);
-            for (int h = 1; h < height; h++)
-            {
-                SetInitialTile(x, y - h, 5);
-                SetTileState(x, y - h, _randTreeTileStates[_random.Next(0, _randTreeTileStates.Length)]);
-            }
-
-            //Add tree top
-            SetInitialTile(x, y - height, 6);
-            SetTileState(x, y - height, 0);
-        }
         /// <summary>
         /// Called when a player starts a world. Use this to start any frame or tick updates.
         /// </summary>
@@ -387,12 +364,43 @@ namespace TheGreen.Game.WorldGeneration
         {
             return (x >= 0 && y >= 0 && x < WorldSize.X && y < WorldSize.Y);
         }
+
+        private byte[] _randTreeTileStates = [0, 2, 8, 10];
+        private void GenerateTree(int x, int y)
+        {
+
+            //generate base
+            SetInitialTile(x, y, 5);
+            SetTileState(x, y, 128);
+            if (GetTileID(x - 1, y) == 0)
+            {
+                SetInitialTile(x - 1, y, 5);
+                SetTileState(x - 1, y, 62);
+            }
+            if (GetTileID(x + 1, y) == 0)
+            {
+                SetInitialTile(x + 1, y, 5);
+                SetTileState(x + 1, y, 130);
+            }
+            //Generate trunk
+            int height = _random.Next(5, 20);
+            for (int h = 1; h < height; h++)
+            {
+                SetInitialTile(x, y - h, 5);
+                SetTileState(x, y - h, _randTreeTileStates[_random.Next(0, _randTreeTileStates.Length)]);
+            }
+
+            //Add tree top
+            SetInitialTile(x, y - height, 6);
+            SetTileState(x, y - height, 0);
+        }
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="size"></param>
-        /// <param name="height"></param>
-        /// <param name="frequency"></param>
+        /// <param name="size">The size of the 1D array</param>
+        /// <param name="height">The amplitude of the first octave</param>
+        /// <param name="scale"></param>
         /// <param name="octaves">Number of passes. Will make the noise more detailed</param>
         /// <param name="persistance">Value less than 1. Reduces height of next octave.</param>
         /// <returns></returns>

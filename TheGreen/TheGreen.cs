@@ -41,7 +41,7 @@ namespace TheGreen
         {
             
             //Screen settings
-            SetWindowProperties(1920, 1080, false);
+            SetWindowProperties(960, 640, false);
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
