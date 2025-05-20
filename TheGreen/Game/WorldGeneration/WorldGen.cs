@@ -192,12 +192,12 @@ namespace TheGreen.Game.WorldGeneration
                 }
             }
         }
-        public bool LoadWorld(string worldName)
+        public void LoadWorld(string worldName)
         {
             string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
             if (!Path.Exists(worldPath))
             {
-                return false;
+                throw new FileNotFoundException("Could not find the saved game data.");
             }
             _tileInventories = new Dictionary<Point, Item[]>();
             using (FileStream worldData = File.OpenRead(Path.Combine(worldPath, worldName + ".bin")))
@@ -226,10 +226,8 @@ namespace TheGreen.Game.WorldGeneration
                     }
                 }
             }
-            Debug.WriteLine("World loading successful");
-            return true;
         }
-        public bool SaveWorld(string worldName)
+        public void SaveWorld(string worldName)
         {
             string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
             if (!Path.Exists(worldPath))
@@ -263,8 +261,6 @@ namespace TheGreen.Game.WorldGeneration
                     }
                 }
             }
-                
-            return true;
         }
 
         /// <summary>

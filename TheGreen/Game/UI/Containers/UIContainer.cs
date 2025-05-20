@@ -99,7 +99,7 @@ namespace TheGreen.Game.UI.Containers
         {
             spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix);
             DrawComponents(spriteBatch);
-            //DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle(Position.ToPoint(), Size.ToPoint()), Color.Red);
+            //DebugHelper.DrawOutlineRectangle(spriteBatch, new Rectangle(Point.Zero, Size.ToPoint()), Color.Red);
             spriteBatch.End();
             foreach (UIContainer uiComponentContainer in _containerChildren)
             {

@@ -8,7 +8,7 @@ namespace TheGreen.Game.UI.Containers
 {
     public class ScrollContainer : GridContainer
     {
-        private int _viewHeight;
+        private float _viewHeight;
         private int _initialPositionY;
         private int _scrollSpeed;
         private float _scrollerSize;
@@ -24,15 +24,15 @@ namespace TheGreen.Game.UI.Containers
         {
             ScissorTestEnable = true
         };
-        public ScrollContainer(Vector2 position, int viewHeight, int margin = 5, int scrollSpeed = 4, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle) : base(1, margin, position, size, anchor)
+        public ScrollContainer(Vector2 position, int margin = 5, int scrollSpeed = 4, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle) : base(1, margin, position, size, anchor)
         {
-            _viewHeight = viewHeight;
+            _viewHeight = size.Y;
             _initialPositionY = (int)position.Y;
             _scrollSpeed = scrollSpeed;
         }
         public override void HandleInput(InputEvent @event)
         {
-            if (!new Rectangle((int)Position.X, _initialPositionY, (int)Size.X, _viewHeight).Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix)))
+            if (!new Rectangle((int)Position.X, _initialPositionY, (int)Size.X, (int)_viewHeight).Contains(Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix)))
                 return;
             if (@event is MouseInputEvent mouseInputEvent && mouseInputEvent.InputButton == InputButton.MiddleMouse)
             {
@@ -82,8 +82,11 @@ namespace TheGreen.Game.UI.Containers
             Rectangle clippingRectangle = spriteBatch.GraphicsDevice.ScissorRectangle;
             spriteBatch.GraphicsDevice.ScissorRectangle = new Rectangle(Vector2.Transform(new Vector2((int)Position.X, _initialPositionY), AnchorMatrix).ToPoint(), Vector2.Transform(new Vector2((int)Size.X, _viewHeight), TheGreen.UIScaleMatrix).ToPoint());
             base.DrawComponents(spriteBatch);
-            DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, 0, 4, _viewHeight - 1), Color.DimGray);
-            DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, (int)((_initialPositionY - (Position.Y + _scrollOffset)) / (base.Size.Y - _viewHeight) * (_viewHeight - _scrollerSize)), 4, (int)_scrollerSize), Color.LightGray);
+            if (base.Size.Y > Size.Y)
+            {
+                DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, 0, 4, (int)_viewHeight - 1), Color.DimGray);
+                DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, (int)((_initialPositionY - (Position.Y + _scrollOffset)) / (base.Size.Y - _viewHeight) * (_viewHeight - _scrollerSize)), 4, (int)_scrollerSize), Color.LightGray);
+            }
             spriteBatch.GraphicsDevice.ScissorRectangle = clippingRectangle;
         }
     }

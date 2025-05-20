@@ -201,11 +201,13 @@ namespace TheGreen.Game.Inventory
         public override void Draw(SpriteBatch spriteBatch)
         {
             base.Draw(spriteBatch);
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: AnchorMatrix);
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: _grid.AnchorMatrix);
             for (int i = 0; i < _craftingInputSlots.Length; i++)
             {
                 _craftingInputSlots[i].DrawItem(spriteBatch, _craftingInputItems[i]);
             }
+            spriteBatch.End();
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: AnchorMatrix);
             _craftingOutputSlot.DrawItem(spriteBatch, _craftingOutputItem);
             spriteBatch.End();
         }
