@@ -10,13 +10,14 @@ using TheGreen.Game.UI.Components;
 using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UI;
 using TheGreen.Game.WorldGeneration;
+using System.Diagnostics;
 
 namespace TheGreen.Game.Menus
 {
     public class MainMenu
     {
         private UIContainer _startMenu;
-        private GridContainer _createWorldMenu;
+        private PanelContainer _createWorldMenu;
         private GridContainer _settingsMenu;
         private PanelContainer _loadGameMenu;
         private Button _backButton;
@@ -25,6 +26,8 @@ namespace TheGreen.Game.Menus
         private MainMenuBackground _mainMenuBackground;
         private TextBox _worldNameTextBox;
         private GraphicsDevice _graphicsDevice;
+        private Label _createWorldErrorLabel;
+        private SelectionContainer _worldSizeSelector;
 
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
@@ -35,56 +38,59 @@ namespace TheGreen.Game.Menus
             _game = game;
             _graphicsDevice = graphicsDevice;
             _menus = new Stack<UIContainer>();
-
-
-            PanelContainer testPanelContainer = new PanelContainer(Vector2.Zero, new Vector2(288, 400), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 10, 2, 20, graphicsDevice);
-
-
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
-            _createWorldMenu = new GridContainer(1);
+            _createWorldMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 150), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
             _settingsMenu = new GridContainer(1);
 
-            Label _titleLabel = new Label(new Vector2(0, 0), "Yet Another Block Game", Vector2.Zero, textColor: Color.ForestGreen, scale: 4.0f, maxWidth: 288);
+            Label _titleLabel = new Label(new Vector2(0, 0), "Yet Another Block Game", Vector2.Zero, color: Color.ForestGreen, scale: 4.0f, maxWidth: 288);
             _startMenu.AddComponentChild(_titleLabel);
 
-            Button newGameButton = new Button(new Vector2(0, 140), "New Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+            Button newGameButton = new Button(new Vector2(0, 140), "New Game", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             newGameButton.OnButtonPress += () => AddSubMenu(_createWorldMenu);
             _startMenu.AddComponentChild(newGameButton);
 
-            Button loadGameButton = new Button(new Vector2(0, 160), "Load Game", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+            Button loadGameButton = new Button(new Vector2(0, 160), "Load Game", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             loadGameButton.OnButtonPress += ListWorlds;
             _startMenu.AddComponentChild(loadGameButton);
 
-            Button settingsMenuButton = new Button(new Vector2(0, 180), "Settings", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+            Button settingsMenuButton = new Button(new Vector2(0, 180), "Settings", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             settingsMenuButton.OnButtonPress += () => AddSubMenu(_settingsMenu);
             _startMenu.AddComponentChild(settingsMenuButton);
 
-            Button worldGenTestButton = new Button(new Vector2(0, 288), "Test World Gen", Vector2.Zero, borderRadius: 0, textColor: Color.Red, textClickedColor: Color.Salmon, textHoveredColor: Color.LightSalmon, maxWidth: 288);
+            Button worldGenTestButton = new Button(new Vector2(0, 288), "Test World Gen", Vector2.Zero, color: Color.Red, clickedColor: Color.Salmon, hoveredColor: Color.LightSalmon, maxWidth: 288);
             worldGenTestButton.OnButtonPress += () => DebugHelper.RunWorldGenTest(4288, 1288, _graphicsDevice, 69);
             _startMenu.AddComponentChild(worldGenTestButton);
 
-            Button reduceUIScaleButton = new Button(new Vector2(0, 0), "Reduce UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+            Button reduceUIScaleButton = new Button(new Vector2(0, 0), "Reduce UI Scale", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             reduceUIScaleButton.OnButtonPress += () => 
             {
                 _game.SetUIScaleMatrix(Math.Max(0.1f, TheGreen.UIScaleMatrix.M11 - 0.1f));
             };
             _settingsMenu.AddComponentChild(reduceUIScaleButton);
 
-            Button increaseUIScaleButton = new Button(new Vector2(0, 0), "Increase UI Scale", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+            Button increaseUIScaleButton = new Button(new Vector2(0, 0), "Increase UI Scale", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             increaseUIScaleButton.OnButtonPress += () =>
             { 
                 _game.SetUIScaleMatrix(Math.Min(5f, TheGreen.UIScaleMatrix.M11 + 0.1f));
             };
             _settingsMenu.AddComponentChild(increaseUIScaleButton);
 
-            _worldNameTextBox = new TextBox(new Vector2(0, 180), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288);
+            _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288);
             _createWorldMenu.AddComponentChild(_worldNameTextBox);
 
-            Button createWorldButton = new Button(new Vector2(0, 0), "Create World", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+            Button createWorldButton = new Button(new Vector2(0, 100), "Create World", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             createWorldButton.OnButtonPress += CreateWorld;
             _createWorldMenu.AddComponentChild( createWorldButton );
 
-            _backButton = new Button(new Vector2(0, 0), "Back", Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+            _createWorldErrorLabel = new Label(new Vector2(0, 60), "", Vector2.Zero, color: Color.Red, maxWidth: 288);
+            _createWorldMenu.AddComponentChild(_createWorldErrorLabel);
+
+            _worldSizeSelector = new SelectionContainer(3, [(new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.LightGray, Color.Yellow, buttonWidth: 80, anchor: Anchor.MiddleMiddle);
+            PanelContainer selectorPanel = new PanelContainer(new Vector2(0, 50), new Vector2(288, 30), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 0, 1, 5, _graphicsDevice, anchor: Anchor.TopMiddle);
+            selectorPanel.AddContainerChild(_worldSizeSelector);
+            _createWorldMenu.AddContainerChild(selectorPanel);
+
+            _backButton = new Button(new Vector2(0, 0), "Back", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             _backButton.OnButtonPress += RemoveSubMenu;
 
             _mainMenuBackground = new MainMenuBackground();
@@ -95,13 +101,32 @@ namespace TheGreen.Game.Menus
         }
         private async void CreateWorld()
         {
+            _createWorldErrorLabel.SetText("");
+            string worldName = _worldNameTextBox.GetText();
+            Debug.WriteLine(worldName);
+            if (worldName == "") return;
+            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
+            if (Path.Exists(worldPath))
+            {
+                _createWorldErrorLabel.SetText("World already exists. Try a different name.");
+                return;
+            }
             bool worldGenSuccessful = true;
             int numMenus = _menus.Count;
             UIManager.UnregisterContainer(_createWorldMenu);
             await Task.Run(() =>
             {
-                WorldGen.World.GenerateWorld(4200, 1200);
-                worldGenSuccessful = WorldGen.World.SaveWorld(_worldNameTextBox.GetText());
+                Point worldSize = (Point)_worldSizeSelector.GetSelected();
+                WorldGen.World.GenerateWorld(worldSize.X, worldSize.Y);
+                try
+                {
+                    worldGenSuccessful = WorldGen.World.SaveWorld(worldName);
+                }
+                catch (Exception ex)
+                {
+                    _createWorldErrorLabel.SetText($"{ex.Message}");
+                    worldGenSuccessful = false;
+                }
             });
             UIManager.RegisterContainer(_createWorldMenu);
 
@@ -133,8 +158,8 @@ namespace TheGreen.Game.Menus
         }
         private void ListWorlds()
         {
-            _loadGameMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 350), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 20, _graphicsDevice);
-            ScrollContainer worldList = new ScrollContainer(Vector2.Zero, 300, size: new Vector2(288, 0), anchor: Anchor.None);
+            _loadGameMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 350), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
+            ScrollContainer worldList = new ScrollContainer(Vector2.Zero, 300, size: new Vector2(288, 0), anchor: Anchor.TopLeft);
             string worldPath = Path.Combine(TheGreen.SavePath, "Worlds");
             if (!Path.Exists(worldPath))
                 return;
@@ -142,7 +167,7 @@ namespace TheGreen.Game.Menus
             foreach (string worldDirectory in worldDirectories)
             {
                 string worldName = worldDirectory.Split('\\').Last();
-                Button worldButton = new Button(Vector2.Zero, worldName, Vector2.Zero, borderRadius: 0, textColor: Color.White, textClickedColor: Color.Orange, textHoveredColor: Color.Yellow, maxWidth: 288);
+                Button worldButton = new Button(Vector2.Zero, worldName, Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
                 worldButton.OnButtonPress += () => LoadWorld(worldName);
                 worldList.AddComponentChild(worldButton);
             }

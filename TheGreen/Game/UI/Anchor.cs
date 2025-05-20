@@ -3,7 +3,6 @@ namespace TheGreen.Game.UI
 {
     public enum Anchor
     {
-        None,
         TopLeft,
         TopMiddle,
         TopRight,
@@ -13,7 +12,5 @@ namespace TheGreen.Game.UI
         BottomLeft,
         BottomMiddle,
         BottomRight,
-
-        ScreenScale
     }
 }

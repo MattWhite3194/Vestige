@@ -1,29 +1,22 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Linq;
 
 namespace TheGreen.Game.UI.Components
 {
     public class Label : UIComponent
     {
         protected string _text;
-        private int _borderRadius;
-        private int _borderThickness;
         private Vector2 _padding;
         private Vector2 _stringOrigin;
-        private Color _borderColor;
-        protected Color _textColor;
         protected Vector2 _stringPosition;
         protected Vector2 _stringSize;
         private int _maxWidth;
         private TextAlign _textAlign;
-        public Label(Vector2 position, string text, Vector2 padding, int borderRadius = 0, Color color = default, Color textColor = default,
+        public Label(Vector2 position, string text, Vector2 padding, Color color = default,
             bool drawCentered = false, int maxWidth = 0, float rotation = 0.0f, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, null, color, drawCentered, rotation, scale)
         {
-            this.Color = color;
-            _textColor = textColor == default ? Color.White : textColor;
+            this.Color = color == default ? Color.White : color;
             _padding = padding;
-            _borderRadius = borderRadius;
             _maxWidth = maxWidth;
             _textAlign = textAlign;
 
@@ -76,15 +69,20 @@ namespace TheGreen.Game.UI.Components
             int charsPerLine = (int)(maxWidth / characterWidth);
             string newText = "";
             int textIndex = 0;
+            int numLines = 1;
             while (textIndex < _text.Length)
             {
                 newText += _text[textIndex];
                 if ((textIndex + 1) % charsPerLine == 0)
+                {
+                    numLines++;
                     newText += "\n";
+                }
                 textIndex++;
             }
             _text = newText;
-            return new Vector2(maxWidth, ContentLoader.GameFont.MeasureString(newText).Y);
+            _stringSize = new Vector2(maxWidth, numLines * _stringSize.Y);
+            return _stringSize;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -95,7 +93,7 @@ namespace TheGreen.Game.UI.Components
                 spriteBatch.Draw(image, _drawPosition, null, Color, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
             }
 
-            spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + _stringOrigin, _textColor, _rotation, _stringOrigin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.DrawString(ContentLoader.GameFont, _text, _stringPosition + _stringOrigin, Color, _rotation, _stringOrigin, _scale, SpriteEffects.None, 0.0f);
 
         }
 

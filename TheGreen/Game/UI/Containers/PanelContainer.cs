@@ -59,7 +59,7 @@ namespace TheGreen.Game.UI.Containers
                 }
             }
             _panel.SetData(colorData);
-            _panelPosition = position - new Vector2(padding);
+            _panelPosition = new Vector2(-padding);
         }
         protected override void DrawComponents(SpriteBatch spriteBatch)
         {

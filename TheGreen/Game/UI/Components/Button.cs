@@ -12,22 +12,15 @@ namespace TheGreen.Game.UI.Components
         public ButtonPress OnButtonPress;
         private Color _clickedColor;
         private Color _hoveredColor;
-        private Color _textClickedColor;
-        private Color _textHoveredColor;
         private Color _defaultColor;
-        private Color _defaultTextColor;
         private bool _clicked = false;
-        public Button(Vector2 position, string text, Vector2 padding, int borderRadius = 0,
+        public Button(Vector2 position, string text, Vector2 padding,
             Color color = default, Color clickedColor = default, Color hoveredColor = default,
-            Color textColor = default, Color textClickedColor = default, Color textHoveredColor = default,
-            bool drawCentered = false, int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, borderRadius, color, textColor, drawCentered, maxWidth, scale: scale, textAlign: textAlign)
+            bool drawCentered = false, int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, color, drawCentered, maxWidth, scale: scale, textAlign: textAlign)
         {
             _clickedColor = clickedColor;
             _hoveredColor = hoveredColor;
-            _textClickedColor = textClickedColor;
-            _textHoveredColor = textHoveredColor;
             _defaultColor = color;
-            _defaultTextColor = textColor;
             OnMouseEntered += HoverButton;
             OnMouseExited += ResetButton;
         }
@@ -36,7 +29,6 @@ namespace TheGreen.Game.UI.Components
         {
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
-                _textColor = _textClickedColor;
                 Color = _clickedColor;
                 _clicked = true;
             }
@@ -46,7 +38,7 @@ namespace TheGreen.Game.UI.Components
                 {
                     OnButtonPress();
                 }
-                _textColor = _textHoveredColor;
+                Color = _hoveredColor;
                 _clicked = false;
             }
         }
@@ -55,7 +47,6 @@ namespace TheGreen.Game.UI.Components
         {
             _clicked = false;
             Scale = Scale - 0.2f;
-            _textColor = _defaultTextColor;
             Color = _defaultColor;
         }
 
@@ -63,7 +54,6 @@ namespace TheGreen.Game.UI.Components
         {
             Color = _hoveredColor;
             Scale = Scale + 0.2f;
-            _textColor = _textHoveredColor;
         }
         public override Rectangle GetBounds()
         {

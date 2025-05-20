@@ -197,14 +197,7 @@ namespace TheGreen.Game.UI.Containers
                 parentWidth = (int)transformedSize.X;
                 parentHeight = (int)transformedSize.Y;
             }
-            if (_anchor == Anchor.None)
-            {
-                return parentMatrix;
-            }
-            else if (_anchor == Anchor.ScreenScale)
-            {
-                return Matrix.CreateScale(Math.Max(parentWidth / (float)TheGreen.NativeResolution.X, parentHeight / (float)TheGreen.NativeResolution.Y));
-            }
+            Matrix positionMatrix = Matrix.CreateTranslation(new Vector3(Vector2.Transform(Position, TheGreen.UIScaleMatrix), 0));
             Vector2 containerSize = Vector2.Transform(GetSize(), TheGreen.UIScaleMatrix);
             Vector2 anchorPos = _anchor switch
             {
@@ -225,7 +218,7 @@ namespace TheGreen.Game.UI.Containers
 
             Matrix translation = Matrix.CreateTranslation(anchorPos.X, anchorPos.Y, 0);
 
-            return parentMatrix * translation;
+            return parentMatrix * translation * positionMatrix;
         }
     }
 }

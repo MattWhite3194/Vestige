@@ -10,7 +10,7 @@ namespace TheGreen.Game.Menus
     {
         private ParallaxManager parallaxManager;
         private Vector2 parallaxOffset;
-        public MainMenuBackground() : base(anchor: Anchor.ScreenScale)
+        public MainMenuBackground() : base(Vector2.Zero, TheGreen.NativeResolution.ToVector2(), Anchor.MiddleMiddle)
         {
             parallaxOffset = new Vector2(0, TheGreen.NativeResolution.Y);
             parallaxManager = new ParallaxManager();

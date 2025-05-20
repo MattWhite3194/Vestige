@@ -188,93 +188,77 @@ namespace TheGreen.Game.WorldGeneration
         }
         public bool LoadWorld(string worldName)
         {
-            try
+            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
+            if (!Path.Exists(worldPath))
             {
-                string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
-                if (!Path.Exists(worldPath))
-                {
-                    return false;
-                }
-                _tileInventories = new Dictionary<Point, Item[]>();
-                using (FileStream worldData = File.OpenRead(Path.Combine(worldPath, worldName + ".bin")))
-                using (BinaryReader binaryReader = new BinaryReader(worldData))
-                {
-                    //TODO: load grass
-                    //TODO: load water
-                    //TODO: load tile inventories
-                    _spawnTile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
-                    WorldSize = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
-                    SurfaceDepth = binaryReader.ReadInt32();
-                }
-                _tiles = new Tile[WorldSize.X * WorldSize.Y];
-                using (FileStream world = File.OpenRead(Path.Combine(worldPath, worldName + ".wld")))
-                using (BinaryReader binaryReader = new BinaryReader(world) )
-                {
-                    for (int i = 0; i < WorldSize.X; i++)
-                    {
-                        for (int j = 0; j < WorldSize.Y; j++)
-                        {
-                            SetInitialTile(i, j, binaryReader.ReadUInt16());
-                            SetTileState(i, j, binaryReader.ReadByte());
-                            SetInitialWall(i, j, binaryReader.ReadUInt16());
-                            SetWallState(i, j, binaryReader.ReadByte());
-                            SetLiquid(i, j, binaryReader.ReadByte());
-                        }
-                    }
-                }
-                Debug.WriteLine("World loading successful");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error saving world", ex.Message, ["Ok"]);
                 return false;
             }
+            _tileInventories = new Dictionary<Point, Item[]>();
+            using (FileStream worldData = File.OpenRead(Path.Combine(worldPath, worldName + ".bin")))
+            using (BinaryReader binaryReader = new BinaryReader(worldData))
+            {
+                //TODO: load grass
+                //TODO: load water
+                //TODO: load tile inventories
+                _spawnTile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+                WorldSize = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+                SurfaceDepth = binaryReader.ReadInt32();
+            }
+            _tiles = new Tile[WorldSize.X * WorldSize.Y];
+            using (FileStream world = File.OpenRead(Path.Combine(worldPath, worldName + ".wld")))
+            using (BinaryReader binaryReader = new BinaryReader(world) )
+            {
+                for (int i = 0; i < WorldSize.X; i++)
+                {
+                    for (int j = 0; j < WorldSize.Y; j++)
+                    {
+                        SetInitialTile(i, j, binaryReader.ReadUInt16());
+                        SetTileState(i, j, binaryReader.ReadByte());
+                        SetInitialWall(i, j, binaryReader.ReadUInt16());
+                        SetWallState(i, j, binaryReader.ReadByte());
+                        SetLiquid(i, j, binaryReader.ReadByte());
+                    }
+                }
+            }
+            Debug.WriteLine("World loading successful");
+            return true;
         }
         public bool SaveWorld(string worldName)
         {
-            try
+            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
+            if (!Path.Exists(worldPath))
             {
-                string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
-                if (!Path.Exists(worldPath))
+                Directory.CreateDirectory(worldPath);
+            }
+            using (FileStream worldData = File.Create(Path.Combine(worldPath, worldName + ".bin")))
+            using (BinaryWriter binaryWriter = new BinaryWriter(worldData))
+            {
+                //TODO: write grass
+                //TODO: write water
+                //TODO: write tile inventories
+                binaryWriter.Write(_spawnTile.X);
+                binaryWriter.Write(_spawnTile.Y);
+                binaryWriter.Write(WorldSize.X);
+                binaryWriter.Write(WorldSize.Y);
+                binaryWriter.Write(SurfaceDepth);
+            }
+            using (FileStream world = File.Create(Path.Combine(worldPath, worldName + ".wld")))
+            using (BinaryWriter binaryWriter = new BinaryWriter(world))
+            {
+                for (int i = 0; i < WorldSize.X; i++)
                 {
-                    Directory.CreateDirectory(worldPath);
-                }
-                using (FileStream worldData = File.Create(Path.Combine(worldPath, worldName + ".bin")))
-                using (BinaryWriter binaryWriter = new BinaryWriter(worldData))
-                {
-                    //TODO: write grass
-                    //TODO: write water
-                    //TODO: write tile inventories
-                    binaryWriter.Write(_spawnTile.X);
-                    binaryWriter.Write(_spawnTile.Y);
-                    binaryWriter.Write(WorldSize.X);
-                    binaryWriter.Write(WorldSize.Y);
-                    binaryWriter.Write(SurfaceDepth);
-                }
-                using (FileStream world = File.Create(Path.Combine(worldPath, worldName + ".wld")))
-                using (BinaryWriter binaryWriter = new BinaryWriter(world))
-                {
-                    for (int i = 0; i < WorldSize.X; i++)
+                    for (int j = 0; j < WorldSize.Y; j++)
                     {
-                        for (int j = 0; j < WorldSize.Y; j++)
-                        {
-                            binaryWriter.Write(GetTileID(i, j));
-                            binaryWriter.Write(GetTileState(i, j));
-                            binaryWriter.Write(GetWallID(i, j));
-                            binaryWriter.Write(GetWallState(i, j));
-                            binaryWriter.Write(GetLiquid(i, j));
-                        }
+                        binaryWriter.Write(GetTileID(i, j));
+                        binaryWriter.Write(GetTileState(i, j));
+                        binaryWriter.Write(GetWallID(i, j));
+                        binaryWriter.Write(GetWallState(i, j));
+                        binaryWriter.Write(GetLiquid(i, j));
                     }
                 }
+            }
                 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error saving world", ex.Message, ["Ok"]);
-                return false;
-            }
+            return true;
         }
 
         private byte[] _randTreeTileStates = [0, 2, 8, 10];

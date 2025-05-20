@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
-using System.Diagnostics;
 using TheGreen.Game.Input;
 
 namespace TheGreen.Game.UI.Components
@@ -24,7 +23,7 @@ namespace TheGreen.Game.UI.Components
             if (defaultText == "")
             {
                 SetText(_placeHolder);
-                _textColor = Color.LightGray;
+                Color = Color.LightGray;
                 _usingPlaceHolder = true;
             }
             OnMouseEntered += () => Mouse.SetCursor(MouseCursor.IBeam);
@@ -67,7 +66,7 @@ namespace TheGreen.Game.UI.Components
             if (_text == "")
             {
                 SetText(_placeHolder);
-                _textColor = Color.LightGray;
+                Color = Color.LightGray;
                 _usingPlaceHolder = true;
             }
         }
@@ -77,7 +76,7 @@ namespace TheGreen.Game.UI.Components
             {
                 _usingPlaceHolder = false;
                 SetText("");
-                _textColor = Color.White;
+                Color = Color.White;
             }
             SetFocused(true);
             TheGreen.GameWindow.TextInput += OnTextInput;
@@ -90,7 +89,7 @@ namespace TheGreen.Game.UI.Components
             if (_drawTextCursor)
             {
                 Vector2 cursorPosition = _stringPosition + new Vector2(ContentLoader.GameFont.MeasureString(_text.Substring(0, _cursorIndex)).X, 0);
-                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin, _textColor, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin, Color, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
             }
         }
         public override void Update(double delta)
@@ -148,6 +147,8 @@ namespace TheGreen.Game.UI.Components
         }
         public string GetText()
         {
+            if (_usingPlaceHolder)
+                return "";
             return _text;
         }
     }
