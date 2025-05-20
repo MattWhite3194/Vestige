@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using TheGreen.Game.Input;
 using TheGreen.Game.UI.Components;
@@ -16,16 +15,7 @@ namespace TheGreen.Game.UI.Containers
 
         private static UIComponent _focusedUIComponent;
         public int ComponentCount;
-        private Vector2 _position;
-        public Vector2 Position
-        {
-            get { return _position; }
-            set
-            {
-                UpdateChildPositions(_position, value);
-                _position = value;
-            }
-        }
+        public Vector2 Position;
         public Vector2 Size;
         private List<UIComponent> _componentChildren = new List<UIComponent>();
         private List<UIContainer> _containerChildren = new List<UIContainer>();
@@ -109,7 +99,7 @@ namespace TheGreen.Game.UI.Containers
         {
             spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix);
             DrawComponents(spriteBatch);
-            //DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle(Position.ToPoint(), GetSize().ToPoint()), Color.Red);
+            //DebugHelper.DrawDebugRectangle(spriteBatch, new Rectangle(Position.ToPoint(), Size.ToPoint()), Color.Red);
             spriteBatch.End();
             foreach (UIContainer uiComponentContainer in _containerChildren)
             {
@@ -124,14 +114,6 @@ namespace TheGreen.Game.UI.Containers
                 {
                     component.Draw(spriteBatch);
                 }
-            }
-        }
-        private void UpdateChildPositions(Vector2 oldPosition, Vector2 newPosition)
-        {
-            foreach (UIComponent component in _componentChildren)
-            {
-                component.Position -= oldPosition;
-                component.Position += newPosition;
             }
         }
         public virtual void AddComponentChild(UIComponent component)
@@ -166,16 +148,12 @@ namespace TheGreen.Game.UI.Containers
         {
             return _focusedUIComponent;
         }
-        public virtual void Dereference()
+        public void Dereference()
         {
             InputManager.UnregisterHandler(this);
             UIManager.UnregisterContainer(this);
         }
-        public virtual Vector2 GetSize()
-        {
-            return Size;
-        }
-        public virtual void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
+        public void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
             _anchorMatrix = GetAnchorMatrix(parentWidth, parentHeight, parentMatrix);
             invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);
@@ -186,7 +164,7 @@ namespace TheGreen.Game.UI.Containers
         }
         private Matrix GetAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
-            Vector2 transformedPosition = Position;
+            Vector2 transformedPosition = Vector2.Transform(Position, TheGreen.UIScaleMatrix);
             if (parentMatrix == default)
             {
                 parentMatrix = TheGreen.UIScaleMatrix;
@@ -196,10 +174,9 @@ namespace TheGreen.Game.UI.Containers
                 Vector2 transformedSize = Vector2.Transform(new Vector2(parentWidth, parentHeight), TheGreen.UIScaleMatrix);
                 parentWidth = (int)transformedSize.X;
                 parentHeight = (int)transformedSize.Y;
-                transformedPosition = Vector2.Transform(Position, TheGreen.UIScaleMatrix);
             }
             
-            Vector2 containerSize = Vector2.Transform(GetSize(), TheGreen.UIScaleMatrix);
+            Vector2 containerSize = Vector2.Transform(Size, TheGreen.UIScaleMatrix);
             Vector2 anchorPos = _anchor switch
             {
                 Anchor.TopLeft => transformedPosition,
