@@ -11,7 +11,7 @@ namespace TheGreen.Game.Items
     public class TileItem : Item
     {
         public readonly ushort TileID;
-        public TileItem(int id, string name, string description, Texture2D image, ushort tileID, int maxStack = 999) : base(id, name, description, image, true, 0.15, true, maxStack)
+        public TileItem(int id, string name, string description, Texture2D image, ushort tileID, int maxStack = 999) : base(id, name, description, image, true, true, 0.15, true, maxStack, UseStyle.Swing)
         { 
             this.TileID = tileID;
         }

@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using TheGreen.Game.Entities.NPCs;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
@@ -147,18 +146,18 @@ namespace TheGreen.Game.Entities
             entity.Position.X += distance;
             entity.Position.X = float.Clamp(entity.Position.X, minPos.X, maxPos.X);
 
-            Rectangle entityBounds = entity.GetBounds();
-            int startX = entityBounds.Left / TheGreen.TILESIZE;
-            int endX = entityBounds.Right / TheGreen.TILESIZE;
-            int startY = entityBounds.Top / TheGreen.TILESIZE;
-            int endY = entityBounds.Bottom / TheGreen.TILESIZE;
+            CollisionRectangle entityBounds = entity.GetBounds();
+            int startX = (int)entityBounds.Left / TheGreen.TILESIZE;
+            int endX = (int)entityBounds.Right / TheGreen.TILESIZE;
+            int startY = (int)entityBounds.Top / TheGreen.TILESIZE;
+            int endY = (int)entityBounds.Bottom / TheGreen.TILESIZE;
             int horizontalCollisionDirection = 0;
 
             for (int x = startX; x <= endX; x++)
             {
                 for (int y = startY; y <= endY; y++)
                 {
-                    Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+                    CollisionRectangle collision = new CollisionRectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
                     //IMPORTANT: entity bounds will not intersect a tile or other collision if the position update is less than a pixels width, since bounds are calculated using integers. Players Velocity will get up to 30 before the player actually moves enough to detect a collision.
                     if (entity.GetBounds().Intersects(collision))
                     {
@@ -199,16 +198,16 @@ namespace TheGreen.Game.Entities
 
             entity.Position.Y += distance;
 
-            Rectangle entityBounds = entity.GetBounds();
-            int startX = entityBounds.Left / TheGreen.TILESIZE;
-            int endX = entityBounds.Right / TheGreen.TILESIZE;
-            int startY = entityBounds.Top / TheGreen.TILESIZE;
-            int endY = entityBounds.Bottom / TheGreen.TILESIZE;
+            CollisionRectangle entityBounds = entity.GetBounds();
+            int startX = (int)entityBounds.Left / TheGreen.TILESIZE;
+            int endX = (int)entityBounds.Right / TheGreen.TILESIZE;
+            int startY = (int)entityBounds.Top / TheGreen.TILESIZE;
+            int endY = (int)entityBounds.Bottom / TheGreen.TILESIZE;
             for (int x = startX; x <= endX; x++)
             {
                 for (int y = startY; y <= endY; y++)
                 {
-                    Rectangle collision = new Rectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+                    CollisionRectangle collision = new CollisionRectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
                     if (entity.GetBounds().Intersects(collision))
                     {
                         if (TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)) is ICollideableTile collideableTile)
@@ -252,7 +251,7 @@ namespace TheGreen.Game.Entities
 
         }
 
-        Vector2 GetPenetrationDepth(Rectangle a, Rectangle b)
+        Vector2 GetPenetrationDepth(CollisionRectangle a, CollisionRectangle b)
         {
             float dx = (a.Center.X - b.Center.X);
             float dy = (a.Center.Y - b.Center.Y);

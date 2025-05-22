@@ -1,9 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
@@ -38,7 +35,7 @@ namespace TheGreen.Game.WorldGeneration
         {
             get { return _spawnTile; }
         }
-        private int _dirtDepth = 20;
+        private int _dirtDepth;
         private int _grassDepth = 8;
         /// <summary>
         /// The lowest point of the surface in the world. Relative to the bottom of the world
@@ -91,6 +88,7 @@ namespace TheGreen.Game.WorldGeneration
                 }
             }
             SurfaceDepth = sizeY - _surfaceHeight;
+            _dirtDepth = _surfaceHeight / 6;
             //place dirt
             for (int i = 0; i < sizeX; i++)
             {
@@ -114,7 +112,7 @@ namespace TheGreen.Game.WorldGeneration
             _spawnTile = new Point(sizeX / 2, surfaceTerrain[sizeX / 2]);
             //generate caves
             InitializeGradients();
-            double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(sizeX, _surfaceHeight - _dirtDepth - 1, scale: 25, octaves: 4, persistence: 0.5);
+            double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(sizeX, _surfaceHeight, scale: 25, octaves: 4, persistence: 0.5);
             //threshhold cave noise
             int[] cornersX = [0, 0, 1, -1];
             int[] cornersY = [1, -1, 0, 0];
@@ -147,14 +145,30 @@ namespace TheGreen.Game.WorldGeneration
             }
             for (int x = 0; x < sizeX; x++)
             {
-                for (int y = 0; y < _surfaceHeight - _dirtDepth - 1; y++)
+                for (int y = 0; y < _surfaceHeight; y++)
                 {
                     if (perlinNoise[y, x] < -0.1)
-                        RemoveInitialTile(x, sizeY - _surfaceHeight + _dirtDepth + y);
+                        RemoveInitialTile(x, sizeY - _surfaceHeight + y);
                 }
             }
 
             perlinNoise = null;
+
+            //Generate stone chunks in dirt layer
+            for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0002; i++)
+            {
+                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth, SurfaceDepth + _dirtDepth), _random.Next(4, 15), _random.Next(5, 30), 4);
+            }
+            //Generate dirt chunks in stone layer
+            for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0002; i++)
+            {
+                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth, SurfaceDepth + _dirtDepth + (_surfaceHeight - _dirtDepth) / 2), _random.Next(4, 10), _random.Next(5, 30), 1);
+            }
+            for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0001; i++)
+            {
+                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth + (_surfaceHeight - _dirtDepth) / 2, WorldSize.Y), _random.Next(4, 10), _random.Next(5, 30), 1);
+            }
+
 
             //calculate tile states
             for (int i = 1; i < sizeX - 1; i++)
@@ -227,14 +241,14 @@ namespace TheGreen.Game.WorldGeneration
                 }
             }
         }
-        public void SaveWorld(string worldName)
+        public void SaveWorld(string fileName, string worldName)
         {
-            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
+            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", fileName);
             if (!Path.Exists(worldPath))
             {
                 Directory.CreateDirectory(worldPath);
             }
-            using (FileStream worldData = File.Create(Path.Combine(worldPath, worldName + ".bin")))
+            using (FileStream worldData = File.Create(Path.Combine(worldPath, fileName + ".bin")))
             using (BinaryWriter binaryWriter = new BinaryWriter(worldData))
             {
                 //TODO: write grass
@@ -246,7 +260,7 @@ namespace TheGreen.Game.WorldGeneration
                 binaryWriter.Write(WorldSize.Y);
                 binaryWriter.Write(SurfaceDepth);
             }
-            using (FileStream world = File.Create(Path.Combine(worldPath, worldName + ".wld")))
+            using (FileStream world = File.Create(Path.Combine(worldPath, fileName + ".wld")))
             using (BinaryWriter binaryWriter = new BinaryWriter(world))
             {
                 for (int i = 0; i < WorldSize.X; i++)
@@ -614,7 +628,7 @@ namespace TheGreen.Game.WorldGeneration
             Item item = ItemDatabase.InstantiateItemByTileID(tileID);
             if (item != null)
             {
-                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * TheGreen.TILESIZE);
+                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * TheGreen.TILESIZE, new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
             }
         }
         private void SetLargeTile(int x, int y, ushort ID)
@@ -725,6 +739,40 @@ namespace TheGreen.Game.WorldGeneration
             if (_tileInventories.ContainsKey(coordinates))
                 return _tileInventories[coordinates];
             return null;
+        }
+        public void TileBlobber(int x, int y, double size, int passes, ushort tileID, bool replaceOnly = true)
+        {
+            double remainingSize = size;
+            double remainingPasses = passes;
+            Vector2 currentTile = new Vector2(x, y);
+            Vector2 tileOffset = new Vector2(_random.Next(-10, 11) * 0.1f, _random.Next(-10, 11) * 0.1f);
+            while (remainingSize > 0.0 && remainingPasses > 0.0)
+            {
+                //decrease strength each pass
+                remainingSize = size * (remainingPasses / passes);
+                remainingPasses -= 1.0;
+                //Rectangle around point with width = remainingStrength and height = remainingStrength
+                int leftBound = Math.Max(0, (int)(currentTile.X - remainingSize / 2));
+                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + remainingSize / 2));
+                int topBound = Math.Max(0, (int)(currentTile.Y - remainingSize / 2));
+                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + remainingSize / 2));
+                for (int i = leftBound; i < rightBound; i++)
+                {
+                    for (int j = topBound; j < bottomBound; j++)
+                    {
+                        //check distance in a diamond shape + a random offset
+                        if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + _random.Next(-10, 11) * 0.015))
+                        {
+                            if (!replaceOnly || TileDatabase.TileHasProperty(GetTileID(i, j), TileProperty.Solid))
+                                SetInitialTile(i, j, tileID);
+                        }
+                    }
+                }
+                currentTile += tileOffset;
+                //random vector from -0.5 -> 0.5
+                tileOffset.X += _random.Next(-10, 11) * 0.05f;
+                tileOffset.X = float.Clamp(tileOffset.X, -1, 1);
+            }
         }
     }
 }

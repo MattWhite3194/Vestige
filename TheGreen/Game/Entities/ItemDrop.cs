@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using TheGreen.Game.Items;
 
 namespace TheGreen.Game.Entities
@@ -12,6 +13,7 @@ namespace TheGreen.Game.Entities
         private Item _item;
         private int _maxFallSpeed = 700;
         public static Vector2 ColliderSize = new Vector2(10, 10);
+        private float _acceleration = 50f;
         public ItemDrop(Item item, Vector2 position) : base(item.Image, position)
         {
             _item = item;
@@ -27,6 +29,13 @@ namespace TheGreen.Game.Entities
             newVelocity.Y += TheGreen.GRAVITY / 2 * (float)delta;
             if (newVelocity.Y > _maxFallSpeed)
                 newVelocity.Y = _maxFallSpeed;
+            if (newVelocity.X != 0.0f)
+            {
+                int direction = Math.Sign(newVelocity.X);
+                newVelocity.X -= _acceleration * (float)delta * direction;
+                if (Math.Sign(newVelocity.X) != direction)
+                    newVelocity.X = 0.0f;
+            }
             Velocity = newVelocity;
         }
 

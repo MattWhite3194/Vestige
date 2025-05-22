@@ -106,7 +106,11 @@ namespace TheGreen.Game.Menus
         private async void CreateWorld()
         {
             string worldName = _worldNameTextBox.GetText();
-            worldName = GetValidWorldName(worldName);
+            if (string.IsNullOrEmpty(worldName))
+            {
+                worldName = "New World";
+            }
+            string fileName = GetValidWorldName(worldName);
             int numMenus = _menus.Count;
             UIManager.UnregisterContainer(_createWorldMenu);
             bool worldGenSuccessful = true;
@@ -116,7 +120,7 @@ namespace TheGreen.Game.Menus
                 WorldGen.World.GenerateWorld(worldSize.X, worldSize.Y);
                 try
                 {
-                    WorldGen.World.SaveWorld(worldName);
+                    WorldGen.World.SaveWorld(fileName, worldName);
                 }
                 catch (Exception ex)
                 {
@@ -138,10 +142,6 @@ namespace TheGreen.Game.Menus
         }
         private string GetValidWorldName(string worldName)
         {
-            if (string.IsNullOrEmpty(worldName))
-            {
-                worldName = "New World";
-            }
             //Replace forbidden chars
             foreach (char forbiddenChar in Path.GetInvalidFileNameChars())
             {

@@ -57,7 +57,7 @@ namespace TheGreen.Game.Tiles.TileData
             //check if the player is colliding with any of the tiles
             for (int i = 0; i < TileSize.Y; i++)
             {
-                Rectangle tileCollider = new Rectangle((topLeft.X + closeDirection) * TheGreen.TILESIZE, (topLeft.Y + i) * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+                CollisionRectangle tileCollider = new CollisionRectangle((topLeft.X + closeDirection) * TheGreen.TILESIZE, (topLeft.Y + i) * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
                 //possibly change this to all entities
                 if (Main.EntityManager.GetPlayer().GetBounds().Intersects(tileCollider))
                     return;

@@ -6,7 +6,7 @@ namespace TheGreen.Game.Items
     /// <summary>
     /// Used by the inventory. Describes an Items functionality.
     /// </summary>
-    public abstract class Item
+    public class Item
     {
         /*
         Saving to file:
@@ -23,11 +23,12 @@ namespace TheGreen.Game.Items
         public readonly double UseSpeed;
         public readonly bool AutoUse;
         public readonly int MaxStack;
+        public readonly bool CanUse;
         public float Scale = 1f;
         
         public readonly UseStyle UseStyle;
 
-        protected Item(int id, string name, string description, Texture2D image, bool stackable, double useSpeed, bool autoUse, int maxStack = 999, UseStyle useStyle = UseStyle.Swing)
+        public Item(int id, string name, string description, Texture2D image, bool stackable = false, bool canUse = false, double useSpeed = 0.5f, bool autoUse = false, int maxStack = 999, UseStyle useStyle = UseStyle.None)
         {
             this.ID = id;
             this.Name = name;
@@ -38,6 +39,7 @@ namespace TheGreen.Game.Items
             this.AutoUse = autoUse;
             this.UseStyle = useStyle;
             this.MaxStack = maxStack;
+            this.CanUse = canUse;
         }
 
         public bool UseItem()

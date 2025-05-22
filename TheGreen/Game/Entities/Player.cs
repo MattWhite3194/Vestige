@@ -16,11 +16,11 @@ namespace TheGreen.Game.Entities
 {
     public class Player : Entity, IInputHandler
     {
-        private float _acceleration = 500;
+        private float _acceleration = 350;
         public Vector2 Direction = Vector2.Zero;
-        private int _maxSpeed = 200;
+        private int _maxSpeed = 150;
         private int _maxFallSpeed = 900;
-        private int _jumpVelocity = -500;
+        private int _jumpVelocity = -450;
         public InventoryManager Inventory;
         private int _health;
         private float _fallDistance = 0;
@@ -107,20 +107,15 @@ namespace TheGreen.Game.Entities
             if (_activeInputs.Contains(InputButton.Right)) Direction.X += 1;
             Animation.SetCurrentAnimation(1);
             Animation.SetAnimationSpeed(Math.Abs(Velocity.X / 10));
-
+            if (MathF.Abs(newVelocity.X) == 0.0f)
+            {
+                Animation.SetCurrentAnimation(0);
+            }
             if (Direction.X == 0.0f)
             {
-                if (MathF.Abs(newVelocity.X) < 5f)
-                {
+                newVelocity.X -= MathF.Sign(newVelocity.X) * (_acceleration * 2.0f) * (float)delta;
+                if (MathF.Sign(newVelocity.X) != 0 && MathF.Sign(newVelocity.X) != MathF.Sign(Velocity.X))
                     newVelocity.X = 0;
-                    Animation.SetCurrentAnimation(0);
-                }
-                else
-                {
-                    newVelocity.X -= MathF.Sign(newVelocity.X) * (_acceleration * 2.0f) * (float)delta;
-                    if (MathF.Sign(newVelocity.X) != 0 && MathF.Sign(newVelocity.X) != MathF.Sign(Velocity.X))
-                        newVelocity.X = 0;
-                }
             }
             else
             {
@@ -130,8 +125,8 @@ namespace TheGreen.Game.Entities
                     newVelocity.X += Direction.X * _acceleration * (float)delta;
                 if (MathF.Abs(newVelocity.X) > _maxSpeed)
                     newVelocity.X = Math.Sign(newVelocity.X) * _maxSpeed;
-                
             }
+
             //add gravity
             newVelocity.Y += TheGreen.GRAVITY * (float)delta;
             if (newVelocity.Y > _maxFallSpeed)

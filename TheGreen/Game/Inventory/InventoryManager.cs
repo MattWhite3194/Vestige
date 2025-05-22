@@ -24,7 +24,7 @@ namespace TheGreen.Game.Inventory
             
             _inventoryItems = new Item[rows * cols];
 
-            for (int i = 0; i <= 8; i++)
+            for (int i = 0; i <= 9; i++)
             {
                 Item item = ItemDatabase.InstantiateItemByID(i);
                 item.Quantity = item.MaxStack;

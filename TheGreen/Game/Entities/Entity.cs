@@ -39,9 +39,9 @@ namespace TheGreen.Game.Entities
         {
 
         }
-        public virtual Rectangle GetBounds()
+        public virtual CollisionRectangle GetBounds()
         {
-            return new Rectangle(Position.ToPoint(), Size.ToPoint());
+            return new CollisionRectangle(Position, Size.ToPoint());
         }
         public override void Draw(SpriteBatch spriteBatch)
         {

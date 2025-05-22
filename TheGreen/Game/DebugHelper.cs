@@ -48,8 +48,8 @@ namespace TheGreen.Game
             {
                 Directory.CreateDirectory(gamePath);
             }
-            Stream stream = File.Create(gamePath + "/worldGenTest.jpg");
-            Map.SaveAsJpeg(stream, sizeX, sizeY);
+            Stream stream = File.Create(gamePath + "/worldGenTest.png");
+            Map.SaveAsPng(stream, sizeX, sizeY);
             stream.Close();
         }
     }

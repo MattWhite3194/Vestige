@@ -20,6 +20,8 @@ namespace TheGreen.Game.Items
             {6, new WeaponItem(6, "Steel Axe", "Don't take from my pile.", ContentLoader.ItemTextures[6], false, 0.2f, true, true, 12, 1, UseStyle.Swing, new Axe(10)) },
             {7, new TileItem(7, "Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[7], 9) },
             {8, new WeaponItem(8, "Steel Hammer", "Time for smashing things", ContentLoader.ItemTextures[8], false, 0.2f, true, true, 8, 1, UseStyle.Swing, new Hammer(20)) },
+            {9, new TileItem(9, "Wood Planks", "", ContentLoader.ItemTextures[9], 11) },
+            {10, new Item(10, "Stick", "", ContentLoader.ItemTextures[10], true) }
         };
 
         /// <summary>
@@ -41,6 +43,7 @@ namespace TheGreen.Game.Items
                 TileItem tileItem => new TileItem(tileItem.ID, tileItem.Name, tileItem.Description, tileItem.Image, tileItem.TileID),
                 WeaponItem weapon => new WeaponItem(weapon.ID, weapon.Name, weapon.Description, weapon.Image, weapon.Stackable, weapon.UseSpeed, weapon.AutoUse, weapon.SpriteDoesDamage, weapon.Damage, weapon.Knockback, useStyle: weapon.UseStyle, weaponBehavior: weapon.WeaponBehavior),
                 LiquidItem liquid => new LiquidItem(liquid.ID, liquid.Name, liquid.Description, liquid.Image, liquid.LiquidID),
+                Item defaultItem => new Item(defaultItem.ID, defaultItem.Name, defaultItem.Description, defaultItem.Image, defaultItem.Stackable, defaultItem.CanUse, defaultItem.UseSpeed, defaultItem.AutoUse, defaultItem.MaxStack, defaultItem.UseStyle),
                 _ => null
             };
         }

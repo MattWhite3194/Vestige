@@ -21,16 +21,17 @@ namespace TheGreen.Game.Tiles
         /// </summary>
         private static readonly DefaultTileData[] _tileData = [
             new DefaultTileData(0, TileProperty.None, Color.CornflowerBlue),                     //Air
-            new DefaultTileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Brown, itemID: 0, health: 40, tileMerges: [2]),           //Dirt
+            new DefaultTileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, new Color(142, 96, 59), itemID: 0, health: 40, tileMerges: [2]),           //Dirt
             new OverlayTileData(2, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
             new DefaultTileData(3, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100, tileMerges: [1, 4]), //CobbleStone
             new DefaultTileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100, tileMerges: [1]),  //Stone
-            new TreeData(5, TileProperty.AxeMineable, Color.Brown, health: 80),    //Tree
+            new TreeData(5, TileProperty.AxeMineable, Color.Brown, itemID: 9, health: 80),    //Tree
             new TreeTopData(6, TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
             new TorchData(7, TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),  //Torch
             new InventoryTileData(8, TileProperty.PickaxeMineable, Color.Brown, itemID: 5, cols: 5, rows: 3),
             new ClosedDoorData(9, TileProperty.PickaxeMineable | TileProperty.Solid, Color.Brown, 10, itemID: 7),
-            new OpenDoorData(10, TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7)
+            new OpenDoorData(10, TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7),
+            new DefaultTileData(11, TileProperty.Solid | TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 9, health: 40, tileMerges: [1]),  //Stone
         ];
 
         //Only add walls here that require special functions, all walls should more or less work the exact same way.

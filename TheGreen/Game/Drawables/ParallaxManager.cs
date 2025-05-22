@@ -32,8 +32,6 @@ namespace TheGreen.Game.Drawables
             
             for (int i = 0; i < _parallaxBackgrounds.Count; i++)
             {
-                if (!_parallaxBackgrounds[i].Active)
-                    continue;
                 _parallaxBackgrounds[i].Draw(spriteBatch, color);
             }
         }

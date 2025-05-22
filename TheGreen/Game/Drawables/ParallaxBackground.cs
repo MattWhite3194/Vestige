@@ -52,11 +52,20 @@ namespace TheGreen.Game.Drawables
             {
                 Offset.X = Offset.X - _backgroundImage.Width;
             }
-            _alpha = Math.Min(50, Math.Max(0, Math.Min(_maxDrawDepth - position.Y, position.Y - _minDrawDepth))) / 50f;
+            if (Active && _alpha < 1.0f)
+            {
+                _alpha = (float)Math.Min(1.0f, _alpha + 4 * delta);
+            }
+            else if (!Active && _alpha > 0.0f)
+            {
+                _alpha = (float)Math.Max(0.0f, _alpha - 4 * delta);
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch, Color color)
         {
+            if (_alpha == 0.0f)
+                return;
             color *= _alpha;
             for (int i = 0; i <= (int)Math.Ceiling(TheGreen.NativeResolution.X / (float)_backgroundImage.Width); i++)
             {

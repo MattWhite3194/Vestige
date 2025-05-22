@@ -49,7 +49,7 @@ namespace TheGreen.Game.Entities
             if (!ItemActive)
                 return;
             Item = _inventory.GetSelected();
-            if (Item == null) {
+            if (Item == null || !Item.CanUse) {
                 ItemActive = false;
                 return;
             }
@@ -108,7 +108,7 @@ namespace TheGreen.Game.Entities
                     );
         }
 
-        public override Rectangle GetBounds()
+        public override CollisionRectangle GetBounds()
         {
             if (ItemActive && Item is WeaponItem weaponItem && weaponItem.SpriteDoesDamage)
             {
@@ -126,7 +126,7 @@ namespace TheGreen.Game.Entities
                 float maxX = corners.Max(c => c.X);
                 float minY = corners.Min(c => c.Y);
                 float maxY = corners.Max(c => c.Y);
-                return new Rectangle((int)minX, (int)minY, (int)(maxX - minX), (int)(maxY - minY));
+                return new CollisionRectangle(minX, minY, (int)(maxX - minX), (int)(maxY - minY));
             }
             
             return default;

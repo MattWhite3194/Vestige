@@ -4,12 +4,12 @@ Walls: -50 on brightness photo editor (future reference)
 
 Make Entity/NPC scope knockback function. Fix when it's applied
 
+Refactor Items
+split properties into interfaces and create new Item classes from those. default Item class will be bare bones - Texture, image, description, stackable, maxStack.
 
 Finish UI, make it look nice
 Add Map
 
-Finish ScrollContainer scroll bar.
-Change parallax background to fade out consistently once it's reached min or max. the background will have a set time to fade in/out instead of fading as the player reaches the min/max height.
 Up Next:
 Make WorldGen cooler
 Add different biomes (either as part of one map, or dedicate an entire map to one biome (preferred))

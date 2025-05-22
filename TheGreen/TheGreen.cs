@@ -24,7 +24,7 @@ namespace TheGreen
         public static Point NativeResolution = new Point(960, 640);
         public static readonly int TILESIZE = 16;
         public static Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
-        public static readonly float GRAVITY = 1400.0f;
+        public static readonly float GRAVITY = 1300.0f;
         public static Point ScreenCenter = new Point(960 / 2, 640 / 2);
         public static Point ScreenResolution;
 
