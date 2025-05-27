@@ -278,8 +278,6 @@ namespace TheGreen.Game.Entities
             _player = player;
         }
 
-
-
         public Player GetPlayer()
         {
             return _player;

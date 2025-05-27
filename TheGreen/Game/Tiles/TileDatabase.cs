@@ -1,6 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
 using TheGreen.Game.Tiles.TileData;
 using TheGreen.Game.Tiles.WallData;
@@ -22,7 +20,7 @@ namespace TheGreen.Game.Tiles
         private static readonly DefaultTileData[] _tileData = [
             new DefaultTileData(0, TileProperty.None, Color.CornflowerBlue),                     //Air
             new DefaultTileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, new Color(142, 96, 59), itemID: 0, health: 40, tileMerges: [2]),           //Dirt
-            new OverlayTileData(2, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Green, itemID: 0, health: 60, baseTileID: 1),           //Grass
+            new OverlayTileData(2, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Green, baseTileID: 1),           //Grass
             new DefaultTileData(3, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100, tileMerges: [1, 4]), //CobbleStone
             new DefaultTileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100, tileMerges: [1]),  //Stone
             new TreeData(5, TileProperty.AxeMineable, Color.Brown, itemID: 9, health: 80),    //Tree

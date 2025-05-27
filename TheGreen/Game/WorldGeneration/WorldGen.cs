@@ -124,7 +124,6 @@ namespace TheGreen.Game.WorldGeneration
                 {
                     perlinNoise[0, x] = 1;
                     fillPoints.Enqueue(new Point(x, 0));
-
                 }
             }
             while (fillPoints.Count > 0)
@@ -586,33 +585,35 @@ namespace TheGreen.Game.WorldGeneration
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    if (TileDatabase.GetTileData(GetTileID(x + i, y + j)).VerifyTile(x + i, y + j) == -1)
-                    {
-                        RemoveTile(x + i, y + j);
-                        continue;
-                    }
-                    byte state = TileDatabase.GetTileData(GetTileID(x + i, y + j)).GetUpdatedTileState(x + i, y + j);
-                    SetTileState(x + i, y + j, state);
+                    SetTileState(x + i, y + j, TileDatabase.GetTileData(GetTileID(x + i, y + j)).GetUpdatedTileState(x + i, y + j));
                 }
             }
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    if (GetLiquid(x + i, y + j) != 0)
-                    {
-                        _liquidUpdater.QueueLiquidUpdate(x + i, y + j);
-                    }
-                    if (TileDatabase.GetTileData(GetTileID(x + i, y + j)) is OverlayTileData overlayTile)
-                    {
-                        if (GetTileState(x + i, y + j) == 255)
-                            _tiles[(y + j) * WorldSize.X + (x + i)].ID = overlayTile.BaseTileID;
-                        else
-                            _overlayTileUpdater.EnqueueOverlayTile(x + i, y + j, GetTileID(x + i, y + j));
-                    }
+                    UpdateTile(x + i, y + j);
                 }
             }
             return true;
+        }
+        public void UpdateTile(int x, int y)
+        {
+            if (TileDatabase.GetTileData(GetTileID(x, y)).VerifyTile(x, y) == -1)
+            {
+                RemoveTile(x, y);
+            }
+            if (GetLiquid(x, y) != 0)
+            {
+                _liquidUpdater.QueueLiquidUpdate(x, y);
+            }
+            if (TileDatabase.GetTileData(GetTileID(x, y)) is OverlayTileData overlayTile)
+            {
+                if (GetTileState(x, y) == 255)
+                    _tiles[y * WorldSize.X + x].ID = overlayTile.BaseTileID;
+                else
+                    _overlayTileUpdater.EnqueueOverlayTile(x, y, GetTileID(x, y));
+            }
         }
         public void RemoveTile(int x, int y)
         {
@@ -623,7 +624,7 @@ namespace TheGreen.Game.WorldGeneration
             }
             else
             {
-                SetTile(x, y, 0);
+                SetTile(x, y, TileDatabase.GetTileData(tileID) is OverlayTileData overlayTile ? overlayTile.BaseTileID : (ushort)0);
             }
             Item item = ItemDatabase.InstantiateItemByTileID(tileID);
             if (item != null)
@@ -670,7 +671,8 @@ namespace TheGreen.Game.WorldGeneration
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    SetWallState(x, y, TileDatabase.GetWallData(WallID).GetUpdatedWallState(x + i, y + j));
+                    SetWallState(x + i, y + j, TileDatabase.GetWallData(WallID).GetUpdatedWallState(x + i, y + j));
+                    UpdateTile(x + i, y + j);
                 }
             }
         }
@@ -723,7 +725,10 @@ namespace TheGreen.Game.WorldGeneration
         public void SetLiquid(int x, int y, byte amount, bool forceUpdate = false)
         {
             if (forceUpdate)
+            {
                 _liquidUpdater.QueueLiquidUpdate(x, y);
+                UpdateTile(x, y);
+            }
             _tiles[y * WorldSize.X + x].Liquid = amount;
         }
         public void AddTileInventory(Point coordinates, Item[] items)

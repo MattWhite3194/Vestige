@@ -150,6 +150,10 @@ namespace TheGreen.Game.Inventory
                     SetItemQuantity(index, newQuantity);
                 }
                 _dragItem.Item.Quantity -= 1;
+                if (_dragItem.Item.Quantity <= 0)
+                {
+                    _dragItem.Item = null;
+                }
             }
         }
         private void SetItem(Item item, int index)
@@ -159,6 +163,10 @@ namespace TheGreen.Game.Inventory
         private void SetItemQuantity(int index, int quantity)
         {
             _inventoryItems[index].Quantity = quantity;
+            if (quantity <= 0)
+            {
+                SetItem(null, index);
+            }
         }
         protected override void DrawComponents(SpriteBatch spritebatch)
         {

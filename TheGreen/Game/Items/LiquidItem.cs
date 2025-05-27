@@ -13,7 +13,7 @@ namespace TheGreen.Game.Items
             //TODO: liquid IDS like lava or water or whatever
             this.LiquidID = liquidID;
         }
-        public override bool OnUse()
+        public override bool UseItem()
         {
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(TheGreen.TILESIZE);
             if (WorldGen.World.GetLiquid(mouseTilePosition.X, mouseTilePosition.Y) != WorldGen.MaxLiquid)

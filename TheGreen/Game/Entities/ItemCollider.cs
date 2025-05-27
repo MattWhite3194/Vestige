@@ -16,6 +16,7 @@ namespace TheGreen.Game.Entities
         private double _holdTime;
         private bool _leftReleased = false;
         private bool _canUseItem = true;
+        public const float MaxRotation = MathHelper.PiOver4 * 2.5f;
         public ItemCollider(InventoryManager inventory) : base(null, default, default)
         {
             this._inventory = inventory;
@@ -31,6 +32,7 @@ namespace TheGreen.Game.Entities
                     {
                         _leftReleased = false;
                         if (ItemActive) return;
+                        Item = _inventory.GetSelected();
                         _holdTime = 0.0f;
                         _canUseItem = true;
                         ItemActive = true;
@@ -48,19 +50,20 @@ namespace TheGreen.Game.Entities
         {
             if (!ItemActive)
                 return;
-            Item = _inventory.GetSelected();
+
             if (Item == null || !Item.CanUse) {
                 ItemActive = false;
                 return;
             }
 
-            FlipSprite = Main.EntityManager.GetPlayer().FlipSprite;
-            Position = Main.EntityManager.GetPlayer().Position + new Vector2(0, 20) + (FlipSprite ? new Vector2(12, 0) : new Vector2(8, 0));
-            Origin = FlipSprite ? new Vector2(Item.Image.Width + 8, Item.Image.Height) : new Vector2(-8, Item.Image.Height);
-            if (_canUseItem && Item.UseItem())
+            if (_canUseItem && _inventory.UseSelected())
             {
                 _canUseItem = false;
             }
+
+            FlipSprite = Main.EntityManager.GetPlayer().FlipSprite;
+            Position = Main.EntityManager.GetPlayer().Position + new Vector2(0, 17) + (FlipSprite ? new Vector2(-(int)Size.X + 12, 0) : new Vector2(4, 0));
+            Origin = FlipSprite ? new Vector2(Item.Image.Width + 10, Item.Image.Height) : new Vector2(-10, Item.Image.Height);
             switch (Item.UseStyle)
             {
                 case UseStyle.Point:
@@ -73,7 +76,7 @@ namespace TheGreen.Game.Entities
                     }
                     break;
                 case UseStyle.Swing:
-                    Rotation = (float)(_holdTime / Item.UseSpeed * MathHelper.PiOver2);
+                    Rotation = -MathHelper.PiOver4 + (float)(_holdTime / Item.UseSpeed * MaxRotation);
                     Rotation = FlipSprite ? -Rotation : Rotation;
                     break;
                 default:
@@ -92,6 +95,11 @@ namespace TheGreen.Game.Entities
             }
         }
         public override void Draw(SpriteBatch spriteBatch)
+        {
+            
+        }
+
+        public void DrawItem(SpriteBatch spriteBatch)
         {
             if (!ItemActive)
                 return;

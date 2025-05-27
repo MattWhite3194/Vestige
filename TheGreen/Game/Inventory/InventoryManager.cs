@@ -78,16 +78,6 @@ namespace TheGreen.Game.Inventory
         public override void Update(double delta)
         {
             base.Update(delta);
-            for (int i = 0; i < _inventoryItems.Length; i++)
-            {
-                if (_inventoryItems[i] != null && _inventoryItems[i].Stackable)
-                {
-                    if (_inventoryItems[i].Quantity <= 0)
-                        _inventoryItems[i] = null;
-                    if (_dragItem.Item != null && _dragItem.Item.Quantity <= 0)
-                        _dragItem.Item = null;
-                }
-            }
             _dragItem.Update(delta);
         }
 
@@ -157,6 +147,28 @@ namespace TheGreen.Game.Inventory
                     }
                 }
             }
+        }
+        public bool UseSelected()
+        {
+            Item item = GetSelected();
+            if (item == null)
+                return false;
+            bool itemUsed = item.UseItem();
+            if (!item.Stackable || !itemUsed)
+                return itemUsed;
+            item.Quantity -= 1;
+            if (item.Quantity <= 0)
+            {
+                if (InventoryVisible())
+                {
+                    _dragItem.Item = null;
+                }
+                else
+                {
+                    _inventoryItems[_hotbar.Selected] = null;
+                }
+            }
+            return itemUsed;
         }
         public Item AddItemToPlayerInventory(Item item)
         {

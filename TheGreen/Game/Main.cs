@@ -10,6 +10,13 @@ using TheGreen.Game.WorldGeneration;
 
 namespace TheGreen.Game
 {
+    /*
+     Some important formulas for later reference
+
+    Rotation over a distance:
+    Rotation += (Velocity.X * delta) / Radius
+     */
+
     /// <summary>
     /// The instance of the game itself.
     /// </summary>

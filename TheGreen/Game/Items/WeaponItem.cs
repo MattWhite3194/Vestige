@@ -20,7 +20,7 @@ namespace TheGreen.Game.Items
             _baseKnockback = baseKnockback;
             _weaponBehavior = weaponBehavior;
         }
-        public override bool OnUse()
+        public override bool UseItem()
         {
             return _weaponBehavior?.UseItem() ?? true;
         }

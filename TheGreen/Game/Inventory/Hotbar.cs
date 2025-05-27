@@ -11,7 +11,7 @@ namespace TheGreen.Game.Inventory
     {
         private Item[] _inventoryItems;
         private ItemSlot[] _hotbarItemSlots;
-        private int selected;
+        public int Selected;
         public Hotbar(int cols, Item[] inventoryItems, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.TopLeft) : base(cols, margin, position, anchor: anchor)
         {
             _inventoryItems = inventoryItems;
@@ -34,26 +34,19 @@ namespace TheGreen.Game.Inventory
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 SetSelected(index);
-                _hotbarItemSlots[selected].Color = Color.Yellow;
+                _hotbarItemSlots[Selected].Color = Color.Yellow;
                 InputManager.MarkInputAsHandled(@mouseEvent);
             }
         }
         public Item GetSelected()
         {
-            return _inventoryItems[selected];
+            return _inventoryItems[Selected];
         }
         public void SetSelected(int index)
         {
-            _hotbarItemSlots[selected].Color = new Color(34, 139, 34, 150);
-            selected = index;
-            _hotbarItemSlots[selected].Color = Color.Yellow;
-        }
-        public void SetSelectedQuantity(int quantity)
-        {
-            if (quantity <= 0)  
-                _inventoryItems[selected] = null;
-            else
-                _inventoryItems[selected].Quantity = quantity;
+            _hotbarItemSlots[Selected].Color = new Color(34, 139, 34, 150);
+            Selected = index;
+            _hotbarItemSlots[Selected].Color = Color.Yellow;
         }
         public override void HandleInput(InputEvent @event)
         {
@@ -62,11 +55,11 @@ namespace TheGreen.Game.Inventory
             {
                 if (@event.EventType == InputEventType.MouseButtonUp)
                 {
-                    SetSelected((selected + 1) % _hotbarItemSlots.Length);
+                    SetSelected((Selected + 1) % _hotbarItemSlots.Length);
                 }
                 else
                 {
-                    SetSelected((selected + _hotbarItemSlots.Length - 1) % _hotbarItemSlots.Length);
+                    SetSelected((Selected + _hotbarItemSlots.Length - 1) % _hotbarItemSlots.Length);
                 }
                 InputManager.MarkInputAsHandled(@event);
             }

@@ -43,6 +43,17 @@ namespace TheGreen.Game.WorldGeneration.WorldUpdaters
                 return;
             (int x, int y, ushort overlayTileID) = _overlayUpdateQueue.Dequeue();
             _baseTiles.Remove((x, y, overlayTileID));
+            bool foundOverlayTile = false;
+            foreach (Point point in _surroundingTiles)
+            {
+                if (WorldGen.World.GetTileID(x + point.X, y + point.Y) == overlayTileID)
+                {
+                    foundOverlayTile = true;
+                    break;
+                }
+            }
+            if (!foundOverlayTile)
+                return;
             if (WorldGen.World.GetTileState(x, y) != 255 && WorldGen.World.GetTileID(x, y) == ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID)
             {
                 WorldGen.World.SetTile(x, y, overlayTileID);

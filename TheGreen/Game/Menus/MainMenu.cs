@@ -83,7 +83,7 @@ namespace TheGreen.Game.Menus
             _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288);
             _createWorldMenu.AddComponentChild(_worldNameTextBox);
 
-            _worldSizeSelector = new SelectionContainer(3, [(new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.LightGray, Color.Yellow, buttonWidth: 80, anchor: Anchor.MiddleMiddle);
+            _worldSizeSelector = new SelectionContainer(4, [(new Point(500, 500), "Tiny"), (new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.LightGray, Color.Yellow, buttonWidth: 60, margin: 2, anchor: Anchor.MiddleMiddle);
             PanelContainer selectorPanel = new PanelContainer(new Vector2(0, 30), new Vector2(288, 30), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 0, 1, 5, _graphicsDevice, anchor: Anchor.TopMiddle);
             selectorPanel.AddContainerChild(_worldSizeSelector);
             _createWorldMenu.AddContainerChild(selectorPanel);

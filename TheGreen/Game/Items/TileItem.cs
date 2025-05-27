@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
-using TheGreen.Game.Entities;
 using TheGreen.Game.Input;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration;
@@ -15,7 +13,7 @@ namespace TheGreen.Game.Items
         { 
             this.TileID = tileID;
         }
-        public override bool OnUse()
+        public override bool UseItem()
         {
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(TheGreen.TILESIZE, TheGreen.TILESIZE);
             //TODO: check if the mouse is colliding with an entity or colliding with a tile that the entity is colliding with (will happen in entity manager)

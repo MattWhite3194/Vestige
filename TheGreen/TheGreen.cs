@@ -41,7 +41,7 @@ namespace TheGreen
         {
             
             //Screen settings
-            SetWindowProperties(960, 640, false);
+            SetWindowProperties(2560, 1440, false);
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
@@ -101,7 +101,7 @@ namespace TheGreen
         public void StartGame()
         {
             InventoryManager inventory = new InventoryManager(5, 8);
-            Player player = new Player(ContentLoader.PlayerTexture, inventory, 100);
+            Player player = new Player(inventory);
             _gameManager = new Main(player, GraphicsDevice);
         }
         private void UpdateRenderDestination(int width, int height)

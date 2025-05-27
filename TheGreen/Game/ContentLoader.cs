@@ -7,7 +7,10 @@ namespace TheGreen.Game
 {
     static class ContentLoader
     {
-        public static Texture2D PlayerTexture;
+        public static Texture2D PlayerHead;
+        public static Texture2D PlayerTorso;
+        public static Texture2D PlayerArm;
+        public static Texture2D PlayerLegs;
         public static Texture2D[] TileTextures;
         public static Texture2D[] WallTextures;
         public static Texture2D[] ItemTextures;
@@ -32,7 +35,10 @@ namespace TheGreen.Game
             ItemTextures = new Texture2D[200];
             EnemyTextures = new Texture2D[200];
 
-            PlayerTexture = content.Load<Texture2D>("Assets/Textures/Player/Player");
+            PlayerHead = content.Load<Texture2D>("Assets/Textures/Player/PlayerHead");
+            PlayerTorso = content.Load<Texture2D>("Assets/Textures/Player/PlayerTorso");
+            PlayerArm = content.Load<Texture2D>("Assets/Textures/Player/PlayerArm");
+            PlayerLegs = content.Load<Texture2D>("Assets/Textures/Player/PlayerLegs");
             ItemSlotTexture = content.Load<Texture2D>("Assets/Textures/UIComponents/ItemSlot");
             GameFont = content.Load<SpriteFont>("Assets/Fonts/RetroGaming");
             Cracks = content.Load<Texture2D>("Assets/Textures/Tiles/Extras/Cracks");
