@@ -17,6 +17,14 @@ namespace TheGreen.Game
     Rotation += (Velocity.X * delta) / Radius
      */
 
+    /*
+     Things to remember
+
+    Modularity is for unique functionality
+    There is no need to create a new class for every npc type,
+    but unique npcs and items will need their own classes.
+     */
+
     /// <summary>
     /// The instance of the game itself.
     /// </summary>

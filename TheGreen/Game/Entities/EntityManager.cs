@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using TheGreen.Game.Entities.NPCs;
+using TheGreen.Game.Entities.Projectiles;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
@@ -18,13 +19,14 @@ namespace TheGreen.Game.Entities
     {
         private Player _player;
         private List<Entity> _entities = new List<Entity>();
+        private List<NPC> _npcs = new List<NPC>();
+        private List<Projectile> _projectiles = new List<Projectile>();
+        private List<ItemDrop> _itemDrops = new List<ItemDrop>();
         public Entity MouseEntity;
         public bool MouseCollidingWithEntityTile;
 
         public void Update(double delta)
         {
-            //check if mouse is over entity
-            //TODO: check here if the mouse is over an entity, and if so, save the entity
             MouseEntity = null;
             MouseCollidingWithEntityTile = false;
             for (int i = 0; i < _entities.Count; i++)
@@ -92,11 +94,11 @@ namespace TheGreen.Game.Entities
                 distanceFactor = (int)Math.Min(entity.Size.Y, TheGreen.TILESIZE);
                 float distanceY = entity.Velocity.Y * (float)delta;
                 List<float> verticalDistances = new List<float>();
-                for (int _ = 0; _ < Math.Floor(distanceY / (distanceFactor - 1)); _++)
+                for (int _ = 0; _ < Math.Floor(distanceY / distanceFactor); _++)
                 {
-                    verticalDistances.Add(distanceFactor - 1);
+                    verticalDistances.Add(distanceFactor);
                 }
-                verticalDistances.Add(distanceY % (distanceFactor - 1));
+                verticalDistances.Add(distanceY % distanceFactor);
                 foreach (float distance in verticalDistances)
                 {
                     if (VerticalCollisionPass(entity, distance, minPos, maxPos))
@@ -105,6 +107,7 @@ namespace TheGreen.Game.Entities
                     }
                 }
 
+                //Determine if an entity who has horizontally collided with a tile can hop up
                 if (horizontalCollisionDirection != 0)
                 {
                     if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.Position / TheGreen.TILESIZE).ToPoint(), entity.GetBounds().Width / TheGreen.TILESIZE, entity.GetBounds().Height / TheGreen.TILESIZE, horizontalCollisionDirection))
@@ -118,6 +121,7 @@ namespace TheGreen.Game.Entities
                     }
                 }
             }
+            //check collisions between entities
             for (int i = 0; i < _entities.Count; i++)
             {
                 for (int j = i + 1; j < _entities.Count; j++)
@@ -142,24 +146,23 @@ namespace TheGreen.Game.Entities
         /// <returns>The direction of the horizontal collision, 0 if there is none</returns>
         private int HorizontalCollisionPass(Entity entity, float distance, Vector2 minPos, Vector2 maxPos)
         {
-            //handle horizontal collisions
             entity.Position.X += distance;
             entity.Position.X = float.Clamp(entity.Position.X, minPos.X, maxPos.X);
 
             CollisionRectangle entityBounds = entity.GetBounds();
             int startX = (int)entityBounds.Left / TheGreen.TILESIZE;
-            int endX = (int)entityBounds.Right / TheGreen.TILESIZE;
+            int endX = (int)Math.Ceiling(entityBounds.Right / TheGreen.TILESIZE);
             int startY = (int)entityBounds.Top / TheGreen.TILESIZE;
-            int endY = (int)entityBounds.Bottom / TheGreen.TILESIZE;
+            int endY = (int)Math.Ceiling(entityBounds.Bottom / TheGreen.TILESIZE);
             int horizontalCollisionDirection = 0;
 
             for (int x = startX; x <= endX; x++)
             {
                 for (int y = startY; y <= endY; y++)
                 {
-                    CollisionRectangle collision = new CollisionRectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+                    CollisionRectangle tileCollider = new CollisionRectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
                     //IMPORTANT: entity bounds will not intersect a tile or other collision if the position update is less than a pixels width, since bounds are calculated using integers. Players Velocity will get up to 30 before the player actually moves enough to detect a collision.
-                    if (entity.GetBounds().Intersects(collision))
+                    if (entity.GetBounds().Intersects(tileCollider))
                     {
                         if (TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)) is ICollideableTile collideableTile)
                             collideableTile.OnCollision(x, y, entity);
@@ -167,15 +170,15 @@ namespace TheGreen.Game.Entities
                         {
                             continue;
                         }
-                        Vector2 penetrationDistance = GetPenetrationDepth(entity.GetBounds(), collision);
-                        if (penetrationDistance.X < 0)
+                        float penetrationDistance = GetPenetrationX(entity.GetBounds(), tileCollider);
+                        if (penetrationDistance < 0)
                         {
-                            entity.Position.X = collision.Left - entity.Size.X;
+                            entity.Position.X = tileCollider.Left - entity.Size.X;
                             horizontalCollisionDirection = 1;
                         }
-                        else if (penetrationDistance.X > 0)
+                        else if (penetrationDistance > 0)
                         {
-                            entity.Position.X = collision.Right;
+                            entity.Position.X = tileCollider.Right;
                             horizontalCollisionDirection = -1;
                         }
                     }
@@ -186,7 +189,6 @@ namespace TheGreen.Game.Entities
 
         private bool VerticalCollisionPass(Entity entity, float distance, Vector2 minPos, Vector2 maxPos)
         {
-            //handle vertical collisions
             bool floorCollision = false;
             bool ceilingCollision = false;
             bool collisionDetected = false;
@@ -200,15 +202,15 @@ namespace TheGreen.Game.Entities
 
             CollisionRectangle entityBounds = entity.GetBounds();
             int startX = (int)entityBounds.Left / TheGreen.TILESIZE;
-            int endX = (int)entityBounds.Right / TheGreen.TILESIZE;
+            int endX = (int)Math.Ceiling(entityBounds.Right / TheGreen.TILESIZE);
             int startY = (int)entityBounds.Top / TheGreen.TILESIZE;
-            int endY = (int)entityBounds.Bottom / TheGreen.TILESIZE;
+            int endY = (int)Math.Ceiling(entityBounds.Bottom / TheGreen.TILESIZE);
             for (int x = startX; x <= endX; x++)
             {
                 for (int y = startY; y <= endY; y++)
                 {
-                    CollisionRectangle collision = new CollisionRectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
-                    if (entity.GetBounds().Intersects(collision))
+                    CollisionRectangle tileCollider = new CollisionRectangle(x * TheGreen.TILESIZE, y * TheGreen.TILESIZE, TheGreen.TILESIZE, TheGreen.TILESIZE);
+                    if (entity.GetBounds().Intersects(tileCollider))
                     {
                         if (TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)) is ICollideableTile collideableTile)
                             collideableTile.OnCollision(x, y, entity);
@@ -217,18 +219,19 @@ namespace TheGreen.Game.Entities
                             continue;
                         }
                         collisionDetected = true;
-                        if (collision.Y > entity.Position.Y)
+                        if (tileCollider.Y > entity.Position.Y)
                         {
                             floorCollision = true;
                         }
-                        else if (collision.Y < entity.Position.Y && entity.Velocity.Y < 0.0f)
+                        else if (tileCollider.Y < entity.Position.Y && entity.Velocity.Y < 0.0f)
                         {
                             ceilingCollision = true;
                         }
-                        Vector2 penetrationDistance = GetPenetrationDepth(entity.GetBounds(), collision);
-                        entity.Position.Y += penetrationDistance.Y;
+                        float penetrationDistance = GetPenetrationY(entity.GetBounds(), tileCollider);
+                        entity.Position.Y += penetrationDistance;
+                        entity.Position.Y = (int)entity.Position.Y;
 
-                        if (penetrationDistance.Y != 0)
+                        if (penetrationDistance != 0)
                         {
                             entity.Velocity.Y = 0;
                         }
@@ -251,22 +254,21 @@ namespace TheGreen.Game.Entities
 
         }
 
-        Vector2 GetPenetrationDepth(CollisionRectangle a, CollisionRectangle b)
+        float GetPenetrationX(CollisionRectangle a, CollisionRectangle b)
         {
-            float dx = (a.Center.X - b.Center.X);
-            float dy = (a.Center.Y - b.Center.Y);
-
-            float px = (a.Width / 2f + b.Width / 2f) - Math.Abs(dx);
-            float py = (a.Height / 2f + b.Height / 2f) - Math.Abs(dy);
-
-            if (px <= 0 || py <= 0)
-                return Vector2.Zero; // No collision
-
-            // Determine the smallest axis and push in that direction
-            if (px < py)
-                return new Vector2(dx < 0 ? -px : px, 0); // Push left or right
-            else
-                return new Vector2(0, dy < 0 ? -py : py); // Push up or down
+            float distanceX = (a.Center.X - b.Center.X);
+            float penetrationX = (a.Width / 2f + b.Width / 2f) - Math.Abs(distanceX);
+            if (penetrationX <= 0)
+                return 0.0f;
+            return distanceX < 0 ? -penetrationX : penetrationX;
+        }
+        float GetPenetrationY(CollisionRectangle a, CollisionRectangle b)
+        {
+            float distanceY = (a.Center.Y - b.Center.Y);
+            float penetrationY = (a.Height / 2f + b.Height / 2f) - Math.Abs(distanceY);
+            if (penetrationY <= 0)
+                return 0.0f;
+            return distanceY < 0 ? -penetrationY : penetrationY;
         }
 
         /// <summary>

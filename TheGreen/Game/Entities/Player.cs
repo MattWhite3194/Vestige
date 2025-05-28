@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Timers;
-using TheGreen.Game.Drawables;
 using TheGreen.Game.Entities.NPCs;
+using TheGreen.Game.Entities.Projectiles;
 using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 using TheGreen.Game.Tiles;
@@ -31,17 +31,17 @@ namespace TheGreen.Game.Entities
         private bool invincible = false;
         private bool _dead = false;
         private HashSet<InputButton> _activeInputs = new HashSet<InputButton>();
-        private Texture2D Head;
-        private Texture2D Torso;
-        private Texture2D Legs;
-        private Texture2D Arm;
+        private Texture2D _headTexture;
+        private Texture2D _torsoTexture;
+        private Texture2D _legsTexture;
+        private Texture2D _armTexture;
         public bool Dead { get { return _dead; } }
         public Player(InventoryManager inventory) : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) })
         {
-            Head = ContentLoader.PlayerHead;
-            Torso = ContentLoader.PlayerTorso;
-            Legs = ContentLoader.PlayerLegs;
-            Arm = ContentLoader.PlayerArm;
+            _headTexture = ContentLoader.PlayerHead;
+            _torsoTexture = ContentLoader.PlayerTorso;
+            _legsTexture = ContentLoader.PlayerLegs;
+            _armTexture = ContentLoader.PlayerArm;
             this.Inventory = inventory;
             CollidesWithTiles = true;
             _health = 100;
@@ -181,17 +181,21 @@ namespace TheGreen.Game.Entities
                 FlipSprite = true;
             else if (Direction.X > 0)
                 FlipSprite = false;
+            if (ItemCollider.ItemActive && ItemCollider.Item.UseStyle == Items.UseStyle.Point)
+            {
+                FlipSprite = ItemCollider.ForcePlayerFlip;
+            }
             
             Velocity = newVelocity;
         }
 
         public override void Draw(SpriteBatch spriteBatch)
         {
-            DrawBodyPart(spriteBatch, Torso, Animation.AnimationRectangle);
-            DrawBodyPart(spriteBatch, Head, Animation.AnimationRectangle);
-            DrawBodyPart(spriteBatch, Legs, Animation.AnimationRectangle);
+            DrawBodyPart(spriteBatch, _torsoTexture, Animation.AnimationRectangle);
+            DrawBodyPart(spriteBatch, _headTexture, Animation.AnimationRectangle);
+            DrawBodyPart(spriteBatch, _legsTexture, Animation.AnimationRectangle);
             ItemCollider.DrawItem(spriteBatch);
-            DrawBodyPart(spriteBatch, Arm, ItemCollider.ItemActive ? new Rectangle(0, 11 * (int)Size.Y + (int)(Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver4 : MathHelper.PiOver4)) / ItemCollider.MaxRotation * 3.0f) * (int)Size.Y, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
+            DrawBodyPart(spriteBatch, _armTexture, ItemCollider.ItemActive ? new Rectangle(0, 11 * (int)Size.Y + (int)(Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver4 : MathHelper.PiOver4)) / ItemCollider.MaxRotation * 3.0f) * (int)Size.Y, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
         }
         private void DrawBodyPart(SpriteBatch spriteBatch, Texture2D bodyPart, Rectangle animationRect)
         {
@@ -224,6 +228,12 @@ namespace TheGreen.Game.Entities
                     NPC enemy = (NPC)entity;
                     ApplyDamage(enemy.Damage);
                     ApplyKnockback(enemy.Position + enemy.Origin);
+                    break;
+                case CollisionLayer.HostileProjectile:
+                    if (invincible) return;
+                    Projectile projectile = (Projectile)entity;
+                    ApplyDamage(projectile.Damage);
+                    ApplyKnockback(projectile.Position + projectile.Origin);
                     break;
             }
         }

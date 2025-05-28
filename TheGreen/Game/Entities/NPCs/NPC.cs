@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Timers;
 using TheGreen.Game.Entities.NPCs.Behaviors;
+using TheGreen.Game.Entities.Projectiles;
 using TheGreen.Game.Items;
 
 namespace TheGreen.Game.Entities.NPCs
@@ -14,7 +15,8 @@ namespace TheGreen.Game.Entities.NPCs
         public string Name;
         private int _health;
         public readonly int Damage;
-        private readonly bool _friendly;
+        public readonly int Knockback;
+        public readonly bool Friendly;
         private INPCBehavior _behavior;
         private Timer _invincibilityTimer;
         private bool _invincible = false;
@@ -37,38 +39,54 @@ namespace TheGreen.Game.Entities.NPCs
             ID = id;
             Name = name;
             Damage = damage;
-            this._health = health;
+            _health = health;
             CollidesWithTiles = collidesWithTiles;
-            _friendly = friendly;
+            Friendly = friendly;
             _behavior = behavior;
             _animationFrames = animationFrames;
             _invincibilityTimer = new Timer(500);
             _invincibilityTimer.Elapsed += OnInvincibleTimeout;
-            this.Layer = layer;
-            this.CollidesWith = collidedWith;
+            Layer = layer;
+            CollidesWith = collidedWith;
             if (Layer == default)
             {
-                this.Layer = friendly ? CollisionLayer.Player : CollisionLayer.Enemy;
+                Layer = friendly ? CollisionLayer.Player : CollisionLayer.Enemy;
             }
             if (CollidesWith == default)
             {
-                this.CollidesWith = friendly ? CollisionLayer.Enemy | CollisionLayer.HostileProjectile : CollisionLayer.Player | CollisionLayer.ItemCollider | CollisionLayer.FriendlyProjectile;
+                CollidesWith = friendly ? CollisionLayer.Enemy | CollisionLayer.HostileProjectile : CollisionLayer.Player | CollisionLayer.ItemCollider | CollisionLayer.FriendlyProjectile;
             }
         }
         public override void Update(double delta)
         {
+            //TODO: get target based on friendly or not friendly, pass it to AI
             _behavior?.AI(delta, this);
             base.Update(delta);
         }
         public override void OnCollision(Entity entity)
         {
+            if (_invincible)
+                return;
             switch (entity.Layer)
             {
                 case CollisionLayer.ItemCollider:
-                    if (_invincible) return;
                     ItemCollider itemCollider = (ItemCollider)entity;
                     ApplyDamage(((WeaponItem)itemCollider.Item).Damage);
-                    ApplyKnockback(((WeaponItem)itemCollider.Item).Knockback, Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Origin);
+                    ApplyKnockback(((WeaponItem)itemCollider.Item).Knockback, entity.Position + entity.Origin);
+                    break;
+                case CollisionLayer.Enemy:
+                    ApplyDamage(((NPC)entity).Damage);
+                    ApplyKnockback(((NPC)entity).Knockback, entity.Position + entity.Origin);
+                    break;
+                case CollisionLayer.FriendlyProjectile:
+                    if (Friendly) return;
+                    ApplyDamage(((Projectile)entity).Damage);
+                    ApplyKnockback(((Projectile)entity).Knockback, entity.Position + entity.Origin);
+                    break;
+                case CollisionLayer.HostileProjectile:
+                    if (Friendly) return;
+                    ApplyDamage(((Projectile)entity).Damage);
+                    ApplyKnockback(((Projectile)entity).Knockback, entity.Position + entity.Origin);
                     break;
             }
         }
@@ -95,7 +113,7 @@ namespace TheGreen.Game.Entities.NPCs
         }
         public static NPC CloneNPC(NPC npc)
         {
-            return new NPC(npc.ID, npc.Name, npc.Image, npc.Size, npc._health, npc.Damage, npc.CollidesWithTiles, npc._behavior.Clone(), npc.DrawBehindTiles, npc._friendly, npc._animationFrames, npc.Layer, npc.CollidesWith);
+            return new NPC(npc.ID, npc.Name, npc.Image, npc.Size, npc._health, npc.Damage, npc.CollidesWithTiles, npc._behavior.Clone(), npc.DrawBehindTiles, npc.Friendly, npc._animationFrames, npc.Layer, npc.CollidesWith);
         }
     }
 }

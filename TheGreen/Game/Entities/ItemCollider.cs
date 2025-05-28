@@ -17,6 +17,7 @@ namespace TheGreen.Game.Entities
         private bool _leftReleased = false;
         private bool _canUseItem = true;
         public const float MaxRotation = MathHelper.PiOver4 * 2.5f;
+        public bool ForcePlayerFlip = false;
         public ItemCollider(InventoryManager inventory) : base(null, default, default)
         {
             this._inventory = inventory;
@@ -71,8 +72,17 @@ namespace TheGreen.Game.Entities
                     {
                         Vector2 playerPosition = Main.EntityManager.GetPlayer().Position;
                         Point mousePosition = InputManager.GetMouseWorldPosition();
-                        Rotation = (float)Math.Atan((playerPosition.Y - mousePosition.Y) / Math.Abs(playerPosition.X - mousePosition.X));
-                        Rotation = FlipSprite ? -Rotation : Rotation;
+                        if (mousePosition.X < playerPosition.X)
+                        {
+                            ForcePlayerFlip = true;
+                            FlipSprite = true;
+                        }
+                        else
+                        {
+                            ForcePlayerFlip = false;
+                            FlipSprite = false;
+                        }
+                        Rotation = FlipSprite ? (float)Math.Atan2(playerPosition.Y - mousePosition.Y, playerPosition.X - mousePosition.X) : (float)Math.Atan2(mousePosition.Y - playerPosition.Y, mousePosition.X - playerPosition.X);
                     }
                     break;
                 case UseStyle.Swing:

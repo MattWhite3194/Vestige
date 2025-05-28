@@ -15,7 +15,9 @@ namespace TheGreen.Game.Tiles.TileData
             ushort bottom = WorldGen.World.GetTileID(x, y + 1);
             ushort left = WorldGen.World.GetTileID(x - 1, y);
             ushort wall = WorldGen.World.GetWallID(x, y);
-            if (Math.Sign(wall) == 1 || TileDatabase.TileHasProperty(right, TileProperty.Solid) || TileDatabase.TileHasProperty(bottom, TileProperty.Solid) || TileDatabase.TileHasProperty(left, TileProperty.Solid))
+            if (WorldGen.World.GetLiquid(x, y) != 0)
+                return -1;
+            if (wall != 0 || TileDatabase.TileHasProperty(right, TileProperty.Solid) || TileDatabase.TileHasProperty(bottom, TileProperty.Solid) || TileDatabase.TileHasProperty(left, TileProperty.Solid))
                 return 1;
             return -1;
         }
