@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using TheGreen.Game;
 using TheGreen.Game.Entities;
@@ -8,10 +9,10 @@ using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
 using TheGreen.Game.Menus;
 using TheGreen.Game.UI;
+using System.Text.Json;
 
 namespace TheGreen
 {
-
     public class TheGreen : Microsoft.Xna.Framework.Game
     {
         public static string SavePath;
@@ -27,6 +28,7 @@ namespace TheGreen
         public static readonly float GRAVITY = 1300.0f;
         public static Point ScreenCenter = new Point(960 / 2, 640 / 2);
         public static Point ScreenResolution;
+        public static Dictionary<string, object> GlobalSettings;
 
         public TheGreen()
         {
@@ -39,16 +41,15 @@ namespace TheGreen
 
         protected override void Initialize()
         {
-            
             //Screen settings
-            SetWindowProperties(2560, 1440, true);
+            LoadSettings();
+            SetWindowProperties((int)GlobalSettings["screen-width"], (int)GlobalSettings["screen-height"], (bool)GlobalSettings["fullscreen"]);
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
             IsFixedTimeStep = false;
             DebugHelper.Initialize(GraphicsDevice);
             base.Initialize();
-            
         }
         private void OnClientSizeChanged(object sender, EventArgs e)
         {
@@ -87,14 +88,12 @@ namespace TheGreen
 
             base.Draw(gameTime);
         }
-        
-
-        private void SetWindowProperties(int width, int height, bool fullScreen)
+        public void SetWindowProperties(int width, int height, bool fullScreen)
         {
             _graphics.PreferredBackBufferWidth = width;
             _graphics.PreferredBackBufferHeight = height;
             _graphics.IsFullScreen = fullScreen;
-            //_graphics.SynchronizeWithVerticalRetrace = false;
+            _graphics.SynchronizeWithVerticalRetrace = false;
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
         }
@@ -122,6 +121,34 @@ namespace TheGreen
         {
             UIScaleMatrix = Matrix.CreateScale(scale);
             UIManager.OnUIScaleChanged(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
+        }
+
+        private void LoadSettings()
+        {
+            string savedSettings = Path.Combine(SavePath, "config.json");
+            if (File.Exists(savedSettings))
+            {
+                FileStream stream = File.OpenRead(savedSettings);
+                GlobalSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(stream);
+            }
+            else
+            {
+                GlobalSettings = new Dictionary<string, object>
+                {
+                    {"screen-width", GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width},
+                    {"screen-height", GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height},
+                    {"fullscreen", false }
+                };
+            }
+        }
+        private void SaveSettings()
+        {
+            string savedSettings = Path.Combine(SavePath, "config.json");
+            string settingsJson = JsonSerializer.Serialize(GlobalSettings, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            File.WriteAllText(savedSettings, settingsJson);
         }
     }
 }

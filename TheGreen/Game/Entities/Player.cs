@@ -36,7 +36,7 @@ namespace TheGreen.Game.Entities
         private Texture2D _legsTexture;
         private Texture2D _armTexture;
         public bool Dead { get { return _dead; } }
-        public Player(InventoryManager inventory) : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) })
+        public Player(InventoryManager inventory) : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) }, drawLayer: 2)
         {
             _headTexture = ContentLoader.PlayerHead;
             _torsoTexture = ContentLoader.PlayerTorso;

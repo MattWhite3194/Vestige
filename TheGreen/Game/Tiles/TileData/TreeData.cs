@@ -17,15 +17,31 @@ namespace TheGreen.Game.Tiles.TileData
             ushort bottom = WorldGen.World.GetTileID(x, y + 1);
             ushort left = WorldGen.World.GetTileID(x - 1, y);
             ushort right = WorldGen.World.GetTileID(x + 1, y);
-
-            if (TileDatabase.GetTileData(bottom) is not TreeData && !TileDatabase.TileHasProperty(bottom, TileProperty.Solid))
+            byte state = WorldGen.World.GetTileState(x, y);
+            if (bottom != TileID && !TileDatabase.TileHasProperty(bottom, TileProperty.Solid))
                 return -1;
-            else if ((WorldGen.World.GetTileState(x, y) == 62 || WorldGen.World.GetTileState(x, y) == 130) && left != TileID && right != TileID)
+            else if ((state == 62 || state == 130) && left != TileID && right != TileID)
                 return -1;
             return 1;
         }
         public override byte GetUpdatedTileState(int x, int y)
         {
+            ushort top = WorldGen.World.GetTileID(x, y - 1);
+            byte state = WorldGen.World.GetTileState(x, y);
+            if (top != TileID && state <= 34)
+                return 131;
+            if (state == 128 || state == 139 || state == 142)
+            {
+                ushort left = WorldGen.World.GetTileID(x - 1, y);
+                ushort right = WorldGen.World.GetTileID(x + 1, y);
+                if (left == TileID && right == TileID)
+                    return 128;
+                else if (left == TileID)
+                    return 139;
+                else if (right == TileID)
+                    return 142;
+                return 143;
+            }
             return WorldGen.World.GetTileState(x, y);
         }
     }

@@ -1,7 +1,8 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
+﻿using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace TheGreen.Game
 {
@@ -30,6 +31,7 @@ namespace TheGreen.Game
         public static void Load(ContentManager content)
         {
             //TODO: probably change this to the exact amount when the game is finished
+            string fullContentDirectory = GetFullContentPath(content);
             TileTextures = new Texture2D[200];
             WallTextures = new Texture2D[200];
             ItemTextures = new Texture2D[200];
@@ -49,25 +51,25 @@ namespace TheGreen.Game
             LiquidTexture = content.Load<Texture2D>("Assets/Textures/Tiles/Liquids/Liquid0");
 
             //load tile textures into an array
-            int numTiles = Directory.GetFiles(content.RootDirectory + "/Assets/Textures/Tiles").Length;
+            int numTiles = Directory.GetFiles(Path.Combine(fullContentDirectory, "Assets/Textures/Tiles")).Length;
             for (int i = 1; i <= numTiles; i++)
             {
                 TileTextures[i] = content.Load<Texture2D>("Assets/Textures/Tiles/Tile" + i);
             }
 
-            int numWalls = Directory.GetFiles(content.RootDirectory + "/Assets/Textures/Walls").Length;
+            int numWalls = Directory.GetFiles(Path.Combine(fullContentDirectory, "Assets/Textures/Walls")).Length;
             for (int i = 1; i <= numWalls; i++)
             {
                 WallTextures[i] = content.Load<Texture2D>("Assets/Textures/Walls/Wall" + i);
             }
 
-            int numItems = Directory.GetFiles(content.RootDirectory + "/Assets/Textures/Items").Length;
+            int numItems = Directory.GetFiles(Path.Combine(fullContentDirectory, "Assets/Textures/Items")).Length;
             for (int i = 0; i < numItems; i++)
             {
                 ItemTextures[i] = content.Load<Texture2D>("Assets/Textures/Items/Item" + i);
             }
 
-            int numEnemies = Directory.GetFiles(content.RootDirectory + "/Assets/Textures/Enemies").Length;
+            int numEnemies = Directory.GetFiles(Path.Combine(fullContentDirectory, "Assets/Textures/Enemies")).Length;
             for (int i = 0; i < numEnemies; i++)
             {
                 EnemyTextures[i] = content.Load<Texture2D>("Assets/Textures/Enemies/Enemy" + i);
@@ -75,6 +77,14 @@ namespace TheGreen.Game
 
             //load shaders
             WaterShader = content.Load<Effect>("Assets/Shaders/WaterShader");
+        }
+        private static string GetFullContentPath(ContentManager content)
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            {
+                return Path.Combine(AppContext.BaseDirectory, "..", "Resources", content.RootDirectory);
+            }
+            return Path.Combine(AppContext.BaseDirectory, content.RootDirectory);
         }
     }
 }

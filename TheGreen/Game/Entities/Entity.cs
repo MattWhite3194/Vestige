@@ -26,9 +26,14 @@ namespace TheGreen.Game.Entities
         /// The collision layers this entity receives collision events from
         /// </summary>
         public CollisionLayer CollidesWith;
+        /// <summary>
+        /// The layer this entity draws on
+        /// </summary>
+        public readonly int DrawLayer;
 
-        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
+        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null, int drawLayer = 0) : base(image, position, size, origin: origin, animationFrames: animationFrames)
         {
+            this.DrawLayer = drawLayer;
         }
 
         public virtual void OnCollision(Entity entity)

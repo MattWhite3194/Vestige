@@ -34,7 +34,7 @@ namespace TheGreen.Game.Entities.NPCs
             List<(int, int)> animationFrames = null, 
             CollisionLayer layer = default, 
             CollisionLayer collidedWith = default) 
-            : base(image, default, size: size, animationFrames: animationFrames)
+            : base(image, default, size: size, animationFrames: animationFrames, drawLayer: 3)
         {
             ID = id;
             Name = name;

@@ -100,7 +100,7 @@ namespace TheGreen.Game
             _tileRenderer.DrawTiles(spriteBatch);
             EntityManager.Draw(spriteBatch);
             spriteBatch.End();
-            
+
             _graphicsDevice.SetRenderTarget(_liquidRenderTarget);
             _graphicsDevice.Clear(Color.Transparent);
             spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend, effect: ContentLoader.WaterShader);

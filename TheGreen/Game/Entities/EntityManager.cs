@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using TheGreen.Game.Entities.NPCs;
-using TheGreen.Game.Entities.Projectiles;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
@@ -19,9 +18,6 @@ namespace TheGreen.Game.Entities
     {
         private Player _player;
         private List<Entity> _entities = new List<Entity>();
-        private List<NPC> _npcs = new List<NPC>();
-        private List<Projectile> _projectiles = new List<Projectile>();
-        private List<ItemDrop> _itemDrops = new List<ItemDrop>();
         public Entity MouseEntity;
         public bool MouseCollidingWithEntityTile;
 
@@ -247,11 +243,10 @@ namespace TheGreen.Game.Entities
         public void Draw(SpriteBatch spriteBatch)
         {
             //TODO: add drawing order using SpriteSortMode based on collision layer
-            foreach (Entity entity in _entities)
+            for (int i = _entities.Count - 1; i >= 0; i--)
             {
-                entity.Draw(spriteBatch);
+                _entities[i].Draw(spriteBatch);
             }
-
         }
 
         float GetPenetrationX(CollisionRectangle a, CollisionRectangle b)
@@ -295,22 +290,30 @@ namespace TheGreen.Game.Entities
 
         public void AddItemDrop(Item item, Vector2 position, Vector2 velocity = default)
         {
-
             ItemDrop itemDrop = new ItemDrop(item, position + new Vector2(TheGreen.TILESIZE / 2 - ItemDrop.ColliderSize.X / 2, 0));
             itemDrop.Velocity = velocity == default ? Vector2.Zero : velocity;
-            _entities.Add(itemDrop);
+            AddEntity(itemDrop);
         }
         public void AddEntity(Entity entity)
         {
-            _entities.Add(entity);
+            if (_entities.Count == 0)
+                _entities.Add(entity);
+            else
+            {
+                for (int i = _entities.Count - 1; i >= 0; i--)
+                {
+                    if (_entities[i].DrawLayer == entity.DrawLayer || _entities[i].DrawLayer < entity.DrawLayer)
+                    {
+                        _entities.Insert(i + 1, entity);
+                        return;
+                    }
+                }
+                _entities.Insert(0, entity);
+            }
         }
         public void RemoveEntity(Entity entity)
         {
             _entities.Remove(entity);
-        }
-        public List<Entity> GetEntities()
-        {
-            return _entities;
         }
         private bool CanEntityHop(Entity entity, Point tilePoint, int tileWidth, int tileHeight, int direction)
         {

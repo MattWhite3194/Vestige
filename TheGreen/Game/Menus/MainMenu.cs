@@ -27,6 +27,8 @@ namespace TheGreen.Game.Menus
         private TextBox _worldNameTextBox;
         private GraphicsDevice _graphicsDevice;
         private SelectionContainer _worldSizeSelector;
+        private (int x, int y)[] _resolutions;
+        private int _selectedResolution = 0;
 
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
@@ -40,6 +42,28 @@ namespace TheGreen.Game.Menus
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
             _createWorldMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 150), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
             _settingsMenu = new GridContainer(1);
+            _resolutions = [
+                (960, 640),
+                (1024, 768),
+                (1136, 640),
+                (1280, 720),
+                (1280, 800),
+                (1366, 768),
+                (1440, 900),
+                (1600, 900),
+                (1680, 1050),
+                (1920, 1080),
+                (1920, 1200),
+                (2048, 1280),
+                (2160, 1350),
+                (2560, 1440),
+                (2560, 1600),
+                (2880, 1800),
+                (3008, 1692),
+                (3072, 1920),
+                (3200, 1800),
+                (3840, 2160),
+                ];
 
 
             //start menu
@@ -78,6 +102,15 @@ namespace TheGreen.Game.Menus
             };
             _settingsMenu.AddComponentChild(increaseUIScaleButton);
 
+            Button resolutionSelector = new Button(new Vector2(0, 0), $"{TheGreen.ScreenResolution.X} x {TheGreen.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
+            resolutionSelector.OnButtonPress += () =>
+            {
+                _selectedResolution = (_selectedResolution + 1) % _resolutions.Length;
+                (int x, int y) = _resolutions[_selectedResolution];
+                game.SetWindowProperties(x, y, false);
+                resolutionSelector.SetText($"{x} x {y}");
+            };
+            _settingsMenu.AddComponentChild(resolutionSelector);
             
             //create world menu
             _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288);
@@ -195,7 +228,8 @@ namespace TheGreen.Game.Menus
             string[] worldDirectories = Directory.EnumerateDirectories(worldPath).ToArray();
             foreach (string worldDirectory in worldDirectories)
             {
-                string worldName = worldDirectory.Split('\\').Last();
+                string[] files = Directory.GetFiles(worldDirectory, "*.wld");
+                string worldName = Path.GetFileNameWithoutExtension(files[0]);
                 Button worldButton = new Button(Vector2.Zero, worldName, Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
                 worldButton.OnButtonPress += () => LoadWorld(worldName);
                 worldList.AddComponentChild(worldButton);

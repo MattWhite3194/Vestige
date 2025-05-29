@@ -18,7 +18,7 @@ namespace TheGreen.Game.Entities
         private bool _canUseItem = true;
         public const float MaxRotation = MathHelper.PiOver4 * 2.5f;
         public bool ForcePlayerFlip = false;
-        public ItemCollider(InventoryManager inventory) : base(null, default, default)
+        public ItemCollider(InventoryManager inventory) : base(null, default, default, drawLayer: 2)
         {
             this._inventory = inventory;
             this.Layer = CollisionLayer.ItemCollider;
@@ -122,7 +122,7 @@ namespace TheGreen.Game.Entities
                         Origin,
                         Item.Scale,
                         FlipSprite ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                        0f
+                        0.0f
                     );
         }
 

@@ -1,5 +1,7 @@
 ﻿TODO:
 
+Add a config JSON file for game settings that will load upon game start.
+
 Walls: -50 on brightness photo editor (future reference)
 
 Make Entity/NPC scope knockback function. Fix when it's applied
@@ -19,7 +21,6 @@ SpawnTile
 Add an entity that tracks if a player placed a tile in it, and if so, set the spawn point to the players current position
 
 Fixes:
-Fix collision bug when window is moved
 Fix Door collision automatic closing so it works in both directions
 Drawing order for sprites
 design better damage system
@@ -35,10 +36,5 @@ UI:
 if inventory was open on death, reopen it when you respawn
 draw map to a render target2D the size of the map. 
 Only draw to this render target when the map is updated, and draw the pixels at the coresponding positions.
-
-Drawing Order:
-player and entities draw above tiles, unless bool is set
-item drops draw above everything
-player draws above all enemies
 
 player inventory and world are tied together

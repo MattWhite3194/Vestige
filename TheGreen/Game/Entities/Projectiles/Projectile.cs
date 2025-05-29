@@ -13,7 +13,7 @@ namespace TheGreen.Game.Entities.Projectiles
         public readonly int Knockback;
         public readonly bool Friendly;
         private List<(int, int)> _animationFrames;
-        public Projectile(Texture2D image, Vector2 size, int damage, int knockback, float timeLeft, bool friendly, bool collidesWithTiles, IProjectileBehavior behavior, List<(int, int)> animationFrames = null) : base(image, default, size, animationFrames: animationFrames)
+        public Projectile(Texture2D image, Vector2 size, int damage, int knockback, float timeLeft, bool friendly, bool collidesWithTiles, IProjectileBehavior behavior, List<(int, int)> animationFrames = null) : base(image, default, size, animationFrames: animationFrames, drawLayer: 1)
         {
             Layer = 0;
             CollidesWith = 0;
