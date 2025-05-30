@@ -40,7 +40,7 @@ namespace TheGreen.Game.UI.Containers
                 for (int j = 0; j < borderRadius; j++)
                 {
                     Color replacementColor = color;
-                    if (Vector2.Distance(new Vector2(borderRadius), new Vector2(i, j)) > borderRadius)
+                    if (Vector2.Distance(new Vector2(borderRadius), new Vector2(i, j)) >= borderRadius)
                     {
                         replacementColor = Color.Transparent;
                     }

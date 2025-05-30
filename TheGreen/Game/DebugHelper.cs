@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 using System.IO;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.WorldGeneration;
@@ -48,9 +49,24 @@ namespace TheGreen.Game
             {
                 Directory.CreateDirectory(gamePath);
             }
-            Stream stream = File.Create(gamePath + "/worldGenTest.png");
-            Map.SaveAsPng(stream, sizeX, sizeY);
-            stream.Close();
+            string filePath = Path.Combine(gamePath, "worldGenTest.png");
+            using (Stream stream = File.Create(filePath))
+            {
+                Map.SaveAsPng(stream, sizeX, sizeY);
+            }
+
+            //open world image
+            var psi = new ProcessStartInfo
+            {
+                FileName = filePath,
+                UseShellExecute = true
+            };
+            Process process = Process.Start(psi);
+            process.Dispose();
+            Map.Dispose();
+            System.GC.Collect();
+            System.GC.WaitForPendingFinalizers();
+            System.GC.WaitForFullGCComplete();
         }
     }
 }

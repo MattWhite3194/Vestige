@@ -7,7 +7,7 @@ namespace TheGreen.Game.Inventory
 {
     public class ToolTip : UIComponent
     {
-        public bool DrawBackground;
+        public bool DrawBackground = false;
         private string _text;
         public int ItemSlotIndex = -1;
         public ToolTip() : base(Vector2.Zero)
@@ -20,6 +20,7 @@ namespace TheGreen.Game.Inventory
         public void SetText(string text)
         {
             _text = text;
+            Size = ContentLoader.GameFont.MeasureString(text);
         }
         public override void Draw(SpriteBatch spriteBatch)
         {

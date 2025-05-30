@@ -12,6 +12,7 @@ using TheGreen.Game.UI;
 using TheGreen.Game.WorldGeneration;
 using System.Diagnostics;
 using TheGreen.Game.IO;
+using System.Globalization;
 
 namespace TheGreen.Game.Menus
 {
@@ -28,46 +29,21 @@ namespace TheGreen.Game.Menus
         private TextBox _worldNameTextBox;
         private GraphicsDevice _graphicsDevice;
         private SelectionContainer _worldSizeSelector;
-        private (int x, int y)[] _resolutions;
-        private int _selectedResolution = 0;
-
+        private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _worldSortMethod;
         //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
         //TODO: Make each menu a separate UIComponentContainer, use this class to add and remove them from the UIManager and InputHandler
         //make the back button return menu a paramater in the menu declaration so the back button can be placed anywhere in the menu
         public MainMenu(TheGreen game, GraphicsDevice graphicsDevice)
         {
-            Debug.WriteLine(Path.GetInvalidFileNameChars());
+            _worldSortMethod = SortWorldsByDateDescending;
             _game = game;
             _graphicsDevice = graphicsDevice;
             _menus = new Stack<UIContainer>();
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
             _createWorldMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 150), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
             _settingsMenu = new GridContainer(1);
-            _resolutions = [
-                (960, 640),
-                (1024, 768),
-                (1136, 640),
-                (1280, 720),
-                (1280, 800),
-                (1366, 768),
-                (1440, 900),
-                (1600, 900),
-                (1680, 1050),
-                (1920, 1080),
-                (1920, 1200),
-                (2048, 1280),
-                (2160, 1350),
-                (2560, 1440),
-                (2560, 1600),
-                (2880, 1800),
-                (3008, 1692),
-                (3072, 1920),
-                (3200, 1800),
-                (3840, 2160),
-                ];
-
-
+            
             //start menu
             Label _titleLabel = new Label(new Vector2(0, 0), "Yet Another Block Game", Vector2.Zero, color: Color.ForestGreen, scale: 4.0f, maxWidth: 288);
             _startMenu.AddComponentChild(_titleLabel);
@@ -83,10 +59,6 @@ namespace TheGreen.Game.Menus
             Button settingsMenuButton = new Button(new Vector2(0, 180), "Settings", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             settingsMenuButton.OnButtonPress += () => AddSubMenu(_settingsMenu);
             _startMenu.AddComponentChild(settingsMenuButton);
-
-            Button worldGenTestButton = new Button(new Vector2(0, 288), "Test World Gen", Vector2.Zero, color: Color.Red, clickedColor: Color.Salmon, hoveredColor: Color.LightSalmon, maxWidth: 288);
-            worldGenTestButton.OnButtonPress += () => DebugHelper.RunWorldGenTest(4288, 1288, _graphicsDevice, 69);
-            _startMenu.AddComponentChild(worldGenTestButton);
 
 
             //settings menu
@@ -107,8 +79,7 @@ namespace TheGreen.Game.Menus
             Button resolutionSelector = new Button(new Vector2(0, 0), $"{TheGreen.ScreenResolution.X} x {TheGreen.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             resolutionSelector.OnButtonPress += () =>
             {
-                _selectedResolution = (_selectedResolution + 1) % _resolutions.Length;
-                (int x, int y) = _resolutions[_selectedResolution];
+                (int x, int y) = TheGreen.Settings.GetNextResolution();
                 game.SetWindowProperties(x, y, false);
                 resolutionSelector.SetText($"{x} x {y}");
             };
@@ -127,7 +98,15 @@ namespace TheGreen.Game.Menus
             createWorldButton.OnButtonPress += CreateWorld;
             _createWorldMenu.AddComponentChild( createWorldButton );
 
-            
+            Button worldGenTestButton = new Button(new Vector2(0, 100), "Test World Gen", Vector2.Zero, color: Color.Red, clickedColor: Color.Salmon, hoveredColor: Color.LightSalmon, maxWidth: 288);
+            worldGenTestButton.OnButtonPress += () =>
+            {
+                Point worldSize = (Point)_worldSizeSelector.GetSelected();
+                DebugHelper.RunWorldGenTest(worldSize.X, worldSize.Y, _graphicsDevice, 69);
+            };
+            _createWorldMenu.AddComponentChild(worldGenTestButton);
+
+
 
             _backButton = new Button(new Vector2(0, 0), "Back", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
             _backButton.OnButtonPress += RemoveSubMenu;
@@ -160,7 +139,7 @@ namespace TheGreen.Game.Menus
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"{ex.Message}");
+                    Debug.WriteLine(ex.Message);
                     worldGenSuccessful = false;
                 }
             });
@@ -184,15 +163,29 @@ namespace TheGreen.Game.Menus
             if (!Path.Exists(savePath))
                 return;
             string[] worldDirectories = Directory.EnumerateDirectories(savePath).ToArray();
+            List<(UIContainer worldContainer, Dictionary<string, string>)> worldContainersAndMetaData = new List<(UIContainer worldContainer, Dictionary<string, string>)>();
             for (int i = 0; i < worldDirectories.Length; i++)
             {
                 string[] worldPaths = Directory.GetFiles(worldDirectories[i], "*.wld");
                 if (worldPaths.Length == 0)
                     continue;
-                worldList.AddContainerChild(GetWorldContainer(worldPaths[0]));
+                worldContainersAndMetaData.Add(GetWorldContainer(worldPaths[0]));
+            }
+            foreach (UIContainer container in _worldSortMethod(worldContainersAndMetaData))
+            {
+                worldList.AddContainerChild(container);
             }
             _loadGameMenu.AddContainerChild(worldList);
             AddSubMenu(_loadGameMenu);
+        }
+
+        private List<UIContainer> SortWorldsByDateDescending(List<(UIContainer worldContainer, Dictionary<string, string> metaData)> worldContainers)
+        {
+            return worldContainers.OrderByDescending(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
+        }
+        private List<UIContainer> SortWorldsByDateAscending(List<(UIContainer worldContainer, Dictionary<string, string> metaData)> worldContainers)
+        {
+            return worldContainers.OrderBy(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
         }
         private void AddSubMenu(UIContainer menu)
         {
@@ -220,7 +213,7 @@ namespace TheGreen.Game.Menus
                 InputManager.RegisterHandler(_menus.Peek());
             }
         }
-        private UIContainer GetWorldContainer(string path)
+        private (UIContainer, Dictionary<string, string>) GetWorldContainer(string path)
         {
             WorldFile worldFile = new WorldFile(path);
             Dictionary<string, string> worldMetaData = worldFile.GetMetaData();
@@ -236,7 +229,7 @@ namespace TheGreen.Game.Menus
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine(ex);
+                    Debug.WriteLine(ex.Message);
                     return;
                 }
                 int numMenus = _menus.Count;
@@ -250,7 +243,8 @@ namespace TheGreen.Game.Menus
             worldPanel.AddComponentChild(worldName);
             worldPanel.AddComponentChild(worldDate);
             worldPanel.AddComponentChild(worldButton);
-            return worldPanel;
+            DateTime parsedDate = DateTime.ParseExact(worldMetaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture);
+            return (worldPanel, worldMetaData);
         }
     }
 }

@@ -61,6 +61,7 @@ namespace TheGreen.Game.WorldGeneration
         public void SetWorldSize(int sizeX, int sizeY)
         {
             WorldSize = new Point(sizeX, sizeY);
+            _tiles = null;
             _tiles = new Tile[sizeX * sizeY];
         }
         public void GenerateWorld(int sizeX, int sizeY, int seed = 0)

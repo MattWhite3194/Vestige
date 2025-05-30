@@ -37,7 +37,6 @@ namespace TheGreen.Game.UI.Components
 
         private void UpdateStringPosition()
         {
-            Debug.WriteLine("Updating string position");
             if (_text == null) return;
             _stringPosition.Y = Position.Y + Size.Y / 2 - _stringSize.Y / 2;
             switch (_textAlign)

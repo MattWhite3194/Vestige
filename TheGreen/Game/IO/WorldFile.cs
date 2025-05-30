@@ -90,7 +90,7 @@ namespace TheGreen.Game.IO
         private void SaveMetaData(BinaryWriter binaryWriter)
         {
             binaryWriter.Write(_name);
-            binaryWriter.Write(DateTime.Now.ToShortDateString());
+            binaryWriter.Write(DateTime.Now.ToString("MMM dd, yyyy - h:mm tt"));
         }
         private void SaveTiles(BinaryWriter binaryWriter)
         {
