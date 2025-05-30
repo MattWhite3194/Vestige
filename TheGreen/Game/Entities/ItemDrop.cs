@@ -14,7 +14,7 @@ namespace TheGreen.Game.Entities
         private int _maxFallSpeed = 700;
         public static Vector2 ColliderSize = new Vector2(10, 10);
         private float _acceleration = 50f;
-        public ItemDrop(Item item, Vector2 position) : base(item.Image, position, drawLayer: 0)
+        public ItemDrop(Item item, Vector2 position) : base(item.Image, position, drawLayer: 0, name: item.Name)
         {
             _item = item;
             CollidesWithTiles = true;

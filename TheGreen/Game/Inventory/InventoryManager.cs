@@ -18,6 +18,7 @@ namespace TheGreen.Game.Inventory
         private bool _inventoryOpen;
         private CraftingGrid _craftingMenu;
         private Item[] _inventoryItems;
+        private ToolTip _toolTip;
         public InventoryManager(int rows, int cols) : base(anchor: UI.Anchor.TopLeft)
         {
             //Temporary inventory
@@ -31,11 +32,11 @@ namespace TheGreen.Game.Inventory
                 _inventoryItems[i] = item;
             }
 
-
+            _toolTip = new ToolTip();
             _dragItem = new DragItem(Vector2.Zero);
-            _inventoryMenu = new Inventory(cols, _dragItem, _inventoryItems, margin: 2, position: new Vector2(20, 20), itemSlotColor: new Color(34, 139, 34, 250));
+            _inventoryMenu = new Inventory(cols, _dragItem, _toolTip, _inventoryItems, margin: 2, position: new Vector2(20, 20), itemSlotColor: new Color(34, 139, 34, 250));
             _hotbar = new Hotbar(cols, _inventoryItems, margin: 2, itemSlotColor: new Color(34, 139, 34, 200), position: new Vector2(20, 20));
-            _craftingMenu = new CraftingGrid(3, _dragItem, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: new Color(222, 184, 135, 230), anchor: UI.Anchor.TopLeft);
+            _craftingMenu = new CraftingGrid(3, _dragItem, _toolTip, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: new Color(222, 184, 135, 230), anchor: UI.Anchor.TopLeft);
             _inventoryOpen = false;
             AddContainerChild(_hotbar);
         }
@@ -79,13 +80,26 @@ namespace TheGreen.Game.Inventory
         {
             base.Update(delta);
             _dragItem.Update(delta);
+            _toolTip.Update(delta);
+            if (_toolTip.ItemSlotIndex == -1)
+            {
+                if (Main.EntityManager.MouseEntity != null)
+                {
+                    _toolTip.SetText(Main.EntityManager.MouseEntity.Name);
+                }
+                else
+                {
+                    _toolTip.SetText("");
+                }
+            }
         }
 
-        public override void Draw(SpriteBatch spriteBatch)
+        public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
             base.Draw(spriteBatch);
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: TheGreen.UIScaleMatrix);
             _dragItem.Draw(spriteBatch);
+            _toolTip.Draw(spriteBatch);
             spriteBatch.End();
         }
 
@@ -114,7 +128,7 @@ namespace TheGreen.Game.Inventory
             {
                 _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
             }
-            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20 ), itemSlotColor: Color.Crimson);
+            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, _toolTip, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20 ), itemSlotColor: Color.Crimson);
             _inventoryTileDataCoordinates = coordinates;
             _inventoryTileData = inventoryTileData;
             AddContainerChild(_tileInventory);
@@ -132,6 +146,11 @@ namespace TheGreen.Game.Inventory
             }
             else
             {
+                if (_toolTip.ItemSlotIndex != -1)
+                {
+                    _toolTip.ItemSlotIndex = -1;
+                    _toolTip.SetText("");
+                }
                 RemoveContainerChild(_inventoryMenu);
                 RemoveContainerChild(_craftingMenu);
                 AddContainerChild(_hotbar);

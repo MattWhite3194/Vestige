@@ -16,7 +16,7 @@ namespace TheGreen.Game.UI.Components
         private bool _clicked = false;
         public Button(Vector2 position, string text, Vector2 padding,
             Color color = default, Color clickedColor = default, Color hoveredColor = default,
-            bool drawCentered = false, int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, color, drawCentered, maxWidth, scale: scale, textAlign: textAlign)
+            int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, color, maxWidth, scale: scale, textAlign: textAlign)
         {
             _clickedColor = clickedColor;
             _hoveredColor = hoveredColor;

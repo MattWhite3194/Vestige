@@ -71,10 +71,10 @@ namespace TheGreen.Game.Tiles.TileData
 
             for (int i = 0; i < this.TileSize.Y; i++)
             {
-                WorldGen.World.SetTile(topLeft.X, topLeft.Y + i, 0);
+                WorldGen.World.PlaceTile(topLeft.X, topLeft.Y + i, 0);
             }
 
-            WorldGen.World.SetTile(topLeft.X + direction, topLeft.Y + TileSize.Y - 1, _openDoorID);
+            WorldGen.World.PlaceTile(topLeft.X + direction, topLeft.Y + TileSize.Y - 1, _openDoorID);
             for (int i = 0; i < 2; i++)
             {
                 for (int j = 0; j < 3; j++)

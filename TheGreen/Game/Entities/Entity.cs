@@ -30,11 +30,13 @@ namespace TheGreen.Game.Entities
         /// The layer this entity draws on
         /// </summary>
         public readonly int DrawLayer;
+        public readonly string Name;
 
-        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null, int drawLayer = 0) : base(image, position, size, origin: origin, animationFrames: animationFrames)
+        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null, int drawLayer = 0, string name = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
         {
             this.DrawLayer = drawLayer;
-        }
+            Name = name;
+         }
 
         public virtual void OnCollision(Entity entity)
         {

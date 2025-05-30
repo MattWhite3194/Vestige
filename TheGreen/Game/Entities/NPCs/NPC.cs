@@ -12,7 +12,6 @@ namespace TheGreen.Game.Entities.NPCs
     public class NPC : Entity
     {
         public int ID;
-        public string Name;
         private int _health;
         public readonly int Damage;
         public readonly int Knockback;
@@ -34,10 +33,9 @@ namespace TheGreen.Game.Entities.NPCs
             List<(int, int)> animationFrames = null, 
             CollisionLayer layer = default, 
             CollisionLayer collidedWith = default) 
-            : base(image, default, size: size, animationFrames: animationFrames, drawLayer: 3)
+            : base(image, default, size: size, animationFrames: animationFrames, drawLayer: 3, name: name)
         {
             ID = id;
-            Name = name;
             Damage = damage;
             _health = health;
             CollidesWithTiles = collidesWithTiles;

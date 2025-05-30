@@ -17,11 +17,13 @@ namespace TheGreen.Game.Items
         {
             Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(TheGreen.TILESIZE, TheGreen.TILESIZE);
             //TODO: check if the mouse is colliding with an entity or colliding with a tile that the entity is colliding with (will happen in entity manager)
+            if (Vector2.Distance(mouseTilePosition.ToVector2() * TheGreen.TILESIZE, Main.EntityManager.GetPlayer().Position) > Main.EntityManager.GetPlayer().MaxPlaceDistance)
+                return false;
             if (Main.EntityManager.MouseCollidingWithEntityTile && TileDatabase.TileHasProperty(TileID, TileProperty.Solid))
                 return false;
             if (WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
             {
-                if (WorldGen.World.SetTile(mouseTilePosition.X, mouseTilePosition.Y, TileID))
+                if (WorldGen.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID))
                 {
                     return true;
                 }

@@ -56,7 +56,7 @@ namespace TheGreen.Game.WorldGeneration.WorldUpdaters
                 return;
             if (WorldGen.World.GetTileState(x, y) != 255 && WorldGen.World.GetTileID(x, y) == ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID)
             {
-                WorldGen.World.SetTile(x, y, overlayTileID);
+                WorldGen.World.PlaceTile(x, y, overlayTileID);
             }
         }
     }

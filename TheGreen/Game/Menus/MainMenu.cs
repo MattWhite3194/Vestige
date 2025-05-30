@@ -11,6 +11,7 @@ using TheGreen.Game.UI.Containers;
 using TheGreen.Game.UI;
 using TheGreen.Game.WorldGeneration;
 using System.Diagnostics;
+using TheGreen.Game.IO;
 
 namespace TheGreen.Game.Menus
 {
@@ -36,6 +37,7 @@ namespace TheGreen.Game.Menus
         //make the back button return menu a paramater in the menu declaration so the back button can be placed anywhere in the menu
         public MainMenu(TheGreen game, GraphicsDevice graphicsDevice)
         {
+            Debug.WriteLine(Path.GetInvalidFileNameChars());
             _game = game;
             _graphicsDevice = graphicsDevice;
             _menus = new Stack<UIContainer>();
@@ -116,7 +118,7 @@ namespace TheGreen.Game.Menus
             _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288);
             _createWorldMenu.AddComponentChild(_worldNameTextBox);
 
-            _worldSizeSelector = new SelectionContainer(4, [(new Point(500, 500), "Tiny"), (new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.LightGray, Color.Yellow, buttonWidth: 60, margin: 2, anchor: Anchor.MiddleMiddle);
+            _worldSizeSelector = new SelectionContainer(4, [(new Point(500, 500), "Tiny"), (new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.Gray, Color.White, Color.Yellow, buttonWidth: 60, margin: 2, anchor: Anchor.MiddleMiddle);
             PanelContainer selectorPanel = new PanelContainer(new Vector2(0, 30), new Vector2(288, 30), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 0, 1, 5, _graphicsDevice, anchor: Anchor.TopMiddle);
             selectorPanel.AddContainerChild(_worldSizeSelector);
             _createWorldMenu.AddContainerChild(selectorPanel);
@@ -143,7 +145,8 @@ namespace TheGreen.Game.Menus
             {
                 worldName = "New World";
             }
-            string fileName = GetValidWorldName(worldName);
+            WorldFile newWorldFile = new WorldFile();
+            newWorldFile.SetPath( worldName );
             int numMenus = _menus.Count;
             UIManager.UnregisterContainer(_createWorldMenu);
             bool worldGenSuccessful = true;
@@ -153,7 +156,7 @@ namespace TheGreen.Game.Menus
                 WorldGen.World.GenerateWorld(worldSize.X, worldSize.Y);
                 try
                 {
-                    WorldGen.World.SaveWorld(fileName, worldName);
+                    newWorldFile.Save();
                 }
                 catch (Exception ex)
                 {
@@ -173,66 +176,20 @@ namespace TheGreen.Game.Menus
             UIManager.UnregisterContainer(_mainMenuBackground);
             _game.StartGame();
         }
-        private string GetValidWorldName(string worldName)
-        {
-            //Replace forbidden chars
-            foreach (char forbiddenChar in Path.GetInvalidFileNameChars())
-            {
-                worldName = worldName.Replace(forbiddenChar, '-');
-            }
-            foreach (char forbiddenChar in Path.GetInvalidPathChars())
-            {
-                worldName = worldName.Replace(forbiddenChar, '-');
-            }
-            worldName = worldName.Replace('.', '_');
-
-            //if the world name already exists, iterate it until a new filename is found
-            int nameIteration = 1;
-            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
-            string iteratedWorldName = worldName;
-            while (Path.Exists(worldPath))
-            {
-                iteratedWorldName = worldName + nameIteration;
-                nameIteration++;
-                worldPath = Path.Combine(TheGreen.SavePath, "Worlds", iteratedWorldName);
-            }
-            worldName = iteratedWorldName;
-            return worldName;
-        }
-        private void LoadWorld(string worldName)
-        {
-            try
-            {
-                WorldGen.World.LoadWorld(worldName);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex);
-                return;
-            }
-            int numMenus = _menus.Count;
-            for (int i = 0; i < numMenus; i++)
-            {
-                _menus.Pop().Dereference();
-            }
-            UIManager.UnregisterContainer(_mainMenuBackground);
-            _game.StartGame();
-        }
         private void ListWorlds()
         {
-            _loadGameMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 350), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
-            ScrollContainer worldList = new ScrollContainer(Vector2.Zero, size: new Vector2(288, 300), anchor: Anchor.TopLeft);
-            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds");
-            if (!Path.Exists(worldPath))
+            _loadGameMenu = new PanelContainer(Vector2.Zero, new Vector2(320, 330), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
+            ScrollContainer worldList = new ScrollContainer(Vector2.Zero, size: new Vector2(320, 320), anchor: Anchor.TopMiddle);
+            string savePath = Path.Combine(TheGreen.SavePath, "Worlds");
+            if (!Path.Exists(savePath))
                 return;
-            string[] worldDirectories = Directory.EnumerateDirectories(worldPath).ToArray();
-            foreach (string worldDirectory in worldDirectories)
+            string[] worldDirectories = Directory.EnumerateDirectories(savePath).ToArray();
+            for (int i = 0; i < worldDirectories.Length; i++)
             {
-                string[] files = Directory.GetFiles(worldDirectory, "*.wld");
-                string worldName = Path.GetFileNameWithoutExtension(files[0]);
-                Button worldButton = new Button(Vector2.Zero, worldName, Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 288);
-                worldButton.OnButtonPress += () => LoadWorld(worldName);
-                worldList.AddComponentChild(worldButton);
+                string[] worldPaths = Directory.GetFiles(worldDirectories[i], "*.wld");
+                if (worldPaths.Length == 0)
+                    continue;
+                worldList.AddContainerChild(GetWorldContainer(worldPaths[0]));
             }
             _loadGameMenu.AddContainerChild(worldList);
             AddSubMenu(_loadGameMenu);
@@ -248,6 +205,7 @@ namespace TheGreen.Game.Menus
             InputManager.RegisterHandler(menu);
             _menus.Push(menu);
             _backButton.Position = new Vector2(0, menu.Size.Y);
+            _backButton.Size = new Vector2(menu.Size.X, _backButton.Size.Y);
             menu.AddComponentChild(_backButton);
         }
         private void RemoveSubMenu()
@@ -261,6 +219,38 @@ namespace TheGreen.Game.Menus
                 UIManager.RegisterContainer(_menus.Peek());
                 InputManager.RegisterHandler(_menus.Peek());
             }
+        }
+        private UIContainer GetWorldContainer(string path)
+        {
+            WorldFile worldFile = new WorldFile(path);
+            Dictionary<string, string> worldMetaData = worldFile.GetMetaData();
+            PanelContainer worldPanel = new PanelContainer(Vector2.Zero, new Vector2(300, 50), new Color(0, 179, 146, 196), new Color(0, 0, 0, 255), 0, 1, 5, _graphicsDevice, anchor: Anchor.TopMiddle);
+            Label worldName = new Label(new Vector2(5, 5), worldMetaData["Name"], Vector2.Zero, color: Color.White, maxWidth: 288, textAlign: TextAlign.Left);
+            Label worldDate = new Label(new Vector2(5, 25), worldMetaData["Date"], Vector2.Zero, color: Color.LightGray, maxWidth: 288, textAlign: TextAlign.Left);
+            Button worldButton = new Button(new Vector2(250, 25), "Play", Vector2.Zero, color: Color.White, clickedColor: Color.Orange, hoveredColor: Color.Yellow, maxWidth: 50);
+            worldButton.OnButtonPress += () =>
+            {
+                try
+                {
+                    worldFile.Load();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex);
+                    return;
+                }
+                int numMenus = _menus.Count;
+                for (int i = 0; i < numMenus; i++)
+                {
+                    _menus.Pop().Dereference();
+                }
+                UIManager.UnregisterContainer(_mainMenuBackground);
+                _game.StartGame();
+            };
+            worldPanel.AddComponentChild(worldName);
+            worldPanel.AddComponentChild(worldDate);
+            worldPanel.AddComponentChild(worldButton);
+            return worldPanel;
         }
     }
 }

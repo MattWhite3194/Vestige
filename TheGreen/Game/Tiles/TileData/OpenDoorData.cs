@@ -66,10 +66,10 @@ namespace TheGreen.Game.Tiles.TileData
             {
                 for (int j = 0; j < TileSize.Y; j++)
                 {
-                    WorldGen.World.SetTile(topLeft.X + i, topLeft.Y + j, 0);
+                    WorldGen.World.PlaceTile(topLeft.X + i, topLeft.Y + j, 0);
                 }
             }
-            WorldGen.World.SetTile(topLeft.X + closeDirection, topLeft.Y + TileSize.Y - 1, _closedDoorID);
+            WorldGen.World.PlaceTile(topLeft.X + closeDirection, topLeft.Y + TileSize.Y - 1, _closedDoorID);
         }
         public override void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
         {

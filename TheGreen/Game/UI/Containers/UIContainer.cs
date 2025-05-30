@@ -15,6 +15,7 @@ namespace TheGreen.Game.UI.Containers
 
         private static UIComponent _focusedUIComponent;
         public int ComponentCount;
+        public int ContainerCount;
         public Vector2 Position;
         public Vector2 Size;
         private List<UIComponent> _componentChildren = new List<UIComponent>();
@@ -35,6 +36,7 @@ namespace TheGreen.Game.UI.Containers
             Position = position;
             Size = size;
             ComponentCount = 0;
+            ContainerCount = 0;
             _anchor = anchor;
         }
         public virtual void HandleInput(InputEvent @event)
@@ -95,15 +97,14 @@ namespace TheGreen.Game.UI.Containers
         {
             return Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix);
         }
-        public virtual void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
-            spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix);
+            spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix, rasterizerState: rasterizerState);
             DrawComponents(spriteBatch);
-            //DebugHelper.DrawOutlineRectangle(spriteBatch, new Rectangle(Point.Zero, Size.ToPoint()), Color.Red);
             spriteBatch.End();
             foreach (UIContainer uiComponentContainer in _containerChildren)
             {
-                uiComponentContainer.Draw(spriteBatch);
+                uiComponentContainer.Draw(spriteBatch, rasterizerState);
             }
         }
         protected virtual void DrawComponents(SpriteBatch spriteBatch)
@@ -130,14 +131,20 @@ namespace TheGreen.Game.UI.Containers
         {
             return _componentChildren[index];
         }
-        public void AddContainerChild(UIContainer uiComponentContainer)
+        public virtual void AddContainerChild(UIContainer container)
         {
-            _containerChildren.Add(uiComponentContainer);
-            uiComponentContainer.UpdateAnchorMatrix((int)Size.X, (int)Size.Y);
+            _containerChildren.Add(container);
+            container.UpdateAnchorMatrix((int)Size.X, (int)Size.Y);
+            ContainerCount++;
         }
-        public void RemoveContainerChild(UIContainer uiComponentContainer)
+        public virtual void RemoveContainerChild(UIContainer container)
         {
-            _containerChildren.Remove(uiComponentContainer);
+            _containerChildren.Remove(container);
+            ContainerCount--;
+        }
+        public UIContainer GetContainerChild(int index)
+        {
+            return _containerChildren[index];
         }
         public void SetFocusedComponent(UIComponent component)
         {

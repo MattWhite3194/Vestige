@@ -35,8 +35,10 @@ namespace TheGreen.Game.Entities
         private Texture2D _torsoTexture;
         private Texture2D _legsTexture;
         private Texture2D _armTexture;
+        public int MaxPlaceDistance = TheGreen.TILESIZE * 7;
+        public int MaxBreakDistance = TheGreen.TILESIZE * 7;
         public bool Dead { get { return _dead; } }
-        public Player(InventoryManager inventory) : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) }, drawLayer: 2)
+        public Player(InventoryManager inventory) : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) }, drawLayer: 2, name: "Player")
         {
             _headTexture = ContentLoader.PlayerHead;
             _torsoTexture = ContentLoader.PlayerTorso;
@@ -47,11 +49,6 @@ namespace TheGreen.Game.Entities
             _health = 100;
             this.Layer = CollisionLayer.Player;
             this.CollidesWith = CollisionLayer.Enemy | CollisionLayer.ItemDrop | CollisionLayer.HostileProjectile;
-        }
-
-        private void LoadPlayer()
-        {
-            //TODO: Load player from file
         }
 
         /// <summary>

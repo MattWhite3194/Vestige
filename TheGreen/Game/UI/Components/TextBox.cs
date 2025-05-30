@@ -89,7 +89,7 @@ namespace TheGreen.Game.UI.Components
             if (_drawTextCursor)
             {
                 Vector2 cursorPosition = _stringPosition + new Vector2(ContentLoader.GameFont.MeasureString(_text.Substring(0, _cursorIndex)).X, 0);
-                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin, Color, _rotation, Origin, _scale, SpriteEffects.None, 0.0f);
+                spriteBatch.DrawString(ContentLoader.GameFont, _textCursor, cursorPosition + Origin, Color, _rotation, Origin, Scale, SpriteEffects.None, 0.0f);
             }
         }
         public override void Update(double delta)

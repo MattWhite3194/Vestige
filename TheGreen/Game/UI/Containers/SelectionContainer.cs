@@ -12,7 +12,7 @@ namespace TheGreen.Game.UI.Containers
         private Color _buttonColor;
         private Color _buttonSelectedColor;
         private List<(object selection, string label)> _selections;
-        public SelectionContainer(int cols, List<(object selection, string label)> selections, Color buttonColor, Color buttonSelectedColor, int buttonWidth = 50, int margin = 5, Vector2 position = default, Vector2 size = default, int defaultSelected = 0, Anchor anchor = Anchor.MiddleMiddle) : base(cols, margin, position, size, anchor)
+        public SelectionContainer(int cols, List<(object selection, string label)> selections, Color buttonColor, Color buttonSelectedColor, Color buttonHoveredColor, int buttonWidth = 50, int margin = 5, Vector2 position = default, Vector2 size = default, int defaultSelected = 0, Anchor anchor = Anchor.MiddleMiddle) : base(cols, margin, position, size, anchor)
         {
             _buttonColor = buttonColor;
             _buttonSelectedColor = buttonSelectedColor;
@@ -22,6 +22,14 @@ namespace TheGreen.Game.UI.Containers
                 int index = i;
                 Label label = new Label(Vector2.Zero, selections[i].label, Vector2.Zero, color: buttonColor, maxWidth: buttonWidth);
                 label.OnMouseInput += (@mouseEvent, mouseCoordinates) => OnSelectionLabelInput(@mouseEvent, index);
+                label.OnMouseEntered += () =>
+                {
+                    label.Color = _selectedIndex == index ? label.Color : buttonHoveredColor;
+                };
+                label.OnMouseExited += () =>
+                {
+                    label.Color = _selectedIndex == index ? label.Color : buttonColor;
+                };
                 AddComponentChild(label);
             }
             if (defaultSelected >= selections.Count)

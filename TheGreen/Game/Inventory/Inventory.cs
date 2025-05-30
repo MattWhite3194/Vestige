@@ -13,11 +13,13 @@ namespace TheGreen.Game.Inventory
         private Item[] _inventoryItems;
         private ItemSlot[] _inventoryItemSlots;
         private DragItem _dragItem;
+        private ToolTip _toolTip;
 
-        public Inventory(int cols, DragItem dragItem, Item[] inventoryItems, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.TopLeft) : base(cols, margin, position, anchor: anchor)
+        public Inventory(int cols, DragItem dragItem, ToolTip toolTip, Item[] inventoryItems, int margin = 5, Vector2 position = default, Color itemSlotColor = default, Anchor anchor = Anchor.TopLeft) : base(cols, margin, position, anchor: anchor)
         {
             _inventoryItems = inventoryItems;
             _inventoryItemSlots = new ItemSlot[_inventoryItems.Length];
+            _toolTip = toolTip;
             if (itemSlotColor == default)
             {
                 itemSlotColor = Color.White;
@@ -29,6 +31,22 @@ namespace TheGreen.Game.Inventory
                 _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
                 AddComponentChild(_inventoryItemSlots[i]);
                 _inventoryItemSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnItemSlotGuiInput(index, @mouseEvent);
+                _inventoryItemSlots[i].OnMouseEntered += () => 
+                { 
+                    if (_dragItem.Item == null)
+                    {
+                        toolTip.SetText(_inventoryItems[index]?.Name ?? "");
+                        toolTip.ItemSlotIndex = index;
+                    }
+                };
+                _inventoryItemSlots[i].OnMouseExited += () =>
+                {
+                    if (toolTip.ItemSlotIndex == index)
+                    {
+                        toolTip.SetText("");
+                        toolTip.ItemSlotIndex = -1;
+                    }
+                };
             }
         }
 
@@ -37,6 +55,7 @@ namespace TheGreen.Game.Inventory
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 PlaceItem(index);
+                _toolTip.SetText("");
                 InputManager.MarkInputAsHandled(@mouseEvent);
             }
             else if (@mouseEvent.InputButton == InputButton.RightMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)

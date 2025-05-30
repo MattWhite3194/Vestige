@@ -19,53 +19,26 @@ namespace TheGreen.Game.UI.Components
         public Color Color;
         //for textbox implementation
         private bool focused = false;
-        protected Vector2 _drawPosition;
         private Vector2 _position;
-        private Vector2 _anchorOrigin;
-        public Vector2 Position
+        public virtual Vector2 Position
         {
             get { return _position; }
-            set
-            {
-                _position = value;
-                UpdateDrawPosition();
-            }
+            set { _position = value; }
         }
-        private Vector2 _size;
-        public Vector2 Size
-        {
-            get { return _size; }
-            set
-            {
-                _size = value;
-                Origin = _size / 2.0f;
-                UpdateDrawPosition();
-            }
-        }
+        public Vector2 Size;
         public Vector2 Origin;
         public bool MouseInside = false;
-        protected bool _drawCentered;
         protected float _rotation;
-        protected float _scale;
-        public float Scale
-        {
-            get { return _scale; }
-            set
-            {
-                _scale = value;
-                UpdateDrawPosition();
-            }
-        }
+        public float Scale;
 
-        public UIComponent(Vector2 position, Texture2D image = null, Color color = default, bool drawCentered = false, float rotation = 0.0f, float scale = 1.0f)
+        public UIComponent(Vector2 position, Texture2D image = null, Color color = default, float rotation = 0.0f, float scale = 1.0f, Vector2 origin = default)
         {
-            _position = position;
+            Position = position;
             this.image = image;
             this.Color = color == default ? Color.White : color;
-            _drawCentered = drawCentered;
+            Origin = origin;
             _rotation = rotation;
-            _scale = scale;
-            _drawPosition = _drawCentered ? _position - Origin * scale : _position;
+            Scale = scale;
             if (image != null)
                 Size = new Vector2(image.Width, image.Height);
             else
@@ -80,7 +53,7 @@ namespace TheGreen.Game.UI.Components
 
         public virtual void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(image, _drawPosition, null, Color, 0.0f, _anchorOrigin, _scale, SpriteEffects.None, 0.0f);
+            spriteBatch.Draw(image, Position + Origin, null, Color, _rotation, Origin, Scale, SpriteEffects.None, 0.0f);
         }
 
         public bool IsFocused()
@@ -91,11 +64,6 @@ namespace TheGreen.Game.UI.Components
         public void SetFocused(bool isFocused)
         {
             focused = isFocused;
-        }
-
-        protected virtual void UpdateDrawPosition()
-        {
-            _drawPosition = _drawCentered ? _position - Origin * _scale : _position;
         }
 
         /// <summary>
@@ -144,7 +112,7 @@ namespace TheGreen.Game.UI.Components
 
         public virtual Rectangle GetBounds()
         {
-            return new Rectangle((int)_drawPosition.X, (int)_drawPosition.Y, (int)(_size.X * _scale), (int)(_size.Y * _scale));
+            return new Rectangle((int)Position.X, (int)Position.Y, (int)(Size.X * Scale), (int)(Size.Y * Scale));
         }
     }
 }

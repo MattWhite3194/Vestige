@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles;
 using TheGreen.Game.Tiles.TileData;
@@ -30,11 +29,7 @@ namespace TheGreen.Game.WorldGeneration
         }
         private Tile[] _tiles;
         private Random _random = new Random();
-        private Point _spawnTile;
-        public Point SpawnTile
-        {
-            get { return _spawnTile; }
-        }
+        public Point SpawnTile;
         private int _dirtDepth;
         private int _grassDepth = 8;
         /// <summary>
@@ -46,7 +41,7 @@ namespace TheGreen.Game.WorldGeneration
         /// </summary>
         public int SurfaceDepth;
         public Point WorldSize;
-        public static readonly byte MaxLiquid = 255;
+        public static readonly byte MaxLiquid = 127;
         private int[,,] gradients = new int[256, 256, 2];
 
         /// <summary>
@@ -63,11 +58,15 @@ namespace TheGreen.Game.WorldGeneration
         private OverlayTileUpdater _overlayTileUpdater;
         private Dictionary<Point, Item[]> _tileInventories;
         
+        public void SetWorldSize(int sizeX, int sizeY)
+        {
+            WorldSize = new Point(sizeX, sizeY);
+            _tiles = new Tile[sizeX * sizeY];
+        }
         public void GenerateWorld(int sizeX, int sizeY, int seed = 0)
         {
             _random = seed != 0 ? new Random(seed) : new Random();
-            WorldSize = new Point(sizeX, sizeY);
-            _tiles = new Tile[sizeX * sizeY];
+            SetWorldSize(sizeX, sizeY);
             _tileInventories = new Dictionary<Point, Item[]>();
             int[] surfaceNoise = Generate1DNoise(sizeX, 50, 300, 4, 0.5f);
             surfaceNoise = Smooth(surfaceNoise, 2);
@@ -79,8 +78,8 @@ namespace TheGreen.Game.WorldGeneration
             {
                 for (int j = sizeY / 2 - sizeY / 4 + surfaceNoise[i]; j < sizeY; j++)
                 {
-                    SetInitialTile(i, j, 4);
-                    SetInitialWall(i, j, 2);
+                    ForceTile(i, j, 4);
+                    ForceWall(i, j, 2);
                     surfaceTerrain[i] = sizeY / 2 - sizeY / 4 + surfaceNoise[i];
 
                     if (sizeY - surfaceTerrain[i] < _surfaceHeight)
@@ -99,17 +98,17 @@ namespace TheGreen.Game.WorldGeneration
                         continue;
                     if (j > 3)
                     {
-                        SetInitialWall(i, surfaceTerrain[i] + j, 1);
+                        ForceWall(i, surfaceTerrain[i] + j, 1);
                     }
                     else
                     {
-                        SetInitialWall(i, surfaceTerrain[i] + j, 0);
+                        ForceWall(i, surfaceTerrain[i] + j, 0);
                     }
-                    SetInitialTile(i, surfaceTerrain[i] + j, 1);
+                    ForceTile(i, surfaceTerrain[i] + j, 1);
                 }
             }
 
-            _spawnTile = new Point(sizeX / 2, surfaceTerrain[sizeX / 2]);
+            SpawnTile = new Point(sizeX / 2, surfaceTerrain[sizeX / 2]);
             //generate caves
             InitializeGradients();
             double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(sizeX, _surfaceHeight, scale: 25, octaves: 4, persistence: 0.5);
@@ -147,11 +146,9 @@ namespace TheGreen.Game.WorldGeneration
                 for (int y = 0; y < _surfaceHeight; y++)
                 {
                     if (perlinNoise[y, x] < -0.1)
-                        RemoveInitialTile(x, sizeY - _surfaceHeight + y);
+                        ForceTile(x, sizeY - _surfaceHeight + y, 0);
                 }
             }
-
-            perlinNoise = null;
 
             //Generate stone chunks in dirt layer
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0002; i++)
@@ -186,7 +183,7 @@ namespace TheGreen.Game.WorldGeneration
                 {
                     if (GetTileID(i, surfaceTerrain[i] + j) == 1 && GetTileState(i, surfaceTerrain[i] + j) != 255)
                     {
-                        SetInitialTile(i, surfaceTerrain[i] + j, 2);
+                        ForceTile(i, surfaceTerrain[i] + j, 2);
                     }
                 }
             }
@@ -202,76 +199,6 @@ namespace TheGreen.Game.WorldGeneration
                         continue;
                     GenerateTree(i, surfaceTerrain[i] - 1);
                     lastTreeX = i;
-                }
-            }
-        }
-        public void LoadWorld(string worldName)
-        {
-            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", worldName);
-            if (!Path.Exists(worldPath))
-            {
-                throw new FileNotFoundException("Could not find the saved game data.");
-            }
-            _tileInventories = new Dictionary<Point, Item[]>();
-            using (FileStream worldData = File.OpenRead(Path.Combine(worldPath, worldName + ".bin")))
-            using (BinaryReader binaryReader = new BinaryReader(worldData))
-            {
-                //TODO: load grass
-                //TODO: load water
-                //TODO: load tile inventories
-                _spawnTile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
-                WorldSize = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
-                SurfaceDepth = binaryReader.ReadInt32();
-            }
-            _tiles = new Tile[WorldSize.X * WorldSize.Y];
-            using (FileStream world = File.OpenRead(Path.Combine(worldPath, worldName + ".wld")))
-            using (BinaryReader binaryReader = new BinaryReader(world) )
-            {
-                for (int i = 0; i < WorldSize.X; i++)
-                {
-                    for (int j = 0; j < WorldSize.Y; j++)
-                    {
-                        SetInitialTile(i, j, binaryReader.ReadUInt16());
-                        SetTileState(i, j, binaryReader.ReadByte());
-                        SetInitialWall(i, j, binaryReader.ReadUInt16());
-                        SetWallState(i, j, binaryReader.ReadByte());
-                        SetLiquid(i, j, binaryReader.ReadByte());
-                    }
-                }
-            }
-        }
-        public void SaveWorld(string fileName, string worldName)
-        {
-            string worldPath = Path.Combine(TheGreen.SavePath, "Worlds", fileName);
-            if (!Path.Exists(worldPath))
-            {
-                Directory.CreateDirectory(worldPath);
-            }
-            using (FileStream worldData = File.Create(Path.Combine(worldPath, fileName + ".bin")))
-            using (BinaryWriter binaryWriter = new BinaryWriter(worldData))
-            {
-                //TODO: write grass
-                //TODO: write water
-                //TODO: write tile inventories
-                binaryWriter.Write(_spawnTile.X);
-                binaryWriter.Write(_spawnTile.Y);
-                binaryWriter.Write(WorldSize.X);
-                binaryWriter.Write(WorldSize.Y);
-                binaryWriter.Write(SurfaceDepth);
-            }
-            using (FileStream world = File.Create(Path.Combine(worldPath, fileName + ".wld")))
-            using (BinaryWriter binaryWriter = new BinaryWriter(world))
-            {
-                for (int i = 0; i < WorldSize.X; i++)
-                {
-                    for (int j = 0; j < WorldSize.Y; j++)
-                    {
-                        binaryWriter.Write(GetTileID(i, j));
-                        binaryWriter.Write(GetTileState(i, j));
-                        binaryWriter.Write(GetWallID(i, j));
-                        binaryWriter.Write(GetWallState(i, j));
-                        binaryWriter.Write(GetLiquid(i, j));
-                    }
                 }
             }
         }
@@ -360,7 +287,7 @@ namespace TheGreen.Game.WorldGeneration
             DamagedWallData.Time = 0;
             if (DamagedWallData.Health <= 0)
             {
-                SetWall(coordinates.X, coordinates.Y, 0);
+                PlaceWall(coordinates.X, coordinates.Y, 0);
                 _minedWalls.Remove(coordinates);
             }
             else
@@ -379,28 +306,28 @@ namespace TheGreen.Game.WorldGeneration
         {
 
             //generate base
-            SetInitialTile(x, y, 5);
+            ForceTile(x, y, 5);
             SetTileState(x, y, 128);
             if (GetTileID(x - 1, y) == 0)
             {
-                SetInitialTile(x - 1, y, 5);
+                ForceTile(x - 1, y, 5);
                 SetTileState(x - 1, y, 62);
             }
             if (GetTileID(x + 1, y) == 0)
             {
-                SetInitialTile(x + 1, y, 5);
+                ForceTile(x + 1, y, 5);
                 SetTileState(x + 1, y, 130);
             }
             //Generate trunk
             int height = _random.Next(5, 20);
             for (int h = 1; h < height; h++)
             {
-                SetInitialTile(x, y - h, 5);
+                ForceTile(x, y - h, 5);
                 SetTileState(x, y - h, _randTreeTileStates[_random.Next(0, _randTreeTileStates.Length)]);
             }
 
             //Add tree top
-            SetInitialTile(x, y - height, 6);
+            ForceTile(x, y - height, 6);
             SetTileState(x, y - height, 0);
         }
 
@@ -413,7 +340,7 @@ namespace TheGreen.Game.WorldGeneration
         /// <param name="octaves">Number of passes. Will make the noise more detailed</param>
         /// <param name="persistance">Value less than 1. Reduces height of next octave.</param>
         /// <returns></returns>
-        public int[] Generate1DNoise(int size, float height, int scale, int octaves, float persistance)
+        private int[] Generate1DNoise(int size, float height, int scale, int octaves, float persistance)
         {
             float[] values = new float[256];
             for (int i = 0; i < values.Length; i++)
@@ -461,7 +388,7 @@ namespace TheGreen.Game.WorldGeneration
             );
         }
 
-        public int[] Smooth(int[] noise, int passes)
+        private int[] Smooth(int[] noise, int passes)
         {
             int[] smoothed = new int[noise.Length];
             for (int pass = 0; pass < passes; pass++)
@@ -475,7 +402,7 @@ namespace TheGreen.Game.WorldGeneration
             return smoothed;
         }
 
-        void InitializeGradients()
+        private void InitializeGradients()
         {
             for (int x = 0; x < 256; x++)
             {
@@ -487,23 +414,23 @@ namespace TheGreen.Game.WorldGeneration
             }
         }
 
-        double GetInfluenceValue(double x, double y, int Xgrad, int Ygrad)
+        private double GetInfluenceValue(double x, double y, int Xgrad, int Ygrad)
         {
             return (gradients[Xgrad % 256, Ygrad % 256, 0] * (x - Xgrad)) +
                    (gradients[Xgrad % 256, Ygrad % 256, 1] * (y - Ygrad));
         }
 
-        double Lerp(double v0, double v1, double t)
+        private double Lerp(double v0, double v1, double t)
         {
             return (1 - t) * v0 + t * v1;
         }
 
-        double Fade(double t)
+        private double Fade(double t)
         {
             return 3 * Math.Pow(t, 2) - 2 * Math.Pow(t, 3);
         }
 
-        double Perlin(double x, double y)
+        private double Perlin(double x, double y)
         {
             int X0 = (int)x;
             int Y0 = (int)y;
@@ -521,7 +448,7 @@ namespace TheGreen.Game.WorldGeneration
             return Lerp(Lerp(bottomLeftDot, bottomRightDot, sx), Lerp(topLeftDot, topRightDot, sx), sy);
         }
 
-        double[,] GeneratePerlinNoiseWithOctaves(int width, int height, double scale = 100.0, int octaves = 4, double persistence = 0.5)
+        private double[,] GeneratePerlinNoiseWithOctaves(int width, int height, double scale = 100.0, int octaves = 4, double persistence = 0.5)
         {
             double[,] noise = new double[height, width];
             double amplitude = 1.0;
@@ -563,7 +490,7 @@ namespace TheGreen.Game.WorldGeneration
         {
             return _tiles[y * WorldSize.X + x].WallID;
         }
-        public bool SetTile(int x, int y, ushort ID)
+        public bool PlaceTile(int x, int y, ushort ID)
         {
             if (ID != 0 && TileDatabase.GetTileData(ID).VerifyTile(x, y) != 1)
                 return false;
@@ -624,7 +551,7 @@ namespace TheGreen.Game.WorldGeneration
             }
             else
             {
-                SetTile(x, y, TileDatabase.GetTileData(tileID) is OverlayTileData overlayTile ? overlayTile.BaseTileID : (ushort)0);
+                PlaceTile(x, y, TileDatabase.GetTileData(tileID) is OverlayTileData overlayTile ? overlayTile.BaseTileID : (ushort)0);
             }
             Item item = ItemDatabase.InstantiateItemByTileID(tileID);
             if (item != null)
@@ -664,7 +591,7 @@ namespace TheGreen.Game.WorldGeneration
                 }
             }
         }
-        public void SetWall(int x, int y, byte WallID)
+        public void PlaceWall(int x, int y, byte WallID)
         {
             _tiles[y * WorldSize.X + x].WallID = WallID;
             for (int i = -1; i <= 1; i++)
@@ -681,24 +608,19 @@ namespace TheGreen.Game.WorldGeneration
             _tiles[y * WorldSize.X + x].State = state;
         }
 
-        private void SetWallState(int x, int y, byte state)
+        public void SetWallState(int x, int y, byte state)
         {
             _tiles[y * WorldSize.X + x].WallState = state;
         }
 
-        private void SetInitialTile(int x, int y, ushort ID)
+        public void ForceTile(int x, int y, ushort ID)
         {
             _tiles[y * WorldSize.X + x].ID = ID;
         }
 
-        private void SetInitialWall(int x, int y, ushort WallID)
+        public void ForceWall(int x, int y, ushort WallID)
         {
             _tiles[y * WorldSize.X + x].WallID = WallID;
-        }
-
-        private void RemoveInitialTile(int x, int y)
-        {
-            _tiles[y * WorldSize.X + x].ID = 0;
         }
 
         public Dictionary<Point, DamagedTile> GetDamagedTiles()
@@ -745,7 +667,7 @@ namespace TheGreen.Game.WorldGeneration
                 return _tileInventories[coordinates];
             return null;
         }
-        public void TileBlobber(int x, int y, double size, int passes, ushort tileID, bool replaceOnly = true)
+        private void TileBlobber(int x, int y, double size, int passes, ushort tileID, bool replaceOnly = true)
         {
             double remainingSize = size;
             double remainingPasses = passes;
@@ -769,7 +691,7 @@ namespace TheGreen.Game.WorldGeneration
                         if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + _random.Next(-10, 11) * 0.015))
                         {
                             if (!replaceOnly || TileDatabase.TileHasProperty(GetTileID(i, j), TileProperty.Solid))
-                                SetInitialTile(i, j, tileID);
+                                ForceTile(i, j, tileID);
                         }
                     }
                 }

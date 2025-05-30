@@ -7,9 +7,9 @@ using TheGreen.Game;
 using TheGreen.Game.Entities;
 using TheGreen.Game.Input;
 using TheGreen.Game.Inventory;
+using TheGreen.Game.IO;
 using TheGreen.Game.Menus;
 using TheGreen.Game.UI;
-using System.Text.Json;
 
 namespace TheGreen
 {
@@ -28,7 +28,7 @@ namespace TheGreen
         public static readonly float GRAVITY = 1300.0f;
         public static Point ScreenCenter = new Point(960 / 2, 640 / 2);
         public static Point ScreenResolution;
-        public static Dictionary<string, object> GlobalSettings;
+        public static Settings Settings;
 
         public TheGreen()
         {
@@ -37,13 +37,14 @@ namespace TheGreen
             IsMouseVisible = true;
             GameWindow = Window;
             SavePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "TheGreen");
+            Settings = new Settings(Path.Combine(SavePath, "config.json"));
         }
 
         protected override void Initialize()
         {
             //Screen settings
-            LoadSettings();
-            SetWindowProperties((int)GlobalSettings["screen-width"], (int)GlobalSettings["screen-height"], (bool)GlobalSettings["fullscreen"]);
+            Settings.load();
+            SetWindowProperties((int)Settings.Get("screen-width"), (int)Settings.Get("screen-height"), (bool)Settings.Get("fullscreen"));
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
@@ -121,34 +122,6 @@ namespace TheGreen
         {
             UIScaleMatrix = Matrix.CreateScale(scale);
             UIManager.OnUIScaleChanged(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
-        }
-
-        private void LoadSettings()
-        {
-            string savedSettings = Path.Combine(SavePath, "config.json");
-            if (File.Exists(savedSettings))
-            {
-                FileStream stream = File.OpenRead(savedSettings);
-                GlobalSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(stream);
-            }
-            else
-            {
-                GlobalSettings = new Dictionary<string, object>
-                {
-                    {"screen-width", GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width},
-                    {"screen-height", GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height},
-                    {"fullscreen", false }
-                };
-            }
-        }
-        private void SaveSettings()
-        {
-            string savedSettings = Path.Combine(SavePath, "config.json");
-            string settingsJson = JsonSerializer.Serialize(GlobalSettings, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-            File.WriteAllText(savedSettings, settingsJson);
         }
     }
 }
