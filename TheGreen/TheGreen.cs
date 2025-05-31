@@ -48,7 +48,7 @@ namespace TheGreen
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
-            IsFixedTimeStep = false;
+            //IsFixedTimeStep = false;
             DebugHelper.Initialize(GraphicsDevice);
             base.Initialize();
         }
@@ -94,7 +94,7 @@ namespace TheGreen
             _graphics.PreferredBackBufferWidth = width;
             _graphics.PreferredBackBufferHeight = height;
             _graphics.IsFullScreen = fullScreen;
-            _graphics.SynchronizeWithVerticalRetrace = false;
+            //_graphics.SynchronizeWithVerticalRetrace = false;
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
         }

@@ -27,6 +27,24 @@ namespace TheGreen.Game
         {
             spriteBatch.Draw(_pixel, rect, color);
         }
+        public static Texture2D GenerateVerticalGradient(GraphicsDevice graphicsDevice, Color[] colors, int height, bool wrap = false)
+        {
+            Texture2D gradient = new Texture2D(graphicsDevice, 1, height);
+            Color[] gradientData = new Color[height];
+            int colorOffset = height / (colors.Length - 1);
+            int colorIndex = 0;
+            for (int i = 0; i < height; i++)
+            {
+                if (i != 0 && i % colorOffset == 0)
+                    colorIndex++;
+                int nextColor = (colorIndex + 1) % colors.Length;
+                if (colorIndex == colors.Length - 1 && !wrap)
+                    nextColor = colorIndex;
+                gradientData[i] = Color.Lerp(colors[colorIndex], colors[nextColor], (i % colorOffset) / (float)colorOffset);
+            }
+            gradient.SetData(gradientData);
+            return gradient;
+        }
 
         public static void RunWorldGenTest(int sizeX, int sizeY, GraphicsDevice graphicsDevice, int seed = 0)
         {

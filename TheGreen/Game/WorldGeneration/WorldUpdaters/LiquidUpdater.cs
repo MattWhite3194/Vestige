@@ -58,26 +58,15 @@ namespace TheGreen.Game.WorldGeneration.WorldUpdaters
                 int left = 0;
                 int right = 0;
                 int totalLiquid = remainingMass;
-                bool continueRight = true;
-                bool continueLeft = true;
-                for (int i = 1; i <= 1; i++)
+                if (WorldGen.World.IsTileInBounds(x + 1, y) && !TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x + 1, y), TileProperty.Solid))
                 {
-                    if (WorldGen.World.IsTileInBounds(x + i, y) && !TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x + i, y), TileProperty.Solid) && continueRight)
-                    {
-                        totalLiquid += WorldGen.World.GetLiquid(x + i, y);
-                        right++;
-                    }
-                    else
-                        continueRight = false;
-                    if (WorldGen.World.IsTileInBounds(x - i, y) && !TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x - i, y), TileProperty.Solid) && continueLeft)
-                    {
-                        totalLiquid += WorldGen.World.GetLiquid(x - i, y);
-                        left++;
-                    }
-                    else
-                        continueLeft = false;
-                    if (!continueLeft || !continueRight)
-                        break;
+                    totalLiquid += WorldGen.World.GetLiquid(x + 1, y);
+                    right++;
+                }
+                if (WorldGen.World.IsTileInBounds(x - 1, y) && !TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x - 1, y), TileProperty.Solid))
+                {
+                    totalLiquid += WorldGen.World.GetLiquid(x - 1, y);
+                    left++;
                 }
                 int averageLiquid = (int)Math.Round((float)totalLiquid / (left + right + 1));
                 int numNotChanged = 0;

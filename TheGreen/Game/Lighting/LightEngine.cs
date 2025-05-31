@@ -33,27 +33,22 @@ namespace TheGreen.Game.Lighting
         {
             Parallel.For(_paddedDrawBoxMin.X, _paddedDrawBoxMax.X, x =>
             {
+                Vector3 skyLight = new Vector3(Main.GameClock.GlobalLight / 255.0f);
                 for (int y = _paddedDrawBoxMin.Y; y < _paddedDrawBoxMax.Y; y++)
                 {
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (TheGreen.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                    _lightMap[mapIndex].light = Vector3.Zero;
+                    _lightMap[mapIndex].mask = _wallAbsorption;
                     if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
                     {
-                        _lightMap[mapIndex].light = Vector3.Zero;
                         _lightMap[mapIndex].mask = _tileAbsorption;
                     }
-                    else if (WorldGen.World.GetWallID(x, y) != 0)
+                    else if (WorldGen.World.GetWallID(x, y) == 0)
                     {
-                        _lightMap[mapIndex].light = Vector3.Zero;
-                        _lightMap[mapIndex].mask = _wallAbsorption;
-                    }
-                    else
-                    {
-                        _lightMap[mapIndex].light = new Vector3(Main.GameClock.GlobalLight / 255.0f);
-                        _lightMap[mapIndex].mask = _wallAbsorption;
+                        _lightMap[mapIndex].light = skyLight;
                     }
                     if (WorldGen.World.GetLiquid(x, y) != 0)
                     {
-                        _lightMap[mapIndex].light = Vector3.Zero;
                         _lightMap[mapIndex].mask = _liquidLightAbsorption;
                     }
                     if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.LightEmitting))
@@ -115,7 +110,6 @@ namespace TheGreen.Game.Lighting
                 {
                     _lightMap[i].light.Y = light.Y;
                     light.Y *= _lightMap[i].mask.Y;
-                    
                 }
                 if (light.Z >= 0.0185f)
                 {

@@ -215,9 +215,9 @@ namespace TheGreen.Game.Entities
             {
                 case CollisionLayer.ItemDrop:
                     ItemDrop itemDrop = (ItemDrop)entity;
-                    if (Inventory.AddItemToPlayerInventory(itemDrop.GetItem()) == null)
+                    if (itemDrop.CanBePickedUp && Inventory.AddItemToPlayerInventory(itemDrop.GetItem()) == null)
                     {
-                        Main.EntityManager.RemoveEntity(itemDrop);
+                        itemDrop.Active = false;
                     }
                     break;
                 case CollisionLayer.Enemy:

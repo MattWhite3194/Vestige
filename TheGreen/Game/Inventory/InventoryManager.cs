@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using TheGreen.Game.Input;
 using TheGreen.Game.Items;
 using TheGreen.Game.Tiles.TileData;
@@ -54,7 +55,8 @@ namespace TheGreen.Game.Inventory
                     _dragItem.Item = null;
                     if (itemDrop != null)
                     {
-                        Main.EntityManager.AddItemDrop(itemDrop, Main.EntityManager.GetPlayer().Position);
+                        Vector2 velocity = new Vector2(Main.EntityManager.GetPlayer().FlipSprite ? -50 : 50, 0);
+                        Main.EntityManager.AddItemDrop(itemDrop, Main.EntityManager.GetPlayer().Position, velocity, false);
                     }
                 }
                 InputManager.MarkInputAsHandled(@event);
@@ -70,7 +72,9 @@ namespace TheGreen.Game.Inventory
             {
                 if (_dragItem.Item == null)
                     return;
-                Main.EntityManager.AddItemDrop(_dragItem.Item, InputManager.GetMouseWorldPosition().ToVector2());
+                int direction = Math.Sign(InputManager.GetMouseWorldPosition().X - Main.EntityManager.GetPlayer().Position.X);
+                Vector2 itemVelocity = new Vector2(direction * 50, 0);
+                Main.EntityManager.AddItemDrop(_dragItem.Item, Main.EntityManager.GetPlayer().Position, itemVelocity, false);
                 _dragItem.Item = null;
                 InputManager.MarkInputAsHandled(@event);
             }

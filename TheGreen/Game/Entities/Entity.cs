@@ -35,16 +35,16 @@ namespace TheGreen.Game.Entities
         protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null, int drawLayer = 0, string name = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
         {
             this.DrawLayer = drawLayer;
-            Name = name;
+            Name = name != null ? name : "";
          }
 
         public virtual void OnCollision(Entity entity)
         {
 
         }
-        public virtual void OnTileCollision()
+        public virtual void OnTileCollision(ushort tileID)
         {
-
+            //TODO: call this method
         }
         public virtual CollisionRectangle GetBounds()
         {

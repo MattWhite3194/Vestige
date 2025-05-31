@@ -41,10 +41,12 @@ namespace TheGreen.Game
         private RenderTarget2D _bgTarget;
         private RenderTarget2D _gameTarget;
         private RenderTarget2D _liquidRenderTarget;
+        private Texture2D _daytimeSkyGradient;
 
         public Main(Player player, GraphicsDevice graphicsDevice)
         {
             _tileRenderer = new TileRenderer();
+            _daytimeSkyGradient = DebugHelper.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], TheGreen.NativeResolution.Y);
             LightEngine = new LightEngine(_graphicsDevice);
             EntityManager = new EntityManager();
             ParallaxManager = new ParallaxManager();
@@ -52,7 +54,7 @@ namespace TheGreen.Game
             _gameTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X * 2, TheGreen.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X * 2, TheGreen.NativeResolution.Y * 2);
             _bgTarget = new RenderTarget2D(graphicsDevice, TheGreen.NativeResolution.X, TheGreen.NativeResolution.Y);
-            GameClock.StartGameClock(1000, 2000);
+            GameClock.StartGameClock(50, 100);
             WorldGen.World.InitializeGameUpdates();
             player.InitializeGameUpdates();
             _graphicsDevice = graphicsDevice;
@@ -89,6 +91,7 @@ namespace TheGreen.Game
             _graphicsDevice.SetRenderTarget(_bgTarget);
             _graphicsDevice.Clear(new Color((int)(50 * normalizedGlobalLight), (int)(109 * normalizedGlobalLight), (int)(255 * normalizedGlobalLight)));
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
+            spriteBatch.Draw(_daytimeSkyGradient, new Rectangle(Point.Zero, TheGreen.NativeResolution), new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             ParallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             spriteBatch.End();
 
@@ -99,6 +102,7 @@ namespace TheGreen.Game
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
             _tileRenderer.DrawTiles(spriteBatch);
             EntityManager.Draw(spriteBatch);
+            
             spriteBatch.End();
 
             _graphicsDevice.SetRenderTarget(_liquidRenderTarget);

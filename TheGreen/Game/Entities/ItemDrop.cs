@@ -14,17 +14,30 @@ namespace TheGreen.Game.Entities
         private int _maxFallSpeed = 700;
         public static Vector2 ColliderSize = new Vector2(10, 10);
         private float _acceleration = 50f;
-        public ItemDrop(Item item, Vector2 position) : base(item.Image, position, drawLayer: 0, name: item.Name)
+        public bool CanBePickedUp;
+        private float _pickupTimer;
+        public ItemDrop(Item item, Vector2 position, bool canBePickedUp = true) : base(item.Image, position, drawLayer: 0, name: item.Name)
         {
             _item = item;
             CollidesWithTiles = true;
             this.Size = ColliderSize;
             this.Layer = CollisionLayer.ItemDrop;
+            this.CollidesWith = CollisionLayer.ItemDrop;
+            CanBePickedUp = canBePickedUp;
+            _pickupTimer = canBePickedUp ? 0.0f : 1.0f;
         }
         public Item GetItem() { return _item; }
         public override void Update(double delta)
         {
             base.Update(delta);
+            if (_pickupTimer > 0.0f)
+            {
+                _pickupTimer -= (float)delta;
+                if (_pickupTimer <= 0.0f)
+                {
+                    CanBePickedUp = true;
+                }
+            }
             Vector2 newVelocity = Velocity;
             newVelocity.Y += TheGreen.GRAVITY / 2 * (float)delta;
             if (newVelocity.Y > _maxFallSpeed)
