@@ -2,7 +2,7 @@
 ![alt text](Vestige/VestigeProgressPhotos/Cover.png?raw=true)
 
 ## About
-The Green is a 2D sanbox game inspired by the popular 2D indie game, Terraria.  
+Vestige is a 2D sanbox game inspired by the popular 2D indie game, Terraria.  
 Players can build, fight, and explore a fully destructable, procedurally generated tile world.  
 
 ## Game Showcase
@@ -16,7 +16,7 @@ Players can build, fight, and explore a fully destructable, procedurally generat
 ![alt text](Vestige/VestigeProgressPhotos/GameShowcaseWater.gif?raw=true)
 
 ## Technical
-The Green was built using the opensource Monogame framework, which is a reimplementation of Microsoft's XNA game framework.  
+Vestige was built using the opensource Monogame framework, which is a reimplementation of Microsoft's XNA game framework.  
 C# is the language of choice for this project, as it is Object-Oriented, and allows for a cleaner development environment.  
 
 ## Progress

@@ -96,7 +96,7 @@ namespace Vestige.Game.Entities
             }
             else if (@event.InputButton == InputButton.RightMouse && @event.EventType == InputEventType.MouseButtonDown)
             {
-                Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Vestige.TILESIZE);
+                Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE);
                 if (TileDatabase.GetTileData(WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y)) is IInteractableTile interactableTile)
                 {
                     interactableTile.OnRightClick(mouseTilePosition.X, mouseTilePosition.Y);

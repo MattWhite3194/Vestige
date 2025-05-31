@@ -1,5 +1,7 @@
 ﻿TODO:
 
+Save and quit function
+
 Add a config JSON file for game settings that will load upon game start.
 
 Walls: -50 on brightness photo editor (future reference)

@@ -72,7 +72,7 @@ namespace Vestige.Game.Inventory
             {
                 if (_dragItem.Item == null)
                     return;
-                int direction = Math.Sign(InputManager.GetMouseWorldPosition().X - Main.EntityManager.GetPlayer().Position.X);
+                int direction = Math.Sign(Main.GetMouseWorldPosition().X - Main.EntityManager.GetPlayer().Position.X);
                 Vector2 itemVelocity = new Vector2(direction * 50, 0);
                 Main.EntityManager.AddItemDrop(_dragItem.Item, Main.EntityManager.GetPlayer().Position, itemVelocity, false);
                 _dragItem.Item = null;

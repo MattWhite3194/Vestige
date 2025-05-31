@@ -132,11 +132,5 @@ namespace Vestige.Game.Input
         {
             return Mouse.GetState().Position.ToVector2();
         }
-        public static Point GetMouseWorldPosition()
-        {
-            Vector2 mousePosition = (Mouse.GetState().Position.ToVector2() - Vestige.RenderDestination.Location.ToVector2()) * new Vector2(Vestige.NativeResolution.X / (float)Vestige.RenderDestination.Width) ;
-            Point translation = Main.GetCameraPosition().ToPoint();
-            return mousePosition.ToPoint() + translation;
-        }
     }
 }

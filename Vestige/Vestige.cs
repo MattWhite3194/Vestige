@@ -102,11 +102,11 @@ namespace Vestige
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
         }
-        public void StartGame()
+        public void StartGame(WorldFile worldFile)
         {
             InventoryManager inventory = new InventoryManager(5, 8);
             Player player = new Player(inventory);
-            _gameManager = new Main(player, GraphicsDevice);
+            _gameManager = new Main(player, worldFile, GraphicsDevice);
         }
         private void UpdateRenderDestination(int width, int height)
         {

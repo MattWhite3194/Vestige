@@ -3,8 +3,10 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Vestige.Game.Drawables;
 using Vestige.Game.Entities;
+using Vestige.Game.Input;
+using Vestige.Game.IO;
 using Vestige.Game.Lighting;
-using Vestige.Game.Renderer;
+using Vestige.Game.Renderers;
 using Vestige.Game.Time;
 using Vestige.Game.WorldGeneration;
 
@@ -38,12 +40,13 @@ namespace Vestige.Game
         public static EntityManager EntityManager = null;
         public static ParallaxManager ParallaxManager = null;
         public static GameClock GameClock;
+        public static WorldFile WorldFile;
         private RenderTarget2D _bgTarget;
         private RenderTarget2D _gameTarget;
         private RenderTarget2D _liquidRenderTarget;
         private Texture2D _daytimeSkyGradient;
 
-        public Main(Player player, GraphicsDevice graphicsDevice)
+        public Main(Player player, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
             _tileRenderer = new TileRenderer();
             _daytimeSkyGradient = DebugHelper.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], Vestige.NativeResolution.Y);
@@ -51,10 +54,11 @@ namespace Vestige.Game
             EntityManager = new EntityManager();
             ParallaxManager = new ParallaxManager();
             GameClock = new GameClock();
+            WorldFile = worldFile;
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X, Vestige.NativeResolution.Y);
-            GameClock.StartGameClock(50, 100);
+            GameClock.StartGameClock(1000, 2000);
             WorldGen.World.InitializeGameUpdates();
             player.InitializeGameUpdates();
             _graphicsDevice = graphicsDevice;
@@ -126,6 +130,12 @@ namespace Vestige.Game
         {
             return new Vector2(Math.Abs(_translation.Translation.X), Math.Abs(_translation.Translation.Y));
         }
+        public static Point GetMouseWorldPosition()
+        {
+            Vector2 mousePosition = (InputManager.GetMouseWindowPosition() - Vestige.RenderDestination.Location.ToVector2()) * new Vector2(Vestige.NativeResolution.X / (float)Vestige.RenderDestination.Width);
+            Point translation = GetCameraPosition().ToPoint();
+            return mousePosition.ToPoint() + translation;
+        }
         private void CalculateTranslation()
         {
             Player player = EntityManager.GetPlayer();
@@ -134,6 +144,15 @@ namespace Vestige.Game
             int dy = (int)(Vestige.NativeResolution.Y / 2 - player.Position.Y);
             dy = MathHelper.Clamp(dy, -WorldGen.World.WorldSize.Y * Vestige.TILESIZE + Vestige.NativeResolution.Y, 0);
             _translation = Matrix.CreateTranslation(dx, dy, 0f);
+        }
+        public static void QuitWorld()
+        {
+            WorldFile.Save();
+            LightEngine = null;
+            EntityManager = null;
+            ParallaxManager = null;
+            GameClock = null;
+            WorldFile = null;
         }
     }
 }

@@ -71,7 +71,7 @@ namespace Vestige.Game.Entities
                     if (_holdTime == 0.0f)
                     {
                         Vector2 playerPosition = Main.EntityManager.GetPlayer().Position;
-                        Point mousePosition = InputManager.GetMouseWorldPosition();
+                        Point mousePosition = Main.GetMouseWorldPosition();
                         if (mousePosition.X < playerPosition.X)
                         {
                             ForcePlayerFlip = true;

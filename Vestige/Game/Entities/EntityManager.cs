@@ -27,7 +27,7 @@ namespace Vestige.Game.Entities
             MouseCollidingWithEntityTile = false;
             for (int i = 0; i < _entities.Count; i++)
             {
-                if (_entities[i].GetBounds().Contains(InputManager.GetMouseWorldPosition()))
+                if (_entities[i].GetBounds().Contains(Main.GetMouseWorldPosition()))
                     MouseEntity = _entities[i];
                 //check if mouse tile is colliding with an entity
                 if (_entities[i].Layer != CollisionLayer.Enemy && _entities[i].Layer != CollisionLayer.Player)
@@ -38,7 +38,7 @@ namespace Vestige.Game.Entities
                 Rectangle entityTileBounds = new Rectangle(
                     topLeft, bottomRight - topLeft
                     );
-                if (entityTileBounds.Contains(InputManager.GetMouseWorldPosition()))
+                if (entityTileBounds.Contains(Main.GetMouseWorldPosition()))
                 {
                     MouseCollidingWithEntityTile = true;
                 }

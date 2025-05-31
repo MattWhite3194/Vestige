@@ -1,10 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using Vestige.Game.Tiles;
 using Vestige.Game.WorldGeneration;
 
-namespace Vestige.Game.Renderer
+namespace Vestige.Game.Renderers
 {
     public class TileRenderer
     {

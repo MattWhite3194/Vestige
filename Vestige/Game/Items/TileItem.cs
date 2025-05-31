@@ -15,7 +15,7 @@ namespace Vestige.Game.Items
         }
         public override bool UseItem()
         {
-            Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
+            Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
             //TODO: check if the mouse is colliding with an entity or colliding with a tile that the entity is colliding with (will happen in entity manager)
             if (Vector2.Distance(mouseTilePosition.ToVector2() * Vestige.TILESIZE, Main.EntityManager.GetPlayer().Position) > Main.EntityManager.GetPlayer().MaxPlaceDistance)
                 return false;

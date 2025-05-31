@@ -84,6 +84,7 @@ namespace Vestige.Game.IO
                 SaveTiles(binaryWriter);
                 SaveTileInventories(binaryWriter);
                 SaveTileUpdates(binaryWriter);
+                SavePlayer(binaryWriter);
             }
         }
         private void SaveMetaData(BinaryWriter binaryWriter)
@@ -115,6 +116,10 @@ namespace Vestige.Game.IO
             
         }
         private void SaveTileUpdates(BinaryWriter binaryWriter)
+        {
+
+        }
+        private void SavePlayer(BinaryWriter binaryWriter)
         {
 
         }

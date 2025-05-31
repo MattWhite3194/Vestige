@@ -15,7 +15,7 @@ namespace Vestige.Game.Items
         }
         public override bool UseItem()
         {
-            Point mouseTilePosition = InputManager.GetMouseWorldPosition() / new Point(Vestige.TILESIZE);
+            Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE);
             if (WorldGen.World.GetLiquid(mouseTilePosition.X, mouseTilePosition.Y) != WorldGen.MaxLiquid)
             {
                 WorldGen.World.SetLiquid(mouseTilePosition.X, mouseTilePosition.Y, WorldGen.MaxLiquid, true);
