@@ -1,5 +1,5 @@
-# TheGreen
-![alt text](TheGreen/TheGreenProgressPhotos/Cover.png?raw=true)
+# Vestige
+![alt text](Vestige/VestigeProgressPhotos/Cover.png?raw=true)
 
 ## About
 The Green is a 2D sanbox game inspired by the popular 2D indie game, Terraria.  
@@ -7,13 +7,13 @@ Players can build, fight, and explore a fully destructable, procedurally generat
 
 ## Game Showcase
 
-![alt text](TheGreen/TheGreenProgressPhotos/GameShowcaseEnemies.gif?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/GameShowcaseEnemies.gif?raw=true)
 
-![alt text](TheGreen/TheGreenProgressPhotos/GameShowcaseTiles.gif?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/GameShowcaseTiles.gif?raw=true)
 
-![alt text](TheGreen/TheGreenProgressPhotos/GameShowcaseChests.gif?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/GameShowcaseChests.gif?raw=true)
 
-![alt text](TheGreen/TheGreenProgressPhotos/GameShowcaseWater.gif?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/GameShowcaseWater.gif?raw=true)
 
 ## Technical
 The Green was built using the opensource Monogame framework, which is a reimplementation of Microsoft's XNA game framework.  
@@ -23,7 +23,7 @@ C# is the language of choice for this project, as it is Object-Oriented, and all
 
 ### Collisions, Inventory, and the Player:  
 
-![alt text](TheGreen/TheGreenProgressPhotos/CollisionsInventoryPlayer.png?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/CollisionsInventoryPlayer.png?raw=true)
 
 **Notes:**  
 Added basic classes to the game including an entity, player, and world.  
@@ -33,7 +33,7 @@ Created an input handler that sends out input events to any objects marked as an
 
 ### World Generation:  
 
-![alt text](TheGreen/TheGreenProgressPhotos/WorldGeneration.jpg?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/WorldGeneration.jpg?raw=true)
 
 **Notes:**  
 The terrain is generated using a 1D simple noise algorithm.  
@@ -42,7 +42,7 @@ The map is saved as a png image, each pixel mapping to a tile.
 
 ### Textures, Lighting, and Items:  
 
-![alt text](TheGreen/TheGreenProgressPhotos/TexturesLightingItems.png?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/TexturesLightingItems.png?raw=true)
 
 **Notes:**  
 The player and tiles now have textures, and tiles merge with other tiles around them.  
@@ -50,7 +50,7 @@ Tiles store a tilestate, which is a one byte state representing if it's merged w
 These tilestates map to a dictionary of texture atlases  
 Example: A dirt block with no surrounding tiles will return tilestate 0, A dirt block with a tile above it will return tilestate 1, etc...  
 The binary representation of the tiles it is touching is seen below:  
-![alt text](TheGreen/TheGreenProgressPhotos/TileStates.png?raw=true)  
+![alt text](Vestige/VestigeProgressPhotos/TileStates.png?raw=true)  
 
 The tilestate is retrieved by summing these values, corners are only added if both touching edges are both active, otherwise, they are ignored.  
 Created a flood fill lighting algorithm that draws to the screen.  
@@ -58,7 +58,7 @@ There are now item classes in the game, with each one having a unique UseItem fu
 
 ### Parallax Backgrounds:    
 
-![alt text](TheGreen/TheGreenProgressPhotos/ParallaxBackgrounds.png?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/ParallaxBackgrounds.png?raw=true)
 
 **Notes:**  
 Created parallax background objects, which scroll with the players movement, and fill the entire screen.  
@@ -66,7 +66,7 @@ Not the best artist, Hence the pixel art.
 
 ### Dynamic Lighting and tile checks:  
 
-![alt text](TheGreen/TheGreenProgressPhotos/DynamicLightingTileChecks.png?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/DynamicLightingTileChecks.png?raw=true)
 
 **Notes:**  
 The lighting algorithm can now handle per frame lighting updates, so things like torches, or flares that move will light tiles.  
@@ -79,9 +79,9 @@ The database is accessed by the tile ID, and it holds methods and properties of 
 
 ### New Lighting Algorithm, Tile Entities, Chests, and Water:  
 
-![alt text](TheGreen/TheGreenProgressPhotos/NewLighting.png?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/NewLighting.png?raw=true)
 
-![alt text](TheGreen/TheGreenProgressPhotos/TileEntitiesChestsWater.png?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/TileEntitiesChestsWater.png?raw=true)
 
 **Notes:**  
 New lighting algorithm using an iterative approach, with light blurring across a 2d grid.  
@@ -92,7 +92,7 @@ Interactable tiles and inventory tiles were added. Tiles can have a custom inven
 
 ### Enemies and Item collisions:  
 
-![alt text](TheGreen/TheGreenProgressPhotos/EnemiesAndItemCollisions.png?raw=true)
+![alt text](Vestige/VestigeProgressPhotos/EnemiesAndItemCollisions.png?raw=true)
 
 **Notes:**  
 Enemies were added to the game, with animation and behavior components for composition and easier implementation of new enemies.  
