@@ -18,7 +18,8 @@ namespace Vestige.Game.Input
             {InputButton.LeftArrow, Keys.Left },
             {InputButton.RightArrow, Keys.Right },
             {InputButton.Jump, Keys.Space},
-            {InputButton.Inventory, Keys.E}
+            {InputButton.Inventory, Keys.E},
+            {InputButton.Options, Keys.Escape }
         };
         private static List<IInputHandler> _inputHandlers = new();
         private static KeyboardState _previousKeyboardState = Keyboard.GetState();

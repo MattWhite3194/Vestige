@@ -48,7 +48,8 @@ namespace Vestige.Game
 
         public static void RunWorldGenTest(int sizeX, int sizeY, GraphicsDevice graphicsDevice, int seed = 0)
         {
-            WorldGen.World.GenerateWorld(sizeX, sizeY, seed);
+            WorldGen world = new WorldGen(sizeX, sizeY);
+            world.GenerateWorld(seed);
 
             //Save map of world to png
             Texture2D Map = new Texture2D(graphicsDevice, sizeX, sizeY);
@@ -57,7 +58,7 @@ namespace Vestige.Game
             {
                 for (int y = 0; y < sizeY; y++)
                 {
-                    colorData[x + y * sizeX] = TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)).MapColor;
+                    colorData[x + y * sizeX] = TileDatabase.GetTileData(world.GetTileID(x, y)).MapColor;
                 }
             }
 

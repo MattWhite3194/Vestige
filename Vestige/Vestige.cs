@@ -9,6 +9,7 @@ using Vestige.Game.Inventory;
 using Vestige.Game.IO;
 using Vestige.Game.Menus;
 using Vestige.Game.UI;
+using Vestige.Game.WorldGeneration;
 
 namespace Vestige
 {
@@ -21,13 +22,24 @@ namespace Vestige
         public static Matrix UIScaleMatrix;
         public static Rectangle RenderDestination;
         public static GameWindow GameWindow;
-        public static Point NativeResolution = new Point(960, 640);
+        public static readonly Point NativeResolution = new Point(960, 640);
         public static readonly int TILESIZE = 16;
-        public static Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
+        public static readonly Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
         public static readonly float GRAVITY = 1300.0f;
-        public static Point ScreenCenter = new Point(960 / 2, 640 / 2);
+        public static readonly Point ScreenCenter = new Point(960 / 2, 640 / 2);
         public static Point ScreenResolution;
         public static Settings Settings;
+        public static readonly Color UIPanelColor = new Color(42, 45, 48, 196);
+        public static readonly Color HighlightedTextColor = new Color(163, 213, 255, 255);
+        public static readonly Color SelectedTextColor = new Color(120, 180, 230, 255);
+        /*
+         Charcoal Gray - Color(42, 45, 48, 196)
+         Steel Blue - Color(58, 74, 89, 196)
+         Mist Gray - Color(94, 108, 116, 196)
+         Icy Blue - Color(163, 213, 255, 255)
+         Pine Green - Color(58, 90, 64, 255)
+         Desaturated Gold - Color(191, 167, 111, 255)
+         */
 
         public Vestige()
         {
@@ -69,7 +81,7 @@ namespace Vestige
         }
         protected override void BeginRun()
         {
-            MainMenu mainMenu = new MainMenu(this, GraphicsDevice);
+            LoadMainMenu();
         }
         protected override void Update(GameTime gameTime)
         {
@@ -102,11 +114,9 @@ namespace Vestige
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
         }
-        public void StartGame(WorldFile worldFile)
+        public void StartGame(WorldGen world, WorldFile worldFile)
         {
-            InventoryManager inventory = new InventoryManager(5, 8);
-            Player player = new Player(inventory);
-            _gameManager = new Main(player, worldFile, GraphicsDevice);
+            _gameManager = new Main(this, world, worldFile, GraphicsDevice);
         }
         private void UpdateRenderDestination(int width, int height)
         {
@@ -126,6 +136,11 @@ namespace Vestige
         {
             UIScaleMatrix = Matrix.CreateScale(scale);
             UIManager.OnUIScaleChanged(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
+        }
+        public void LoadMainMenu()
+        {
+            _gameManager = null;
+            MainMenu mainMenu = new MainMenu(this, GraphicsDevice);
         }
     }
 }

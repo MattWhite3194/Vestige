@@ -21,7 +21,7 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
         {
             foreach (Point point in _surroundingTiles)
             {
-                if (!WorldGen.World.IsTileInBounds(x + point.X, y + point.Y))
+                if (!Main.World.IsTileInBounds(x + point.X, y + point.Y))
                 {
                     continue;
                 }
@@ -30,7 +30,7 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
                 {
                     continue;
                 }
-                if (WorldGen.World.GetTileID(x + point.X, y + point.Y) != ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID || WorldGen.World.GetTileState(x + point.X, y + point.Y) == 255)
+                if (Main.World.GetTileID(x + point.X, y + point.Y) != ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID || Main.World.GetTileState(x + point.X, y + point.Y) == 255)
                     continue;
                 _overlayUpdateQueue.Enqueue((x + point.X, y + point.Y, overlayTileID));
                 _baseTiles.Add((x + point.X, y + point.Y, overlayTileID));
@@ -46,7 +46,7 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
             bool foundOverlayTile = false;
             foreach (Point point in _surroundingTiles)
             {
-                if (WorldGen.World.GetTileID(x + point.X, y + point.Y) == overlayTileID)
+                if (Main.World.GetTileID(x + point.X, y + point.Y) == overlayTileID)
                 {
                     foundOverlayTile = true;
                     break;
@@ -54,9 +54,9 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
             }
             if (!foundOverlayTile)
                 return;
-            if (WorldGen.World.GetTileState(x, y) != 255 && WorldGen.World.GetTileID(x, y) == ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID)
+            if (Main.World.GetTileState(x, y) != 255 && Main.World.GetTileID(x, y) == ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID)
             {
-                WorldGen.World.PlaceTile(x, y, overlayTileID);
+                Main.World.PlaceTile(x, y, overlayTileID);
             }
         }
     }

@@ -14,6 +14,7 @@ namespace Vestige.Game.Tiles.TileData
         public readonly int TileID;
         private readonly ushort[] tileMerges;
 
+        //TODO: add WorldGen world to constructor
         public DefaultTileData(int tileID, TileProperty properties, Color color, int itemID = -1, int health = 0, ushort[] tileMerges = null)
         {
             TileID = tileID;
@@ -30,13 +31,13 @@ namespace Vestige.Game.Tiles.TileData
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>An integer representing the tiles verifcation state. -1: tile should be removed, 0: tile is not verified for placing, 1: tile is verified</returns>
-        public virtual int VerifyTile(int x, int y)
+        public virtual int VerifyTile(WorldGen world, int x, int y)
         {
-            ushort top = WorldGen.World.GetTileID(x, y - 1);
-            ushort right = WorldGen.World.GetTileID(x + 1, y);
-            ushort bottom = WorldGen.World.GetTileID(x, y + 1);
-            ushort left = WorldGen.World.GetTileID(x - 1, y);
-            ushort wall = WorldGen.World.GetWallID(x, y);
+            ushort top = world.GetTileID(x, y - 1);
+            ushort right = world.GetTileID(x + 1, y);
+            ushort bottom = world.GetTileID(x, y + 1);
+            ushort left = world.GetTileID(x - 1, y);
+            ushort wall = world.GetWallID(x, y);
 
 
             return Math.Sign(top + right + bottom + left + wall);
@@ -47,26 +48,26 @@ namespace Vestige.Game.Tiles.TileData
         /// <param name="x"></param>
         /// <param name="y"></param>
         /// <returns>Whether or not the tile is able to be damaged based on its situation in the world</returns>
-        public virtual bool CanTileBeDamaged(int x, int y)
+        public virtual bool CanTileBeDamaged(WorldGen world, int x, int y)
         {
-            ushort top = WorldGen.World.GetTileID(x, y - 1);
+            ushort top = world.GetTileID(x, y - 1);
             if (TileDatabase.TileHasProperty(top, TileProperty.LargeTile))
-                return (TileDatabase.GetTileData(top) as LargeTileData).CanTileBeDamaged(x, y - 1);
+                return (TileDatabase.GetTileData(top) as LargeTileData).CanTileBeDamaged(world, x, y - 1);
             if (TileDatabase.TileHasProperty(top, TileProperty.AxeMineable))
                 return false;
             return true;
         }
-        public virtual byte GetUpdatedTileState(int x, int y)
+        public virtual byte GetUpdatedTileState(WorldGen world, int x, int y)
         {
             if (TileID == 0) return 0;
-            ushort top = WorldGen.World.GetTileID(x, y - 1);
-            ushort right = WorldGen.World.GetTileID(x + 1, y);
-            ushort bottom = WorldGen.World.GetTileID(x, y + 1);
-            ushort left = WorldGen.World.GetTileID(x - 1, y);
-            ushort tl = WorldGen.World.GetTileID(x - 1, y - 1);
-            ushort tr = WorldGen.World.GetTileID(x + 1, y - 1);
-            ushort bl = WorldGen.World.GetTileID(x - 1, y + 1);
-            ushort br = WorldGen.World.GetTileID(x + 1, y + 1);
+            ushort top = world.GetTileID(x, y - 1);
+            ushort right = world.GetTileID(x + 1, y);
+            ushort bottom = world.GetTileID(x, y + 1);
+            ushort left = world.GetTileID(x - 1, y);
+            ushort tl = world.GetTileID(x - 1, y - 1);
+            ushort tr = world.GetTileID(x + 1, y - 1);
+            ushort bl = world.GetTileID(x - 1, y + 1);
+            ushort br = world.GetTileID(x + 1, y + 1);
             if (!CanMerge(top))
             {
                 tl = 0;
@@ -136,9 +137,9 @@ namespace Vestige.Game.Tiles.TileData
             }
             return false;
         }
-        public virtual void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
+        public virtual void Draw(SpriteBatch spriteBatch, int x, int y, byte state, Color light)
         {
-            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Vestige.TILESIZE, TileDatabase.GetTileTextureAtlas(tileState), Main.LightEngine.GetLight(x, y));
+            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Vestige.TILESIZE, TileDatabase.GetTileTextureAtlas(state), light);
         }
     }
 }

@@ -31,6 +31,7 @@ namespace Vestige.Game.UI.Components
             {
                 Color = _clickedColor;
                 _clicked = true;
+                InputManager.MarkInputAsHandled(@mouseEvent);
             }
             else if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonUp)
             {
@@ -40,6 +41,7 @@ namespace Vestige.Game.UI.Components
                 }
                 Color = _hoveredColor;
                 _clicked = false;
+                InputManager.MarkInputAsHandled(@mouseEvent);
             }
         }
 

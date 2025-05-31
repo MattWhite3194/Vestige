@@ -14,6 +14,7 @@ namespace Vestige.Game.IO
         public string Name { get { return _name; } }
         public string Date { get { return _date; } }
         private string _path;
+        private Item[] _playerItems;
 
         public WorldFile(string path)
         {
@@ -74,15 +75,15 @@ namespace Vestige.Game.IO
             }
             return new Dictionary<string, string>() { { "Name", _name }, { "Date", _date } };
         }
-        public void Save()
+        public void Save(WorldGen world)
         {
             
-            using (FileStream world = File.Create(_path))
-            using (BinaryWriter binaryWriter = new BinaryWriter(world))
+            using (FileStream worldPath = File.Create(_path))
+            using (BinaryWriter binaryWriter = new BinaryWriter(worldPath))
             {
                 SaveMetaData(binaryWriter);
-                SaveTiles(binaryWriter);
-                SaveTileInventories(binaryWriter);
+                SaveTiles(world, binaryWriter);
+                SaveTileInventories(world, binaryWriter);
                 SaveTileUpdates(binaryWriter);
                 SavePlayer(binaryWriter);
             }
@@ -92,39 +93,52 @@ namespace Vestige.Game.IO
             binaryWriter.Write(_name);
             binaryWriter.Write(DateTime.Now.ToString("MMM dd, yyyy - h:mm tt"));
         }
-        private void SaveTiles(BinaryWriter binaryWriter)
+        private void SaveTiles(WorldGen world, BinaryWriter binaryWriter)
         {
-            binaryWriter.Write(WorldGen.World.SpawnTile.X);
-            binaryWriter.Write(WorldGen.World.SpawnTile.Y);
-            binaryWriter.Write(WorldGen.World.WorldSize.X);
-            binaryWriter.Write(WorldGen.World.WorldSize.Y);
-            binaryWriter.Write(WorldGen.World.SurfaceDepth);
-            for (int i = 0; i < WorldGen.World.WorldSize.X; i++)
+            binaryWriter.Write(world.SpawnTile.X);
+            binaryWriter.Write(world.SpawnTile.Y);
+            binaryWriter.Write(world.WorldSize.X);
+            binaryWriter.Write(world.WorldSize.Y);
+            binaryWriter.Write(world.SurfaceDepth);
+            for (int i = 0; i < world.WorldSize.X; i++)
             {
-                for (int j = 0; j < WorldGen.World.WorldSize.Y; j++)
+                for (int j = 0; j < world.WorldSize.Y; j++)
                 {
-                    binaryWriter.Write(WorldGen.World.GetTileID(i, j));
-                    binaryWriter.Write(WorldGen.World.GetTileState(i, j));
-                    binaryWriter.Write(WorldGen.World.GetWallID(i, j));
-                    binaryWriter.Write(WorldGen.World.GetWallState(i, j));
-                    binaryWriter.Write(WorldGen.World.GetLiquid(i, j));
+                    binaryWriter.Write(world.GetTileID(i, j));
+                    binaryWriter.Write(world.GetTileState(i, j));
+                    binaryWriter.Write(world.GetWallID(i, j));
+                    binaryWriter.Write(world.GetWallState(i, j));
+                    binaryWriter.Write(world.GetLiquid(i, j));
                 }
             }
         }
-        private void SaveTileInventories(BinaryWriter binaryWriter)
+        private void SaveTileInventories(WorldGen world, BinaryWriter binaryWriter)
         {
-            
+            Dictionary<Point, Item[]> tileInventories = world.GetAllTileInventories();
+            binaryWriter.Write(tileInventories.Count);
+            foreach (var inventory in tileInventories)
+            {
+                binaryWriter.Write(inventory.Key.X);
+                binaryWriter.Write(inventory.Key.Y);
+                binaryWriter.Write(inventory.Value.Length);
+                foreach (Item item in inventory.Value)
+                {
+                    binaryWriter.Write(item?.ID ?? -1);
+                    binaryWriter.Write(item?.Quantity ?? -1);
+                }
+            }
         }
         private void SaveTileUpdates(BinaryWriter binaryWriter)
         {
-
+            
         }
         private void SavePlayer(BinaryWriter binaryWriter)
         {
 
         }
-        public void Load()
+        public WorldGen Load()
         {
+            WorldGen world;
             if (!Path.Exists(_path))
             {
                 throw new FileNotFoundException("Could not find the saved game data.");
@@ -133,42 +147,62 @@ namespace Vestige.Game.IO
             using (BinaryReader binaryReader = new BinaryReader(worldData))
             {
                 LoadMetaData(binaryReader);
-                LoadTiles(binaryReader);
+                world = LoadTiles(binaryReader);
+                LoadTileInventories(world, binaryReader);
             }
+            return world;
         }
         private void LoadMetaData(BinaryReader binaryReader)
         {
             _name = binaryReader.ReadString();
             _date = binaryReader.ReadString();
         }
-        private void LoadTiles(BinaryReader binaryReader)
+        private WorldGen LoadTiles(BinaryReader binaryReader)
         {
-            WorldGen.World.SpawnTile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
-            WorldGen.World.SetWorldSize(binaryReader.ReadInt32(), binaryReader.ReadInt32());
-            WorldGen.World.SurfaceDepth = binaryReader.ReadInt32();
-            for (int i = 0; i < WorldGen.World.WorldSize.X; i++)
+            Point spawnTile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+            Point worldSize = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+            int surfaceDepth = binaryReader.ReadInt32();
+            WorldGen world = new WorldGen(worldSize.X, worldSize.Y);
+            world.SpawnTile = spawnTile;
+            world.WorldSize = worldSize;
+            world.SurfaceDepth = surfaceDepth;
+            for (int i = 0; i < worldSize.X; i++)
             {
-                for (int j = 0; j < WorldGen.World.WorldSize.Y; j++)
+                for (int j = 0; j < worldSize.Y; j++)
                 {
-                    WorldGen.World.ForceTile(i, j, binaryReader.ReadUInt16());
-                    WorldGen.World.SetTileState(i, j, binaryReader.ReadByte());
-                    WorldGen.World.ForceWall(i, j, binaryReader.ReadUInt16());
-                    WorldGen.World.SetWallState(i, j, binaryReader.ReadByte());
-                    WorldGen.World.SetLiquid(i, j, binaryReader.ReadByte());
+                    world.ForceTile(i, j, binaryReader.ReadUInt16());
+                    world.SetTileState(i, j, binaryReader.ReadByte());
+                    world.ForceWall(i, j, binaryReader.ReadUInt16());
+                    world.SetWallState(i, j, binaryReader.ReadByte());
+                    world.SetLiquid(i, j, binaryReader.ReadByte());
                 }
             }
+            return world;
         }
-        private void LoadTileInventories(BinaryReader binaryReader)
+        private void LoadTileInventories(WorldGen world, BinaryReader binaryReader)
         {
-
+            int numTileInventories = binaryReader.ReadInt32();
+            for (int i = 0; i < numTileInventories; i++)
+            {
+                Point tile = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+                int numItems = binaryReader.ReadInt32();
+                Item[] items = new Item[numItems];
+                for (int j = 0; j < numItems; j++)
+                {
+                    int itemID = binaryReader.ReadInt32();
+                    int itemQuantity = binaryReader.ReadInt32();
+                    items[j] = itemID == -1 ? null : ItemDatabase.InstantiateItemByID(itemID, itemQuantity);
+                }
+                world.AddTileInventory(tile, items);
+            }
         }
         private void LoadTileUpdates(BinaryReader binaryReader)
         {
 
         }
-        private Item[] LoadPlayerInventory(BinaryReader binaryReader)
+        private void LoadPlayerInventory(BinaryReader binaryReader)
         {
-            return null;
+            
         }
     }
 }

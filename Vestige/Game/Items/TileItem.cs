@@ -21,9 +21,9 @@ namespace Vestige.Game.Items
                 return false;
             if (Main.EntityManager.MouseCollidingWithEntityTile && TileDatabase.TileHasProperty(TileID, TileProperty.Solid))
                 return false;
-            if (WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
+            if (Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
             {
-                if (WorldGen.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID))
+                if (Main.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID))
                 {
                     return true;
                 }

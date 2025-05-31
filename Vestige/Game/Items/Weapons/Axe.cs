@@ -17,9 +17,9 @@ namespace Vestige.Game.Items.Weapons
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
             if (Vector2.Distance(mouseTilePosition.ToVector2() * Vestige.TILESIZE, Main.EntityManager.GetPlayer().Position) > Main.EntityManager.GetPlayer().MaxBreakDistance)
                 return false;
-            if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y), TileProperty.AxeMineable))
+            if (TileDatabase.TileHasProperty(Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y), TileProperty.AxeMineable))
             {
-                WorldGen.World.DamageTile(mouseTilePosition, _axePower);
+                Main.World.DamageTile(mouseTilePosition, _axePower);
                 return true;
             }
             return false;

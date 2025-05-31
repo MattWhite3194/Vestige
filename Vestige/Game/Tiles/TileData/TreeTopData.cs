@@ -10,9 +10,9 @@ namespace Vestige.Game.Tiles.TileData
         {
             _offset = offset;
         }
-        public override void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
+        public override void Draw(SpriteBatch spriteBatch, int x, int y, byte state, Color light)
         {
-            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x * Vestige.TILESIZE, y * Vestige.TILESIZE) + _offset, Main.LightEngine.GetLight(x, y));
+            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x * Vestige.TILESIZE, y * Vestige.TILESIZE) + _offset, light);
         }
     }
 }

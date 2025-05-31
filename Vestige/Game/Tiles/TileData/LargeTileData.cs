@@ -19,46 +19,46 @@ namespace Vestige.Game.Tiles.TileData
             Origin = origin == default ? new Point(0, TileSize.Y - 1) : origin;
             _animations = animations;
         }
-        public override int VerifyTile(int x, int y)
+        public override int VerifyTile(WorldGen world, int x, int y)
         {
             //World origin is always the bottom left corner
-            Point bottomLeft = GetTopLeft(x, y) + new Point(0, TileSize.Y - 1);
+            Point bottomLeft = GetTopLeft(world, x, y) + new Point(0, TileSize.Y - 1);
 
             int verification = 1;
             for (int i = 0; i < TileSize.X; i++)
             {
-                if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(bottomLeft.X + i, bottomLeft.Y + 1), TileProperty.Solid))
+                if (!TileDatabase.TileHasProperty(world.GetTileID(bottomLeft.X + i, bottomLeft.Y + 1), TileProperty.Solid))
                     return -1;
                 for (int j = 0; j < TileSize.Y; j++)
                 {
                     //TODO: change to check if it's a replaceable tile like grass or something
-                    if (WorldGen.World.GetTileID(bottomLeft.X + i, bottomLeft.Y - j) != 0)
+                    if (world.GetTileID(bottomLeft.X + i, bottomLeft.Y - j) != 0)
                         verification = 0;
                 }
             }
             return verification;
         }
-        public override bool CanTileBeDamaged(int x, int y)
+        public override bool CanTileBeDamaged(WorldGen world, int x, int y)
         {
             return true;
         }
-        public override byte GetUpdatedTileState(int x, int y)
+        public override byte GetUpdatedTileState(WorldGen world, int x, int y)
         {
-            return WorldGen.World.GetTileState(x, y);
+            return world.GetTileState(x, y);
         }
-        public virtual Point GetTopLeft(int x, int y)
+        public virtual Point GetTopLeft(WorldGen world, int x, int y)
         {
-            if (WorldGen.World.GetTileID(x, y) != TileID)
+            if (world.GetTileID(x, y) != TileID)
                 return new Point(x, y) - Origin;
-            int tileState = WorldGen.World.GetTileState(x, y);
+            int tileState = world.GetTileState(x, y);
             int xOff = tileState % 10 % TileSize.X;
             int yOff = tileState / 10 % TileSize.Y;
             return new Point(x - xOff, y - yOff);
         }
-        public override void Draw(SpriteBatch spriteBatch, byte tileState, int x, int y)
+        public override void Draw(SpriteBatch spriteBatch, int x, int y, byte state, Color light)
         {
-            Rectangle textureAtlas = new Rectangle(tileState % 10 * Vestige.TILESIZE, tileState / 10 * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
-            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Vestige.TILESIZE, textureAtlas, Main.LightEngine.GetLight(x, y));
+            Rectangle textureAtlas = new Rectangle(state % 10 * Vestige.TILESIZE, state / 10 * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
+            spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Vestige.TILESIZE, textureAtlas, light);
         }
     }
 }

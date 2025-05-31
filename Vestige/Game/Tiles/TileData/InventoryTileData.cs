@@ -15,22 +15,22 @@ namespace Vestige.Game.Tiles.TileData
             Rows = rows;
         }
 
-        public override bool CanTileBeDamaged(int x, int y)
+        public override bool CanTileBeDamaged(WorldGen world, int x, int y)
         {
-            Point worldOrigin = GetTopLeft(x, y);
-            return WorldGen.World.GetTileInventory(worldOrigin) == null;
+            Point worldOrigin = GetTopLeft(world, x, y);
+            return world.GetTileInventory(worldOrigin) == null;
         }
-        public void CloseInventory(int x, int y)
+        public void CloseInventory(WorldGen world, int x, int y)
         {
-            Point worldOrigin = GetTopLeft(x, y);
+            Point worldOrigin = GetTopLeft(world, x, y);
             for (int i = 0; i < TileSize.X; i++)
             {
                 for (int j = 0; j < TileSize.Y; j++)
                 {
-                    WorldGen.World.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)(j * 10 + i));
+                    world.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)(j * 10 + i));
                 }
             }
-            Item[] items = WorldGen.World.GetTileInventory(worldOrigin);
+            Item[] items = world.GetTileInventory(worldOrigin);
             bool emptyInventory = true;
             foreach (Item item in items)
             {
@@ -42,26 +42,26 @@ namespace Vestige.Game.Tiles.TileData
             }
             if (emptyInventory)
             {
-                WorldGen.World.RemoveTileInventory(worldOrigin);
+                world.RemoveTileInventory(worldOrigin);
             }
         }
 
-        public void OnRightClick(int x, int y)
+        public void OnRightClick(WorldGen world, int x, int y)
         {
             //Inventory Tiles should only have 2 frames, one for closed and one for open, maybe in the future I'll do animations
-            Point worldOrigin = GetTopLeft(x, y);
+            Point worldOrigin = GetTopLeft(world, x, y);
             for (int i = 0; i < TileSize.X; i++)
             {
                 for (int j = 0; j < TileSize.Y; j++)
                 {
-                    WorldGen.World.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)(j * 10 + i + TileSize.X));
+                    world.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)(j * 10 + i + TileSize.X));
                 }
             }
-            Item[] items = WorldGen.World.GetTileInventory(worldOrigin);
+            Item[] items = world.GetTileInventory(worldOrigin);
             if (items == null)
             {
                 items = new Item[Rows * Cols];
-                WorldGen.World.AddTileInventory(worldOrigin, items);
+                world.AddTileInventory(worldOrigin, items);
             }
             Main.EntityManager.GetPlayer().Inventory.DisplayTileInventory(this, new Point(worldOrigin.X, worldOrigin.Y), items);
         }

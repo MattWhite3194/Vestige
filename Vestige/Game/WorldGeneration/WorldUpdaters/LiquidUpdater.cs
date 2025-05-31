@@ -38,14 +38,14 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
         //This is the most disgusting code I've ever written
         private void SettleLiquid(int x, int y)
         {
-            int remainingMass = WorldGen.World.GetLiquid(x, y);
-            if (WorldGen.World.IsTileInBounds(x, y + 1) && !TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y + 1), TileProperty.Solid))
+            int remainingMass = Main.World.GetLiquid(x, y);
+            if (Main.World.IsTileInBounds(x, y + 1) && !TileDatabase.TileHasProperty(Main.World.GetTileID(x, y + 1), TileProperty.Solid))
             {
-                int flow = Math.Min(WorldGen.MaxLiquid - WorldGen.World.GetLiquid(x, y + 1), remainingMass);
+                int flow = Math.Min(WorldGen.MaxLiquid - Main.World.GetLiquid(x, y + 1), remainingMass);
                 if (flow != 0)
                 {
-                    WorldGen.World.SetLiquid(x, y, (byte)(WorldGen.World.GetLiquid(x, y) - flow));
-                    WorldGen.World.SetLiquid(x, y + 1, (byte)(WorldGen.World.GetLiquid(x, y + 1) + flow), true);
+                    Main.World.SetLiquid(x, y, (byte)(Main.World.GetLiquid(x, y) - flow));
+                    Main.World.SetLiquid(x, y + 1, (byte)(Main.World.GetLiquid(x, y + 1) + flow), true);
                     remainingMass -= flow;
                 }
             }
@@ -58,14 +58,14 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
                 int left = 0;
                 int right = 0;
                 int totalLiquid = remainingMass;
-                if (WorldGen.World.IsTileInBounds(x + 1, y) && !TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x + 1, y), TileProperty.Solid))
+                if (Main.World.IsTileInBounds(x + 1, y) && !TileDatabase.TileHasProperty(Main.World.GetTileID(x + 1, y), TileProperty.Solid))
                 {
-                    totalLiquid += WorldGen.World.GetLiquid(x + 1, y);
+                    totalLiquid += Main.World.GetLiquid(x + 1, y);
                     right++;
                 }
-                if (WorldGen.World.IsTileInBounds(x - 1, y) && !TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x - 1, y), TileProperty.Solid))
+                if (Main.World.IsTileInBounds(x - 1, y) && !TileDatabase.TileHasProperty(Main.World.GetTileID(x - 1, y), TileProperty.Solid))
                 {
-                    totalLiquid += WorldGen.World.GetLiquid(x - 1, y);
+                    totalLiquid += Main.World.GetLiquid(x - 1, y);
                     left++;
                 }
                 int averageLiquid = (int)Math.Round((float)totalLiquid / (left + right + 1));
@@ -74,29 +74,29 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
                 {
                     if (i == 0)
                         continue;
-                    if (WorldGen.World.GetLiquid(x + i, y) != averageLiquid)
-                        WorldGen.World.SetLiquid(x + i, y, (byte)averageLiquid, true);
+                    if (Main.World.GetLiquid(x + i, y) != averageLiquid)
+                        Main.World.SetLiquid(x + i, y, (byte)averageLiquid, true);
                     else
                         numNotChanged++;
                 }
-                if (averageLiquid == WorldGen.MaxLiquid - 1 && WorldGen.World.GetLiquid(x, y) == WorldGen.MaxLiquid)
+                if (averageLiquid == WorldGen.MaxLiquid - 1 && Main.World.GetLiquid(x, y) == WorldGen.MaxLiquid)
                 {
                     averageLiquid = WorldGen.MaxLiquid;
                 }
-                WorldGen.World.SetLiquid(x, y, (byte)averageLiquid);
+                Main.World.SetLiquid(x, y, (byte)averageLiquid);
             }
             else
             {
-                if (WorldGen.World.GetLiquid(x - 1, y) != 0)
+                if (Main.World.GetLiquid(x - 1, y) != 0)
                 {
                     QueueLiquidUpdate(x - 1, y);
                 }
-                if (WorldGen.World.GetLiquid(x + 1, y) != 0)
+                if (Main.World.GetLiquid(x + 1, y) != 0)
                 {
                     QueueLiquidUpdate(x + 1, y);
                 }
             }
-            if (WorldGen.World.GetLiquid(x, y - 1) != 0 && WorldGen.World.GetLiquid(x, y) != WorldGen.MaxLiquid)
+            if (Main.World.GetLiquid(x, y - 1) != 0 && Main.World.GetLiquid(x, y) != WorldGen.MaxLiquid)
                 QueueLiquidUpdate(x, y - 1);
         }
     }

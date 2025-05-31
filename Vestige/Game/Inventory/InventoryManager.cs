@@ -4,6 +4,8 @@ using System;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
 using Vestige.Game.Tiles.TileData;
+using Vestige.Game.UI;
+using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
 
 namespace Vestige.Game.Inventory
@@ -20,10 +22,9 @@ namespace Vestige.Game.Inventory
         private CraftingGrid _craftingMenu;
         private Item[] _inventoryItems;
         private ToolTip _toolTip;
-        public InventoryManager(int rows, int cols) : base(anchor: UI.Anchor.TopLeft)
+        public InventoryManager(int rows, int cols) : base(anchor: Anchor.TopLeft)
         {
             //Temporary inventory
-            
             _inventoryItems = new Item[rows * cols];
 
             for (int i = 0; i <= 9; i++)
@@ -35,16 +36,14 @@ namespace Vestige.Game.Inventory
 
             _toolTip = new ToolTip();
             _dragItem = new DragItem(Vector2.Zero);
-            _inventoryMenu = new Inventory(cols, _dragItem, _toolTip, _inventoryItems, margin: 2, position: new Vector2(20, 20), itemSlotColor: new Color(34, 139, 34, 250));
-            _hotbar = new Hotbar(cols, _inventoryItems, margin: 2, itemSlotColor: new Color(34, 139, 34, 200), position: new Vector2(20, 20));
-            _craftingMenu = new CraftingGrid(3, _dragItem, _toolTip, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: new Color(222, 184, 135, 230), anchor: UI.Anchor.TopLeft);
+            _inventoryMenu = new Inventory(cols, _dragItem, _toolTip, _inventoryItems, margin: 2, position: new Vector2(20, 20), itemSlotColor: new Color(70, 85, 100, 230));
+            _hotbar = new Hotbar(cols, _inventoryItems, margin: 2, itemSlotColor: new Color(70, 85, 100, 220), highLightedColor: Vestige.HighlightedTextColor, position: new Vector2(20, 20));
+            _craftingMenu = new CraftingGrid(3, _dragItem, _toolTip, margin: 2, position: new Vector2(20, _inventoryMenu.Size.Y + 25), itemSlotColor: new Color(222, 184, 135, 230), anchor: Anchor.TopLeft);
             _inventoryOpen = false;
             AddContainerChild(_hotbar);
         }
         public override void HandleInput(InputEvent @event)
         {
-            //Don't accept any input if the player is using an item to prevent any weird bugs if the player decides to press random buttons while using the item
-            //TODO: maybe want to make this a little less dependent and spaghetti-ish
             if (Main.EntityManager.GetPlayer().ItemCollider.ItemActive) return;
             else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Inventory)
             {
@@ -130,9 +129,9 @@ namespace Vestige.Game.Inventory
             }
             if (_inventoryTileData != null && coordinates != _inventoryTileDataCoordinates)
             {
-                _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
+                _inventoryTileData.CloseInventory(Main.World, _inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
             }
-            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, _toolTip, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20 ), itemSlotColor: Color.Crimson);
+            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, _toolTip, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20 ), itemSlotColor: new Color(75, 70, 60, 220));
             _inventoryTileDataCoordinates = coordinates;
             _inventoryTileData = inventoryTileData;
             AddContainerChild(_tileInventory);
@@ -165,7 +164,7 @@ namespace Vestige.Game.Inventory
 
                     if (_inventoryTileData != null)
                     {
-                        _inventoryTileData.CloseInventory(_inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
+                        _inventoryTileData.CloseInventory(Main.World, _inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
                         _inventoryTileData = null;
                     }
                 }

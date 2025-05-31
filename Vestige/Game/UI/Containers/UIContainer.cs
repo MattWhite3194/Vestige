@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Vestige.Game.Input;
 using Vestige.Game.UI.Components;
 
@@ -101,6 +102,7 @@ namespace Vestige.Game.UI.Containers
         {
             spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix, rasterizerState: rasterizerState);
             DrawComponents(spriteBatch);
+            //DebugHelper.DrawOutlineRectangle(spriteBatch, new Rectangle(Point.Zero, Size.ToPoint()), Color.Red);
             spriteBatch.End();
             foreach (UIContainer uiComponentContainer in _containerChildren)
             {
@@ -134,7 +136,7 @@ namespace Vestige.Game.UI.Containers
         public virtual void AddContainerChild(UIContainer container)
         {
             _containerChildren.Add(container);
-            container.UpdateAnchorMatrix((int)Size.X, (int)Size.Y);
+            container.UpdateAnchorMatrix((int)Size.X, (int)Size.Y, AnchorMatrix);
             ContainerCount++;
         }
         public virtual void RemoveContainerChild(UIContainer container)

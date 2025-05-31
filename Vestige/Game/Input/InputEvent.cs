@@ -45,6 +45,7 @@ namespace Vestige.Game.Input
         RightArrow,
         LeftMouse,
         RightMouse,
-        MiddleMouse
+        MiddleMouse,
+        Options
     }
 }

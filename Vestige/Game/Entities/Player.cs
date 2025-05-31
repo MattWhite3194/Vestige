@@ -61,12 +61,9 @@ namespace Vestige.Game.Entities
             _invincibilityTimer.Elapsed += OnInvincibleTimeout;
             _respawnTimer = new Timer(5000);
             _respawnTimer.Elapsed += OnRespawnTimeout;
-            Position = WorldGen.World.SpawnTile.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y - 1);
+            Position = Main.World.SpawnTile.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y - 1);
             Main.EntityManager.AddEntity(this);
             Main.EntityManager.AddEntity(ItemCollider);
-            UIManager.RegisterContainer(Inventory);
-            InputManager.RegisterHandler(this);
-            InputManager.RegisterHandler(Inventory);
         }
 
         public void HandleInput(InputEvent @event)
@@ -97,9 +94,9 @@ namespace Vestige.Game.Entities
             else if (@event.InputButton == InputButton.RightMouse && @event.EventType == InputEventType.MouseButtonDown)
             {
                 Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE);
-                if (TileDatabase.GetTileData(WorldGen.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y)) is IInteractableTile interactableTile)
+                if (TileDatabase.GetTileData(Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y)) is IInteractableTile interactableTile)
                 {
-                    interactableTile.OnRightClick(mouseTilePosition.X, mouseTilePosition.Y);
+                    interactableTile.OnRightClick(Main.World, mouseTilePosition.X, mouseTilePosition.Y);
                 }
             }
             else
@@ -266,7 +263,7 @@ namespace Vestige.Game.Entities
             Active = true;
             ItemCollider.Active = true;
             _dead = false;
-            Position = WorldGen.World.SpawnTile.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y - 1);
+            Position = Main.World.SpawnTile.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y - 1);
             Velocity = Vector2.Zero;
             _activeInputs.Clear();
             ItemCollider.ItemActive = false;

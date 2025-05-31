@@ -39,21 +39,21 @@ namespace Vestige.Game.Lighting
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
                     _lightMap[mapIndex].light = Vector3.Zero;
                     _lightMap[mapIndex].mask = _wallAbsorption;
-                    if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
+                    if (TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.Solid))
                     {
                         _lightMap[mapIndex].mask = _tileAbsorption;
                     }
-                    else if (WorldGen.World.GetWallID(x, y) == 0)
+                    else if (Main.World.GetWallID(x, y) == 0)
                     {
                         _lightMap[mapIndex].light = skyLight;
                     }
-                    if (WorldGen.World.GetLiquid(x, y) != 0)
+                    if (Main.World.GetLiquid(x, y) != 0)
                     {
                         _lightMap[mapIndex].mask = _liquidLightAbsorption;
                     }
-                    if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.LightEmitting))
+                    if (TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.LightEmitting))
                     {
-                        _lightMap[mapIndex].light = Vector3.Max(TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)).MapColor.ToVector3(), _lightMap[mapIndex].light);
+                        _lightMap[mapIndex].light = Vector3.Max(TileDatabase.GetTileData(Main.World.GetTileID(x, y)).MapColor.ToVector3(), _lightMap[mapIndex].light);
                         _lightMap[mapIndex].mask = new Vector3(1f, 1f, 1f);
                     }
                 }
@@ -121,7 +121,7 @@ namespace Vestige.Game.Lighting
         public void SetDrawBox(Point drawBoxMin, Point drawBoxMax)
         {
             _paddedDrawBoxMin = new Point(Math.Max(0, drawBoxMin.X - _lightRange), Math.Max(0, drawBoxMin.Y - _lightRange));
-            _paddedDrawBoxMax = new Point(Math.Min(WorldGen.World.WorldSize.X, drawBoxMax.X + _lightRange), Math.Min(WorldGen.World.WorldSize.Y, drawBoxMax.Y + _lightRange));
+            _paddedDrawBoxMax = new Point(Math.Min(Main.World.WorldSize.X, drawBoxMax.X + _lightRange), Math.Min(Main.World.WorldSize.Y, drawBoxMax.Y + _lightRange));
         }
         public Color GetLight(int x, int y)
         {

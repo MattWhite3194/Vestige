@@ -15,24 +15,24 @@ namespace Vestige.Game.Tiles.WallData
             this.Health = health;
         }
 
-        public virtual byte GetUpdatedWallState(int x, int y)
+        public virtual byte GetUpdatedWallState(WorldGen world, int x, int y)
         {
-            if (WorldGen.World.GetWallID(x, y) == 0)
+            if (world.GetWallID(x, y) == 0)
             {
                 return 0;
             }
             //Important: if a corner doesn't have both sides touching it, it won't be counted
-            ushort top = WorldGen.World.GetWallID(x, y - 1);
-            ushort right = WorldGen.World.GetWallID(x + 1, y);
-            ushort bottom = WorldGen.World.GetWallID(x, y + 1);
-            ushort left = WorldGen.World.GetWallID(x - 1, y);
+            ushort top = world.GetWallID(x, y - 1);
+            ushort right = world.GetWallID(x + 1, y);
+            ushort bottom = world.GetWallID(x, y + 1);
+            ushort left = world.GetWallID(x - 1, y);
 
             return (byte)((Math.Sign(top) * 2) + (Math.Sign(right) * 8) + (Math.Sign(bottom) * 32) + (Math.Sign(left) * 128));
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch, int x, int y)
+        public virtual void Draw(SpriteBatch spriteBatch, int x, int y, byte state, Color light)
         {
-            spriteBatch.Draw(ContentLoader.WallTextures[WallID], new Vector2(x * Vestige.TILESIZE - 2, y * Vestige.TILESIZE - 2), TileDatabase.GetWallTextureAtlas(WorldGen.World.GetWallState(x, y)), Main.LightEngine.GetLight(x, y));
+            spriteBatch.Draw(ContentLoader.WallTextures[WallID], new Vector2(x * Vestige.TILESIZE - 2, y * Vestige.TILESIZE - 2), TileDatabase.GetWallTextureAtlas(state), light);
         }
     }
 }

@@ -56,7 +56,7 @@ namespace Vestige.Game.Entities
                 entity.Update(delta);
 
                 Vector2 minPos = Vector2.Zero;
-                Vector2 maxPos = new(WorldGen.World.WorldSize.X * Vestige.TILESIZE - entity.Size.X, WorldGen.World.WorldSize.Y * Vestige.TILESIZE - entity.Size.Y);
+                Vector2 maxPos = new(Main.World.WorldSize.X * Vestige.TILESIZE - entity.Size.X, Main.World.WorldSize.Y * Vestige.TILESIZE - entity.Size.Y);
                 //update enemies positions that don't collide with tiles
                 if (!entity.CollidesWithTiles)
                 {
@@ -160,9 +160,9 @@ namespace Vestige.Game.Entities
                     //IMPORTANT: entity bounds will not intersect a tile or other collision if the position update is less than a pixels width, since bounds are calculated using integers. Players Velocity will get up to 30 before the player actually moves enough to detect a collision.
                     if (entity.GetBounds().Intersects(tileCollider))
                     {
-                        if (TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)) is ICollideableTile collideableTile)
-                            collideableTile.OnCollision(x, y, entity);
-                        if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
+                        if (TileDatabase.GetTileData(Main.World.GetTileID(x, y)) is ICollideableTile collideableTile)
+                            collideableTile.OnCollision(Main.World, x, y, entity);
+                        if (!TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.Solid))
                         {
                             continue;
                         }
@@ -208,9 +208,9 @@ namespace Vestige.Game.Entities
                     CollisionRectangle tileCollider = new CollisionRectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
                     if (entity.GetBounds().Intersects(tileCollider))
                     {
-                        if (TileDatabase.GetTileData(WorldGen.World.GetTileID(x, y)) is ICollideableTile collideableTile)
-                            collideableTile.OnCollision(x, y, entity);
-                        if (!TileDatabase.TileHasProperty(WorldGen.World.GetTileID(x, y), TileProperty.Solid))
+                        if (TileDatabase.GetTileData(Main.World.GetTileID(x, y)) is ICollideableTile collideableTile)
+                            collideableTile.OnCollision(Main.World, x, y, entity);
+                        if (!TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.Solid))
                         {
                             continue;
                         }
@@ -321,13 +321,13 @@ namespace Vestige.Game.Entities
                 return false;
             for (int x = 0; x <= tileWidth; x++)
             {
-                if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(tilePoint.X + x, tilePoint.Y - 1), TileProperty.Solid))
+                if (TileDatabase.TileHasProperty(Main.World.GetTileID(tilePoint.X + x, tilePoint.Y - 1), TileProperty.Solid))
                     return false;
             }
             int tilesInFrontOffset = direction == -1 ? -1 : tileWidth + 1;
             for (int y = -1; y < tileHeight; y++)
             {
-                if (TileDatabase.TileHasProperty(WorldGen.World.GetTileID(tilePoint.X + tilesInFrontOffset, tilePoint.Y + y), TileProperty.Solid))
+                if (TileDatabase.TileHasProperty(Main.World.GetTileID(tilePoint.X + tilesInFrontOffset, tilePoint.Y + y), TileProperty.Solid))
                     return false;
             }
             return true;
