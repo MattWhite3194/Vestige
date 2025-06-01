@@ -149,6 +149,12 @@ namespace Vestige.Game.WorldGeneration
                 TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth + (_surfaceHeight - _dirtDepth) / 2, WorldSize.Y), _random.Next(4, 10), _random.Next(5, 30), 1);
             }
 
+            //Generate Coal
+            for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0005; i++)
+            {
+                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth / 2, SurfaceDepth + _dirtDepth + (_surfaceHeight - _dirtDepth) / 2), _random.Next(3, 5), _random.Next(5, 8), 12, replaceTiles: new HashSet<int>{4});
+            }
+
 
             //calculate tile states
             for (int i = 1; i < WorldSize.X - 1; i++)
@@ -540,7 +546,7 @@ namespace Vestige.Game.WorldGeneration
             Item item = ItemDatabase.InstantiateItemByTileID(tileID);
             if (item != null)
             {
-                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Vestige.TILESIZE, new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
+                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Vestige.TILESIZE + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
             }
         }
         private void SetLargeTile(int x, int y, ushort ID)
@@ -655,7 +661,7 @@ namespace Vestige.Game.WorldGeneration
         {
             return _tileInventories;
         }
-        private void TileBlobber(int x, int y, double size, int passes, ushort tileID, bool replaceOnly = true)
+        private void TileBlobber(int x, int y, double size, int passes, ushort tileID, bool replaceOnly = true, HashSet<int> replaceTiles = null)
         {
             double remainingSize = size;
             double remainingPasses = passes;
@@ -678,7 +684,9 @@ namespace Vestige.Game.WorldGeneration
                         //check distance in a diamond shape + a random offset
                         if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + _random.Next(-10, 11) * 0.015))
                         {
-                            if (!replaceOnly || TileDatabase.TileHasProperty(GetTileID(i, j), TileProperty.Solid))
+                            if (!replaceOnly)
+                                ForceTile(i, j, tileID);
+                            else if (replaceTiles?.Contains(GetTileID(i, j)) ?? TileDatabase.TileHasProperty(GetTileID(i, j), TileProperty.Solid))
                                 ForceTile(i, j, tileID);
                         }
                     }

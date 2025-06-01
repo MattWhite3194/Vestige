@@ -34,7 +34,7 @@ namespace Vestige.Game.Entities
                     continue;
                 //add 1 pixel padding on every side since .Contains does not include edges
                 Point topLeft = (Vector2.Floor(_entities[i].Position / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint();
-                Point bottomRight = (Vector2.Ceiling((_entities[i].Position + new Vector2(1, 1) + _entities[i].Size) / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint() + new Point(1, 1);
+                Point bottomRight = (Vector2.Ceiling((_entities[i].Position + _entities[i].Size) / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint() + new Point(1, 1);
                 Rectangle entityTileBounds = new Rectangle(
                     topLeft, bottomRight - topLeft
                     );
@@ -290,7 +290,7 @@ namespace Vestige.Game.Entities
 
         public void AddItemDrop(Item item, Vector2 position, Vector2 velocity = default, bool canBePickedUp = true)
         {
-            ItemDrop itemDrop = new ItemDrop(item, position + new Vector2(Vestige.TILESIZE / 2 - ItemDrop.ColliderSize.X / 2, 0), canBePickedUp);
+            ItemDrop itemDrop = new ItemDrop(item, position - new Vector2(ItemDrop.ColliderSize.X / 2, ItemDrop.ColliderSize.Y / 2), canBePickedUp);
             itemDrop.Velocity = velocity == default ? Vector2.Zero : velocity;
             AddEntity(itemDrop);
         }

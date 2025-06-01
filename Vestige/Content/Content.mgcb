@@ -339,6 +339,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Tiles/Tile11.png
 
+#begin Assets/Textures/Tiles/Tile12.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Tiles/Tile12.png
+
 #begin Assets/Textures/Tiles/Tile2.png
 /importer:TextureImporter
 /processor:TextureProcessor

@@ -78,6 +78,23 @@ namespace Vestige.Game.Inventory
                         (0, 1, 9),
                     ]
             ), 10},
+            //The Rizzler
+            {new CraftingKey(
+                new Point(3, 3),
+                    [
+                                   (1, 0, 9),
+                                   (1, 1, 9),
+                        (0, 2, 9), (1, 2, 9), (2, 2, 9)
+                    ]
+            ), 11},
+            //Torch
+            {new CraftingKey(
+                new Point(1, 2),
+                    [
+                        (0, 0, 9),
+                        (0, 1, 10),
+                    ]
+            ), 3},
         };
         private static Dictionary<ShapelessCraftingKey, int> _shapelessRecipes = new Dictionary<ShapelessCraftingKey, int>()
         {

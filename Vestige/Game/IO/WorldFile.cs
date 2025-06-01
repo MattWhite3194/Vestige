@@ -75,7 +75,7 @@ namespace Vestige.Game.IO
             }
             return new Dictionary<string, string>() { { "Name", _name }, { "Date", _date } };
         }
-        public void Save(WorldGen world)
+        public void Save(WorldGen world, Item[] playerItems = null)
         {
             
             using (FileStream worldPath = File.Create(_path))
@@ -85,7 +85,7 @@ namespace Vestige.Game.IO
                 SaveTiles(world, binaryWriter);
                 SaveTileInventories(world, binaryWriter);
                 SaveTileUpdates(binaryWriter);
-                SavePlayer(binaryWriter);
+                SavePlayer(playerItems, binaryWriter);
             }
         }
         private void SaveMetaData(BinaryWriter binaryWriter)
@@ -132,9 +132,19 @@ namespace Vestige.Game.IO
         {
             
         }
-        private void SavePlayer(BinaryWriter binaryWriter)
+        private void SavePlayer(Item[] playerItems, BinaryWriter binaryWriter)
         {
-
+            if (playerItems == null)
+            {
+                binaryWriter.Write(-1);
+                return;
+            }
+            binaryWriter.Write(playerItems.Length);
+            foreach (Item item in playerItems)
+            {
+                binaryWriter.Write(item?.ID ?? -1);
+                binaryWriter.Write(item?.Quantity ?? -1);
+            }
         }
         public WorldGen Load()
         {
@@ -149,6 +159,7 @@ namespace Vestige.Game.IO
                 LoadMetaData(binaryReader);
                 world = LoadTiles(binaryReader);
                 LoadTileInventories(world, binaryReader);
+                _playerItems = LoadPlayerItems(binaryReader);
             }
             return world;
         }
@@ -200,9 +211,25 @@ namespace Vestige.Game.IO
         {
 
         }
-        private void LoadPlayerInventory(BinaryReader binaryReader)
+        private Item[] LoadPlayerItems(BinaryReader binaryReader)
         {
-            
+            int numPlayerItems = binaryReader.ReadInt32();
+            if (numPlayerItems == -1)
+            {
+                return null;
+            }
+            Item[] playerItems = new Item[numPlayerItems];
+            for (int i = 0; i < numPlayerItems; i++)
+            {
+                int itemID = binaryReader.ReadInt32();
+                int itemQuantity = binaryReader.ReadInt32();
+                playerItems[i] = itemID == -1 ? null : ItemDatabase.InstantiateItemByID(itemID, itemQuantity);
+            }
+            return playerItems;
+        }
+        public Item[] GetPlayerItems()
+        {
+            return _playerItems;
         }
     }
 }

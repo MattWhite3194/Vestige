@@ -102,7 +102,6 @@ namespace Vestige.Game.IO
                 }
                 if (_resolutions[i].X == currentResolution.X && _resolutions[i].Y == currentResolution.Y)
                 {
-                    Debug.WriteLine("here");
                     return _resolutions[(i + 1) % _resolutions.Length];
                 }
             }

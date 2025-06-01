@@ -9,9 +9,9 @@ namespace Vestige.Game.Tiles
     /// Holds tile information that would be considered redundant and memory inefficient in the Tile struct. 
     /// Reference this to retrieve properties of a tile type, and methods for drawing and updating a specific tile type
     /// </summary>
-    public static class TileDatabase { 
-        
-        
+    public static class TileDatabase {
+
+
         /// <summary>
         /// List of static tile type information
         /// Use & on TileProperties to check if it has a property.
@@ -29,7 +29,8 @@ namespace Vestige.Game.Tiles
             new InventoryTileData(8, TileProperty.PickaxeMineable, Color.Brown, itemID: 5, cols: 5, rows: 3),
             new ClosedDoorData(9, TileProperty.PickaxeMineable | TileProperty.Solid, Color.Brown, 10, itemID: 7),
             new OpenDoorData(10, TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7),
-            new DefaultTileData(11, TileProperty.Solid | TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 9, health: 40, tileMerges: [1]),  //Stone
+            new DefaultTileData(11, TileProperty.Solid | TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 9, health: 40, tileMerges: [1]),  //Wood
+            new DefaultTileData(12, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Black, health: 110, tileMerges: [1, 4]), //Coal
         ];
 
         //Only add walls here that require special functions, all walls should more or less work the exact same way.

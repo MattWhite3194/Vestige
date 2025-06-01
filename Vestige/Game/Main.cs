@@ -52,6 +52,7 @@ namespace Vestige.Game
         private RenderTarget2D _liquidRenderTarget;
         private Texture2D _daytimeSkyGradient;
         private Vestige _gameHandle;
+        private Player _localPlayer;
 
         public Main(Vestige gameHandle, WorldGen world, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
@@ -67,29 +68,28 @@ namespace Vestige.Game
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X, Vestige.NativeResolution.Y);
-            InventoryManager inventory = new InventoryManager(5, 8);
-            Player player = new Player(inventory);
-
+            InventoryManager inventory = new InventoryManager(_worldFile.GetPlayerItems(), 8);
+            _localPlayer = new Player(inventory);
             InGameOptionsMenu inGameOptionsMenu = new InGameOptionsMenu(graphicsDevice);
             InGameUIHandler inGameUIHandler = new InGameUIHandler(inventory, inGameOptionsMenu, Vestige.NativeResolution.ToVector2());
             inGameOptionsMenu.AssignSaveAndQuitAction(() =>
             {
                 inGameUIHandler.Dereference();
-                InputManager.UnregisterHandler(player);
+                InputManager.UnregisterHandler(_localPlayer);
                 SaveAndQuit();
             });
-            InputManager.RegisterHandler(player);
+            InputManager.RegisterHandler(_localPlayer);
             InputManager.RegisterHandler(inGameUIHandler);
             UIManager.RegisterContainer(inGameUIHandler);
             GameClock.StartGameClock(1000, 2000);
             World.InitializeGameUpdates();
-            player.InitializeGameUpdates();
+            _localPlayer.InitializeGameUpdates();
             _graphicsDevice = graphicsDevice;
 
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
 
-            EntityManager.SetPlayer(player);
+            EntityManager.SetPlayer(_localPlayer);
             //EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
             //EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
             
@@ -129,7 +129,6 @@ namespace Vestige.Game
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
             _tileRenderer.DrawTiles(spriteBatch);
             EntityManager.Draw(spriteBatch);
-            
             spriteBatch.End();
 
             _graphicsDevice.SetRenderTarget(_liquidRenderTarget);
@@ -170,7 +169,7 @@ namespace Vestige.Game
         }
         private void SaveAndQuit()
         {
-            _worldFile.Save(World);
+            _worldFile.Save(World, _localPlayer.Inventory.GetItems());
             GameClock = null;
             LightEngine = null;
             EntityManager = null;

@@ -1,9 +1,4 @@
 ﻿TODO:
-
-Save and quit function
-
-Add a config JSON file for game settings that will load upon game start.
-
 Walls: -50 on brightness photo editor (future reference)
 
 Make Entity/NPC scope knockback function. Fix when it's applied
@@ -11,7 +6,6 @@ Make Entity/NPC scope knockback function. Fix when it's applied
 Refactor Items
 split properties into interfaces and create new Item classes from those. default Item class will be bare bones - Texture, image, description, stackable, maxStack.
 
-Finish UI, make it look nice
 Add Map
 
 Up Next:

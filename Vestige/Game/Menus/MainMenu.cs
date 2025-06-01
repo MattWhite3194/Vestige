@@ -30,7 +30,6 @@ namespace Vestige.Game.Menus
         private GraphicsDevice _graphicsDevice;
         private SelectionContainer _worldSizeSelector;
         private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _worldSortMethod;
-        //new selector class that has a list of options and will instantiate button components for each selection and store a variable that keeps track of the selected.
 
         //TODO: Make each menu a separate UIComponentContainer, use this class to add and remove them from the UIManager and InputHandler
         //make the back button return menu a paramater in the menu declaration so the back button can be placed anywhere in the menu
@@ -98,7 +97,7 @@ namespace Vestige.Game.Menus
             createWorldButton.OnButtonPress += CreateWorld;
             _createWorldMenu.AddComponentChild( createWorldButton );
 
-            Button worldGenTestButton = new Button(new Vector2(0, 100), "Test World Gen", Vector2.Zero, color: Color.Red, clickedColor: Color.Salmon, hoveredColor: Color.LightSalmon, maxWidth: 288);
+            Button worldGenTestButton = new Button(new Vector2(0, 100), "Test World Gen", Vector2.Zero, color: Color.Yellow, clickedColor: Color.Salmon, hoveredColor: Color.LightSalmon, maxWidth: 288);
             worldGenTestButton.OnButtonPress += () =>
             {
                 Point worldSize = (Point)_worldSizeSelector.GetSelected();
@@ -133,7 +132,7 @@ namespace Vestige.Game.Menus
             WorldGen world = new WorldGen(worldSize.X, worldSize.Y);
             await Task.Run(() =>
             {
-                world.GenerateWorld();
+                world.GenerateWorld(69);
                 try
                 {
                     newWorldFile.Save(world);

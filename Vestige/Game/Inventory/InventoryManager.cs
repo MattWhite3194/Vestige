@@ -22,16 +22,14 @@ namespace Vestige.Game.Inventory
         private CraftingGrid _craftingMenu;
         private Item[] _inventoryItems;
         private ToolTip _toolTip;
-        public InventoryManager(int rows, int cols) : base(anchor: Anchor.TopLeft)
+        public InventoryManager(Item[] playerItems, int cols) : base(anchor: Anchor.TopLeft)
         {
-            //Temporary inventory
-            _inventoryItems = new Item[rows * cols];
-
-            for (int i = 0; i <= 9; i++)
+            _inventoryItems = playerItems;
+            if (_inventoryItems == null)
             {
-                Item item = ItemDatabase.InstantiateItemByID(i);
-                item.Quantity = item.MaxStack;
-                _inventoryItems[i] = item;
+                _inventoryItems = new Item[5 * cols];
+                _inventoryItems[0] = ItemDatabase.InstantiateItemByID(2);
+                _inventoryItems[1] = ItemDatabase.InstantiateItemByID(6);
             }
 
             _toolTip = new ToolTip();
@@ -55,7 +53,8 @@ namespace Vestige.Game.Inventory
                     if (itemDrop != null)
                     {
                         Vector2 velocity = new Vector2(Main.EntityManager.GetPlayer().FlipSprite ? -50 : 50, 0);
-                        Main.EntityManager.AddItemDrop(itemDrop, Main.EntityManager.GetPlayer().Position, velocity, false);
+                        Vector2 position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2;
+                        Main.EntityManager.AddItemDrop(itemDrop, position, velocity, false);
                     }
                 }
                 InputManager.MarkInputAsHandled(@event);
@@ -71,9 +70,10 @@ namespace Vestige.Game.Inventory
             {
                 if (_dragItem.Item == null)
                     return;
-                int direction = Math.Sign(Main.GetMouseWorldPosition().X - Main.EntityManager.GetPlayer().Position.X);
+                Vector2 position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2;
+                int direction = Math.Sign(Main.GetMouseWorldPosition().X - position.X);
                 Vector2 itemVelocity = new Vector2(direction * 50, 0);
-                Main.EntityManager.AddItemDrop(_dragItem.Item, Main.EntityManager.GetPlayer().Position, itemVelocity, false);
+                Main.EntityManager.AddItemDrop(_dragItem.Item, position, itemVelocity, false);
                 _dragItem.Item = null;
                 InputManager.MarkInputAsHandled(@event);
             }
@@ -195,6 +195,10 @@ namespace Vestige.Game.Inventory
         public Item AddItemToPlayerInventory(Item item)
         {
             return _inventoryMenu.AddItem(item);
+        }
+        public Item[] GetItems()
+        {
+            return _inventoryItems;
         }
     }
 }

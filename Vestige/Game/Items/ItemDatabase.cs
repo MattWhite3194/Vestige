@@ -21,7 +21,8 @@ namespace Vestige.Game.Items
             {7, new TileItem(7, "Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[7], 9) },
             {8, new WeaponItem(8, "Steel Hammer", "Time for smashing things", ContentLoader.ItemTextures[8], false, 0.2f, true, true, 8, 1, UseStyle.Swing, new Hammer(20)) },
             {9, new TileItem(9, "Wood Planks", "", ContentLoader.ItemTextures[9], 11) },
-            {10, new Item(10, "Stick", "", ContentLoader.ItemTextures[10], true) }
+            {10, new Item(10, "Stick", "", ContentLoader.ItemTextures[10], true) },
+            {11, new WeaponItem(11, "The Rizzler", "I'm sorry I needed it.", ContentLoader.ItemTextures[3], false, 0.1f, false, false, 0, 0, weaponBehavior: new TheRizzler()) }
         };
 
         /// <summary>
