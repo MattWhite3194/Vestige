@@ -10,7 +10,7 @@ namespace Vestige.Game.Menus
     {
         private ParallaxManager parallaxManager;
         private Vector2 parallaxOffset;
-        public MainMenuBackground() : base(Vector2.Zero, Vestige.NativeResolution.ToVector2(), Anchor.MiddleMiddle)
+        public MainMenuBackground() : base(Vector2.Zero, Vestige.NativeResolution.ToVector2(), Anchor.TopLeft)
         {
             parallaxOffset = new Vector2(0, Vestige.NativeResolution.Y);
             parallaxManager = new ParallaxManager();
@@ -24,9 +24,11 @@ namespace Vestige.Game.Menus
             parallaxOffset.X += (float)delta;
             parallaxManager.Update(delta, parallaxOffset);
         }
-        protected override void DrawComponents(SpriteBatch spritebatch)
+        public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
-            parallaxManager.Draw(spritebatch, Color.White);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(Vestige.ScreenResolution.X / (float)Vestige.NativeResolution.X));
+            parallaxManager.Draw(spriteBatch, Color.White);
+            spriteBatch.End();
         }
     }
 }

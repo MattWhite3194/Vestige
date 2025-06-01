@@ -13,7 +13,6 @@ namespace Vestige.Game.UI.Components
         private Color _clickedColor;
         private Color _hoveredColor;
         private Color _defaultColor;
-        private bool _clicked = false;
         public Button(Vector2 position, string text, Vector2 padding,
             Color color = default, Color clickedColor = default, Color hoveredColor = default,
             int maxWidth = 0, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, text, padding, color, maxWidth, scale: scale, textAlign: textAlign)
@@ -30,24 +29,17 @@ namespace Vestige.Game.UI.Components
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 Color = _clickedColor;
-                _clicked = true;
+                OnButtonPress();
                 InputManager.MarkInputAsHandled(@mouseEvent);
             }
             else if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonUp)
             {
-                if (_clicked)
-                {
-                    OnButtonPress();
-                }
                 Color = _hoveredColor;
-                _clicked = false;
-                InputManager.MarkInputAsHandled(@mouseEvent);
             }
         }
 
         private void ResetButton()
         {
-            _clicked = false;
             Scale = Scale - 0.2f;
             Color = _defaultColor;
         }

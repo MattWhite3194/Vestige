@@ -59,6 +59,9 @@ namespace Vestige.Game.Menus
             settingsMenuButton.OnButtonPress += () => AddSubMenu(_settingsMenu);
             _startMenu.AddComponentChild(settingsMenuButton);
 
+            Slider slider = new Slider(new Vector2(0, 200), new Vector2(288, 10), 0, 100, 50);
+            _startMenu.AddComponentChild(slider);
+
 
             //settings menu
             Button reduceUIScaleButton = new Button(new Vector2(0, 0), "Reduce UI Scale", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
@@ -132,7 +135,7 @@ namespace Vestige.Game.Menus
             WorldGen world = new WorldGen(worldSize.X, worldSize.Y);
             await Task.Run(() =>
             {
-                world.GenerateWorld(69);
+                world.GenerateWorld();
                 try
                 {
                     newWorldFile.Save(world);
