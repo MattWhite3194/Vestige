@@ -33,10 +33,10 @@ namespace Vestige.Game.Menus
 
         //TODO: Make each menu a separate UIComponentContainer, use this class to add and remove them from the UIManager and InputHandler
         //make the back button return menu a paramater in the menu declaration so the back button can be placed anywhere in the menu
-        public MainMenu(Vestige game, GraphicsDevice graphicsDevice)
+        public MainMenu(Vestige gameHandle, GraphicsDevice graphicsDevice)
         {
             _worldSortMethod = SortWorldsByDateDescending;
-            _game = game;
+            _game = gameHandle;
             _graphicsDevice = graphicsDevice;
             _menus = new Stack<UIContainer>();
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
@@ -59,9 +59,9 @@ namespace Vestige.Game.Menus
             settingsMenuButton.OnButtonPress += () => AddSubMenu(_settingsMenu);
             _startMenu.AddComponentChild(settingsMenuButton);
 
-            Slider slider = new Slider(new Vector2(0, 200), new Vector2(288, 10), 0, 100, 50);
-            _startMenu.AddComponentChild(slider);
-
+            Button exitButton = new Button(new Vector2(0, 200), "Exit", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            exitButton.OnButtonPress += gameHandle.QuitGame;
+            _startMenu.AddComponentChild(exitButton);
 
             //settings menu
             Button reduceUIScaleButton = new Button(new Vector2(0, 0), "Reduce UI Scale", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
@@ -82,7 +82,7 @@ namespace Vestige.Game.Menus
             resolutionSelector.OnButtonPress += () =>
             {
                 (int x, int y) = Vestige.Settings.GetNextResolution();
-                game.SetWindowProperties(x, y, false);
+                gameHandle.SetWindowProperties(x, y, false);
                 resolutionSelector.SetText($"{x} x {y}");
             };
             _settingsMenu.AddComponentChild(resolutionSelector);
@@ -223,7 +223,8 @@ namespace Vestige.Game.Menus
             PanelContainer worldPanel = new PanelContainer(Vector2.Zero, new Vector2(300, 50), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 0, 1, 5, _graphicsDevice, anchor: Anchor.TopMiddle);
             Label worldName = new Label(new Vector2(5, 5), worldMetaData["Name"], Vector2.Zero, color: Color.White, maxWidth: 288, textAlign: TextAlign.Left);
             Label worldDate = new Label(new Vector2(5, 25), worldMetaData["Date"], Vector2.Zero, color: Color.LightGray, maxWidth: 288, textAlign: TextAlign.Left);
-            Button worldButton = new Button(new Vector2(250, 25), "Play", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 50);
+            Button worldButton = new Button(new Vector2(235, 25), "Play", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 60);
+            Button deleteButton = new Button(new Vector2(235, 05), "Delete", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Color.Red, maxWidth: 60);
             worldButton.OnButtonPress += () =>
             {
                 WorldGen world = null;
@@ -244,9 +245,17 @@ namespace Vestige.Game.Menus
                 UIManager.UnregisterContainer(_mainMenuBackground);
                 _game.StartGame(world, worldFile);
             };
+            deleteButton.OnButtonPress += () =>
+            {
+                File.Delete(path);
+                Directory.Delete(Path.GetDirectoryName(path));
+                RemoveSubMenu();
+                ListWorlds();
+            };
             worldPanel.AddComponentChild(worldName);
             worldPanel.AddComponentChild(worldDate);
             worldPanel.AddComponentChild(worldButton);
+            worldPanel.AddComponentChild(deleteButton);
             DateTime parsedDate = DateTime.ParseExact(worldMetaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture);
             return (worldPanel, worldMetaData);
         }

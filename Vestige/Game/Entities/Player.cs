@@ -2,19 +2,16 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Timers;
 using Vestige.Game.Entities.NPCs;
 using Vestige.Game.Entities.Projectiles;
 using Vestige.Game.Input;
 using Vestige.Game.Inventory;
 using Vestige.Game.Tiles;
 using Vestige.Game.Tiles.TileData;
-using Vestige.Game.UI;
-using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Entities
 {
-    public class Player : Entity, IInputHandler
+    public class Player : Entity, IInputHandler, IRespawnable
     {
         private float _acceleration = 350;
         public Vector2 Direction = Vector2.Zero;
@@ -26,9 +23,22 @@ namespace Vestige.Game.Entities
         private float _fallDistance = 0;
         private bool _queueJump = false;
         public ItemCollider ItemCollider;
-        private Timer _invincibilityTimer;
-        private Timer _respawnTimer;
-        private bool invincible = false;
+        private float _invincibilityTimeLeft = -1f;
+        private float _maxInvincibilityTime = 0.5f;
+        private float _respawnTimeLeft;
+        private float _maxRespawnTime = 8f;
+        float IRespawnable.RespawnTime
+        {
+            get
+            {
+                return _respawnTimeLeft;
+            }
+            set
+            {
+                _respawnTimeLeft = value;
+            }
+        }
+        private bool _invincible = false;
         private bool _dead = false;
         private HashSet<InputButton> _activeInputs = new HashSet<InputButton>();
         private Texture2D _headTexture;
@@ -38,6 +48,7 @@ namespace Vestige.Game.Entities
         public int MaxPlaceDistance = Vestige.TILESIZE * 7;
         public int MaxBreakDistance = Vestige.TILESIZE * 7;
         public bool Dead { get { return _dead; } }
+
         public Player(InventoryManager inventory) : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) }, drawLayer: 2, name: "Player")
         {
             _headTexture = ContentLoader.PlayerHead;
@@ -54,14 +65,10 @@ namespace Vestige.Game.Entities
         /// <summary>
         /// Called once when the player is initially added to the world
         /// </summary>
-        public void InitializeGameUpdates()
+        public void InitializeGameUpdates(Point tilePosition)
         {
             ItemCollider = new ItemCollider(Inventory);
-            _invincibilityTimer = new Timer(1000);
-            _invincibilityTimer.Elapsed += OnInvincibleTimeout;
-            _respawnTimer = new Timer(5000);
-            _respawnTimer.Elapsed += OnRespawnTimeout;
-            Position = Main.World.SpawnTile.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y - 1);
+            Position = tilePosition.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y);
             Main.EntityManager.AddEntity(this);
             Main.EntityManager.AddEntity(ItemCollider);
         }
@@ -108,6 +115,13 @@ namespace Vestige.Game.Entities
         public override void Update(double delta)
         {
             base.Update(delta);
+            Main.LightEngine.AddLight((int)Position.X / 16, (int)Position.Y / 16, Color.Aquamarine);
+            if (_invincible)
+            {
+                _invincibilityTimeLeft -= (float)delta;
+                if (_invincibilityTimeLeft <= 0.0f)
+                    _invincible = false;
+            }
             Vector2 newVelocity = Velocity;
             Direction.X = 0;
             if (_activeInputs.Contains(InputButton.Left)) Direction.X -= 1;
@@ -195,7 +209,7 @@ namespace Vestige.Game.Entities
         {
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(bodyPart,
-                new Vector2((int)Position.X, (int)Position.Y) + Origin,
+                Vector2.Round(Position) + Origin,
                 animationRect,
                 Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                 Rotation,
@@ -218,13 +232,13 @@ namespace Vestige.Game.Entities
                     }
                     break;
                 case CollisionLayer.Enemy:
-                    if (invincible) return;
+                    if (_invincible) return;
                     NPC enemy = (NPC)entity;
                     ApplyDamage(enemy.Damage);
                     ApplyKnockback(enemy.Position + enemy.Origin);
                     break;
                 case CollisionLayer.HostileProjectile:
-                    if (invincible) return;
+                    if (_invincible) return;
                     Projectile projectile = (Projectile)entity;
                     ApplyDamage(projectile.Damage);
                     ApplyKnockback(projectile.Position + projectile.Origin);
@@ -239,13 +253,14 @@ namespace Vestige.Game.Entities
                 Active = false;
                 ItemCollider.Active = false;
                 _dead = true;
-                _respawnTimer.Start();
+                _respawnTimeLeft = _maxRespawnTime;
+                Main.EntityManager.QueueRespawn(this);
                 return;
             }
-            invincible = true;
+            _invincible = true;
             if (Active)
             {
-                _invincibilityTimer.Start();
+                _invincibilityTimeLeft = _maxInvincibilityTime;
             }
         }
         private void ApplyKnockback(Vector2 knockbackSource)
@@ -253,12 +268,7 @@ namespace Vestige.Game.Entities
             this.Velocity.Y = Math.Min(-300, Velocity.Y);
             this.Velocity.X = Math.Sign((Position.X + Origin.X) - knockbackSource.X) * _maxSpeed;
         }
-        private void OnInvincibleTimeout(object sender, ElapsedEventArgs e)
-        {
-            invincible = false;
-            _invincibilityTimer.Stop();
-        }
-        private void OnRespawnTimeout(object sender, ElapsedEventArgs e)
+        void IRespawnable.Respawn()
         {
             Active = true;
             ItemCollider.Active = true;
@@ -271,7 +281,6 @@ namespace Vestige.Game.Entities
             Main.EntityManager.AddEntity(this);
             Main.EntityManager.AddEntity(ItemCollider);
             _health = 100;
-            _respawnTimer.Stop();
         }
     }
 }

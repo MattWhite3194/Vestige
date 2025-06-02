@@ -83,15 +83,15 @@ namespace Vestige.Game
             UIManager.RegisterContainer(inGameUIHandler);
             GameClock.StartGameClock(1000, 2000);
             World.InitializeGameUpdates();
-            _localPlayer.InitializeGameUpdates();
+            _localPlayer.InitializeGameUpdates(worldFile.GetSpawnTile());
             _graphicsDevice = graphicsDevice;
 
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
 
             EntityManager.SetPlayer(_localPlayer);
-            //EntityManager.CreateEnemy(0, player.Position + new Vector2(500, -100));
-            //EntityManager.CreateEnemy(0, player.Position + new Vector2(-500, -100));
+            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
+            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
             
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 30) * Vestige.TILESIZE));
@@ -161,15 +161,15 @@ namespace Vestige.Game
         private void CalculateTranslation()
         {
             Player player = EntityManager.GetPlayer();
-            int dx = (int)(Vestige.NativeResolution.X / 2 - player.Position.X);
+            int dx = (int)Math.Round(Vestige.NativeResolution.X / 2 - player.Position.X);
             dx = MathHelper.Clamp(dx, -World.WorldSize.X * Vestige.TILESIZE + Vestige.NativeResolution.X, 0);
-            int dy = (int)(Vestige.NativeResolution.Y / 2 - player.Position.Y);
+            int dy = (int)Math.Round(Vestige.NativeResolution.Y / 2 - player.Position.Y);
             dy = MathHelper.Clamp(dy, -World.WorldSize.Y * Vestige.TILESIZE + Vestige.NativeResolution.Y, 0);
             _translation = Matrix.CreateTranslation(dx, dy, 0f);
         }
         private void SaveAndQuit()
         {
-            _worldFile.Save(World, _localPlayer.Inventory.GetItems());
+            _worldFile.Save(World, _localPlayer);
             GameClock = null;
             LightEngine = null;
             EntityManager = null;

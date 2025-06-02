@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Vestige.Game.Entities;
 using Vestige.Game.Items;
 using Vestige.Game.WorldGeneration;
 
@@ -15,6 +16,7 @@ namespace Vestige.Game.IO
         public string Date { get { return _date; } }
         private string _path;
         private Item[] _playerItems;
+        private Point _spawnTile;
 
         public WorldFile(string path)
         {
@@ -75,7 +77,7 @@ namespace Vestige.Game.IO
             }
             return new Dictionary<string, string>() { { "Name", _name }, { "Date", _date } };
         }
-        public void Save(WorldGen world, Item[] playerItems = null)
+        public void Save(WorldGen world, Player player = null)
         {
             
             using (FileStream worldPath = File.Create(_path))
@@ -85,7 +87,7 @@ namespace Vestige.Game.IO
                 SaveTiles(world, binaryWriter);
                 SaveTileInventories(world, binaryWriter);
                 SaveTileUpdates(binaryWriter);
-                SavePlayer(playerItems, binaryWriter);
+                SavePlayer(player, binaryWriter);
             }
         }
         private void SaveMetaData(BinaryWriter binaryWriter)
@@ -132,13 +134,27 @@ namespace Vestige.Game.IO
         {
             
         }
-        private void SavePlayer(Item[] playerItems, BinaryWriter binaryWriter)
+        private void SavePlayer(Player player, BinaryWriter binaryWriter)
         {
-            if (playerItems == null)
+
+            if (player == null)
             {
+                binaryWriter.Write(-1);
+                binaryWriter.Write(-1);
                 binaryWriter.Write(-1);
                 return;
             }
+            if (!player.Active)
+            {
+                binaryWriter.Write(-1);
+                binaryWriter.Write(-1);
+            }
+            else
+            {
+                binaryWriter.Write((int)(player.Position.X / 16));
+                binaryWriter.Write((int)(player.Position.Y + player.Size.Y) / 16);
+            }
+            Item[] playerItems = player.Inventory.GetItems();
             binaryWriter.Write(playerItems.Length);
             foreach (Item item in playerItems)
             {
@@ -159,6 +175,9 @@ namespace Vestige.Game.IO
                 LoadMetaData(binaryReader);
                 world = LoadTiles(binaryReader);
                 LoadTileInventories(world, binaryReader);
+                _spawnTile = LoadPlayerPosition(binaryReader);
+                if (_spawnTile.X == -1 || _spawnTile.Y == -1)
+                    _spawnTile = world.SpawnTile;
                 _playerItems = LoadPlayerItems(binaryReader);
             }
             return world;
@@ -211,6 +230,11 @@ namespace Vestige.Game.IO
         {
 
         }
+        private Point LoadPlayerPosition(BinaryReader binaryReader)
+        {
+            Point position = new Point(binaryReader.ReadInt32(), binaryReader.ReadInt32());
+            return position;
+        }
         private Item[] LoadPlayerItems(BinaryReader binaryReader)
         {
             int numPlayerItems = binaryReader.ReadInt32();
@@ -230,6 +254,10 @@ namespace Vestige.Game.IO
         public Item[] GetPlayerItems()
         {
             return _playerItems;
+        }
+        public Point GetSpawnTile()
+        {
+            return _spawnTile;
         }
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Timers;
 using Vestige.Game.Entities.NPCs.Behaviors;
 using Vestige.Game.Entities.Projectiles;
 using Vestige.Game.Items;
@@ -17,7 +16,8 @@ namespace Vestige.Game.Entities.NPCs
         public readonly int Knockback;
         public readonly bool Friendly;
         private INPCBehavior _behavior;
-        private Timer _invincibilityTimer;
+        private float _invincibilityTimeLeft = -1f;
+        private float _maxInvincibilityTime = 0.5f;
         private bool _invincible = false;
         private List<(int, int)> _animationFrames;
         public NPC(int id, 
@@ -42,8 +42,6 @@ namespace Vestige.Game.Entities.NPCs
             Friendly = friendly;
             _behavior = behavior;
             _animationFrames = animationFrames;
-            _invincibilityTimer = new Timer(500);
-            _invincibilityTimer.Elapsed += OnInvincibleTimeout;
             Layer = layer;
             CollidesWith = collidedWith;
             if (Layer == default)
@@ -57,6 +55,12 @@ namespace Vestige.Game.Entities.NPCs
         }
         public override void Update(double delta)
         {
+            if (_invincible)
+            {
+                _invincibilityTimeLeft -= (float)delta;
+                if (_invincibilityTimeLeft <= 0.0f)
+                    _invincible = false;
+            }
             //TODO: get target based on friendly or not friendly, pass it to AI
             _behavior?.AI(delta, this);
             base.Update(delta);
@@ -96,18 +100,13 @@ namespace Vestige.Game.Entities.NPCs
                 Active = false;
             if (Active)
             {
-                _invincibilityTimer.Start();
+                _invincibilityTimeLeft = _maxInvincibilityTime;
             } 
         }
         private void ApplyKnockback(int knockback, Vector2 knockbackSource)
         {
             this.Velocity.Y = -(knockback * 100);
             this.Velocity.X = Math.Sign((Position.X + Origin.X) - knockbackSource.X) * (knockback * 100);
-        }
-        private void OnInvincibleTimeout(object sender, ElapsedEventArgs e)
-        {
-            _invincible = false;
-            _invincibilityTimer.Stop();
         }
         public static NPC CloneNPC(NPC npc)
         {

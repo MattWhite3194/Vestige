@@ -54,7 +54,7 @@ namespace Vestige.Game.Entities
         {
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Image,
-                new Vector2((int)Position.X, (int)Position.Y) + Origin,
+                Vector2.Round(Position) + Origin,
                 Animation?.AnimationRectangle ?? null,
                 Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                 Rotation,
@@ -64,5 +64,10 @@ namespace Vestige.Game.Entities
                 0.0f
             );
         }
+        /// <summary>
+        /// Fired after all collisions are resolved
+        /// </summary>
+        /// <param name="delta"></param>
+        public virtual void PostCollisionUpdate(double delta) { }
     }
 }

@@ -2,12 +2,11 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Vestige.Game.Entities.NPCs;
-using Vestige.Game.Input;
 using Vestige.Game.Items;
 using Vestige.Game.Tiles;
 using Vestige.Game.Tiles.TileData;
-using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Entities
 {
@@ -18,30 +17,33 @@ namespace Vestige.Game.Entities
     {
         private Player _player;
         private List<Entity> _entities = new List<Entity>();
+        /// <summary>
+        /// The Entity the mouse is currently on. Ensure this is accessed post collision updates.
+        /// </summary>
         public Entity MouseEntity;
+        /// <summary>
+        /// Is the mouse over a tile an entity is colliding with. Ensure this is accessed post collision updates.
+        /// </summary>
         public bool MouseCollidingWithEntityTile;
+        private List<IRespawnable> _respawnList = new List<IRespawnable>();
+        private List<Entity> _queuedEntities = new List<Entity>();
 
         public void Update(double delta)
         {
-            MouseEntity = null;
-            MouseCollidingWithEntityTile = false;
-            for (int i = 0; i < _entities.Count; i++)
+            for (int i = _respawnList.Count - 1; i >= 0; i--)
             {
-                if (_entities[i].GetBounds().Contains(Main.GetMouseWorldPosition()))
-                    MouseEntity = _entities[i];
-                //check if mouse tile is colliding with an entity
-                if (_entities[i].Layer != CollisionLayer.Enemy && _entities[i].Layer != CollisionLayer.Player)
-                    continue;
-                //add 1 pixel padding on every side since .Contains does not include edges
-                Point topLeft = (Vector2.Floor(_entities[i].Position / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint();
-                Point bottomRight = (Vector2.Ceiling((_entities[i].Position + _entities[i].Size) / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint() + new Point(1, 1);
-                Rectangle entityTileBounds = new Rectangle(
-                    topLeft, bottomRight - topLeft
-                    );
-                if (entityTileBounds.Contains(Main.GetMouseWorldPosition()))
+                IRespawnable respawn = _respawnList[i];
+                respawn.RespawnTime -= (float)delta;
+                if (respawn.RespawnTime <= 0.0)
                 {
-                    MouseCollidingWithEntityTile = true;
+                    respawn.Respawn();
+                    _respawnList.Remove(respawn);
                 }
+            }
+            for (int i = _queuedEntities.Count - 1; i >= 0; i--)
+            {
+                InsertEntity(_queuedEntities[i]);
+                _queuedEntities.RemoveAt(i);
             }
             //Handle tile collisions
             for (int i = _entities.Count - 1; i >= 0; i--)
@@ -117,6 +119,26 @@ namespace Vestige.Game.Entities
                     }
                 }
             }
+            MouseEntity = null;
+            MouseCollidingWithEntityTile = false;
+            for (int i = 0; i < _entities.Count; i++)
+            {
+                if (_entities[i].GetBounds().Contains(Main.GetMouseWorldPosition()))
+                    MouseEntity = _entities[i];
+                //check if mouse tile is colliding with an entity
+                if (_entities[i].Layer != CollisionLayer.Enemy && _entities[i].Layer != CollisionLayer.Player)
+                    continue;
+                //add 1 pixel padding on every side since .Contains does not include edges
+                Point topLeft = (Vector2.Floor(_entities[i].Position / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint();
+                Point bottomRight = (Vector2.Ceiling((_entities[i].Position + _entities[i].Size) / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint() + new Point(1, 1);
+                Rectangle entityTileBounds = new Rectangle(
+                    topLeft, bottomRight - topLeft
+                    );
+                if (entityTileBounds.Contains(Main.GetMouseWorldPosition()))
+                {
+                    MouseCollidingWithEntityTile = true;
+                }
+            }
             //check collisions between entities
             for (int i = _entities.Count - 1; i >= 0; i--)
             {
@@ -131,6 +153,11 @@ namespace Vestige.Game.Entities
                     if ((_entities[i].CollidesWith & _entities[j].Layer) != 0)
                         _entities[i].OnCollision(_entities[j]);
                 }
+            }
+            //Post collision updates
+            for (int i = _entities.Count - 1; i >= 0; i--)
+            {
+                _entities[i].PostCollisionUpdate(delta);
             }
         }
 
@@ -225,13 +252,10 @@ namespace Vestige.Game.Entities
                         }
                         float penetrationDistance = GetPenetrationY(entity.GetBounds(), tileCollider);
                         entity.Position.Y += penetrationDistance;
-                        entity.Position.Y = (int)entity.Position.Y;
-
                         if (penetrationDistance != 0)
                         {
                             entity.Velocity.Y = 0;
                         }
-
                     }
                 }
             }
@@ -246,6 +270,12 @@ namespace Vestige.Game.Entities
             for (int i = _entities.Count - 1; i >= 0; i--)
             {
                 _entities[i].Draw(spriteBatch);
+                Point topLeft = (Vector2.Floor(_entities[i].Position / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint();
+                Point bottomRight = (Vector2.Ceiling((_entities[i].Position + _entities[i].Size) / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint() + new Point(1, 1);
+                Rectangle entityTileBounds = new Rectangle(
+                    topLeft, bottomRight - topLeft
+                    );
+                DebugHelper.DrawOutlineRectangle(spriteBatch, entityTileBounds, Color.Red);
             }
         }
 
@@ -285,7 +315,7 @@ namespace Vestige.Game.Entities
         {
             NPC enemy = NPCDatabase.InstantiateNPCByID(enemyID);
             enemy.Position = Position;
-            _entities.Add(enemy);
+            AddEntity(enemy);
         }
 
         public void AddItemDrop(Item item, Vector2 position, Vector2 velocity = default, bool canBePickedUp = true)
@@ -295,6 +325,10 @@ namespace Vestige.Game.Entities
             AddEntity(itemDrop);
         }
         public void AddEntity(Entity entity)
+        {
+            _queuedEntities.Add(entity);
+        }
+        private void InsertEntity(Entity entity)
         {
             if (_entities.Count == 0)
                 _entities.Add(entity);
@@ -310,10 +344,6 @@ namespace Vestige.Game.Entities
                 }
                 _entities.Insert(0, entity);
             }
-        }
-        public void RemoveEntity(Entity entity)
-        {
-            _entities.Remove(entity);
         }
         private bool CanEntityHop(Entity entity, Point tilePoint, int tileWidth, int tileHeight, int direction)
         {
@@ -331,6 +361,10 @@ namespace Vestige.Game.Entities
                     return false;
             }
             return true;
+        }
+        internal void QueueRespawn(IRespawnable respawnable)
+        {
+            _respawnList.Add(respawnable);
         }
     }
 }

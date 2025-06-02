@@ -697,5 +697,9 @@ namespace Vestige.Game.WorldGeneration
                 tileOffset.X = float.Clamp(tileOffset.X, -1, 1);
             }
         }
+        private void GenerateBuilding()
+        {
+
+        }
     }
 }

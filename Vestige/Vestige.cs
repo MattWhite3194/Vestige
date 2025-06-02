@@ -59,7 +59,7 @@ namespace Vestige
         protected override void Initialize()
         {
             //Screen settings
-            Settings.load();
+            Settings.Load();
             SetWindowProperties((int)Settings.Get("screen-width"), (int)Settings.Get("screen-height"), (bool)Settings.Get("fullscreen"));
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += OnClientSizeChanged;
@@ -70,6 +70,8 @@ namespace Vestige
         }
         private void OnClientSizeChanged(object sender, EventArgs e)
         {
+            Settings.Set("screen-width", GraphicsDevice.PresentationParameters.BackBufferWidth);
+            Settings.Set("screen-height", GraphicsDevice.PresentationParameters.BackBufferHeight);
             UpdateRenderDestination(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
         }
         protected override void LoadContent()
@@ -85,6 +87,11 @@ namespace Vestige
         }
         protected override void Update(GameTime gameTime)
         {
+            if (!IsActive)
+            {
+                base.Update(gameTime);
+                return;
+            }
             //get input
             InputManager.Update();
 
@@ -110,6 +117,8 @@ namespace Vestige
             _graphics.PreferredBackBufferWidth = width;
             _graphics.PreferredBackBufferHeight = height;
             _graphics.IsFullScreen = fullScreen;
+            Settings.Set("screen-width", width);
+            Settings.Set("screen-height", height);
             //_graphics.SynchronizeWithVerticalRetrace = false;
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
@@ -141,6 +150,11 @@ namespace Vestige
         {
             _gameManager = null;
             MainMenu mainMenu = new MainMenu(this, GraphicsDevice);
+        }
+        public void QuitGame()
+        {
+            Settings.Save();
+            this.Exit();
         }
     }
 }

@@ -66,7 +66,7 @@ namespace Vestige.Game.UI.Components
         public override void Draw(SpriteBatch spriteBatch)
         {
             DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle(Position.ToPoint(), Size.ToPoint()), Vestige.UIPanelColor);
-            DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((Position + _sliderPosition).ToPoint(), new Point(5, (int)Size.Y)), Vestige.HighlightedTextColor);
+            DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle(Position.ToPoint(), new Point((int)_sliderPosition.X, (int)Size.Y)), Vestige.HighlightedTextColor);
             spriteBatch.DrawString(ContentLoader.GameFont, (int)_value + "", Position + new Vector2(0, Size.Y + 2), Color.White);
         }
     }

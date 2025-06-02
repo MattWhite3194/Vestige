@@ -39,7 +39,7 @@ namespace Vestige.Game.IO
                 new Point(3200, 1800),
                 new Point(3840, 2160),
                 ];
-        public void load()
+        public void Load()
         {
             if (File.Exists(_path))
             {

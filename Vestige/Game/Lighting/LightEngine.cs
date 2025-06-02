@@ -67,7 +67,7 @@ namespace Vestige.Game.Lighting
                 if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
                 {
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
-                    Vector3.Max(light, _lightMap[mapIndex].light);
+                    _lightMap[mapIndex].light = Vector3.Max(light, _lightMap[mapIndex].light);
                 }
             }
         }
@@ -133,7 +133,7 @@ namespace Vestige.Game.Lighting
             return default;
         }
         /// <summary>
-        /// Use to add frame-by-frame lights to the map, ensure this function is called after PreCalculations, and before Final Calculations
+        /// Use to add frame-by-frame dynamic lights to the map
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>

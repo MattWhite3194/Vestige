@@ -34,8 +34,9 @@ namespace Vestige.Game.Entities
                         _leftReleased = false;
                         if (ItemActive) return;
                         Item = _inventory.GetSelected();
+                        if (Item == null || !Item.CanUse) return;
                         _holdTime = 0.0f;
-                        _canUseItem = true;
+                        _inventory.UseSelected();
                         ItemActive = true;
                     }
                     else if (mouseInputEvent.EventType == InputEventType.MouseButtonUp)
@@ -52,19 +53,9 @@ namespace Vestige.Game.Entities
             if (!ItemActive)
                 return;
 
-            if (Item == null || !Item.CanUse) {
-                ItemActive = false;
-                return;
-            }
-
-            if (_canUseItem && _inventory.UseSelected())
-            {
-                _canUseItem = false;
-            }
-
             FlipSprite = Main.EntityManager.GetPlayer().FlipSprite;
-            Position = Main.EntityManager.GetPlayer().Position + new Vector2(0, 17) + (FlipSprite ? new Vector2(-(int)Size.X + 12, 0) : new Vector2(4, 0));
-            Origin = FlipSprite ? new Vector2(Item.Image.Width + 10, Item.Image.Height) : new Vector2(-10, Item.Image.Height);
+            Position = Main.EntityManager.GetPlayer().Position + (FlipSprite ? new Vector2(-Item.Image.Width + 8, -2) : new Vector2(12, -2));
+            Origin = FlipSprite ? new Vector2(Item.Image.Width + 6, Item.Image.Height) : new Vector2(-6, Item.Image.Height);
             switch (Item.UseStyle)
             {
                 case UseStyle.Point:
@@ -97,11 +88,17 @@ namespace Vestige.Game.Entities
             if (_holdTime >= Item.UseSpeed)
             {
                 _holdTime = 0.0f;
-                _canUseItem = true;
-                if (!Item.AutoUse || _leftReleased || _inventory.GetSelected() == null)
+                if (!Item.AutoUse || _leftReleased || _inventory.GetSelected() == null) 
                 {
                     ItemActive = false;
                 }
+            }
+        }
+        public override void PostCollisionUpdate(double delta)
+        {
+            if (ItemActive && _holdTime == 0.0f)
+            {
+                _inventory.UseSelected();
             }
         }
         public override void Draw(SpriteBatch spriteBatch)
@@ -115,7 +112,7 @@ namespace Vestige.Game.Entities
                 return;
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Item.Image,
-                        Position,
+                        Vector2.Round(Position) + Origin,
                         null,
                         Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                         Rotation,
