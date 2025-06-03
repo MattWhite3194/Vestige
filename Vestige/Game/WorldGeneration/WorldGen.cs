@@ -533,6 +533,12 @@ namespace Vestige.Game.WorldGeneration
                     _overlayTileUpdater.EnqueueOverlayTile(x, y, GetTileID(x, y));
             }
         }
+        /// <summary>
+        /// Will remove the tile at the specified position and drop its item. This function does not check if the tile can be removed.
+        /// Call damage tile to ensure tiles that shouldn't be removed aren't removed.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public void RemoveTile(int x, int y)
         {
             ushort tileID = GetTileID(x, y);

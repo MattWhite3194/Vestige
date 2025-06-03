@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
+﻿namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
 {
     public interface IProjectileBehavior
     {
         void AI(double delta, Projectile projectile);
+
+        void OnDeath(Projectile projectile);
+
+        void OnTileCollision(Projectile projectile);
+
+        void OnCollision(Projectile projectile, Entity entity);
 
         IProjectileBehavior Clone();
     }

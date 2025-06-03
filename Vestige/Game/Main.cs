@@ -24,13 +24,6 @@ namespace Vestige.Game
      */
 
     /*
-     Things to remember
-
-    Modularity is for unique functionality
-    There is no need to create a new class for every npc type,
-    but unique npcs and items will need their own classes.
-
-    Remove static references to classes before it becomes unmanageable. Code is officially stinky.
      */
 
     /// <summary>
@@ -67,9 +60,10 @@ namespace Vestige.Game
             GameClock = new GameClock();
             _worldFile = worldFile;
             World = world;
+            //2x supersampling on all render targets
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
-            _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X, Vestige.NativeResolution.Y);
+            _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 4, Vestige.NativeResolution.Y * 4);
             _sunMoon = new SunAndMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
             InventoryManager inventory = new InventoryManager(_worldFile.GetPlayerItems(), 8);
             _localPlayer = new Player(inventory);
@@ -93,8 +87,8 @@ namespace Vestige.Game
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
 
             EntityManager.SetPlayer(_localPlayer);
-            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
-            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
+            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
+            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
             
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
@@ -121,7 +115,7 @@ namespace Vestige.Game
 
             _graphicsDevice.SetRenderTarget(_bgTarget);
             _graphicsDevice.Clear(new Color((int)(50 * normalizedGlobalLight), (int)(109 * normalizedGlobalLight), (int)(255 * normalizedGlobalLight)));
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(4.0f));
             spriteBatch.Draw(_daytimeSkyGradient, new Rectangle(Point.Zero, Vestige.NativeResolution), new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             _sunMoon.Draw(spriteBatch);
             _parallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
@@ -178,6 +172,9 @@ namespace Vestige.Game
             LightEngine = null;
             EntityManager = null;
             World = null;
+            _bgTarget.Dispose();
+            _gameTarget.Dispose();
+            _liquidRenderTarget.Dispose();
             _gameHandle.LoadMainMenu();
         }
         public void SetGameState(bool paused)

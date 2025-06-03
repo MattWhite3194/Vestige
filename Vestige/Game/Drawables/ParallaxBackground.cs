@@ -71,7 +71,7 @@ namespace Vestige.Game.Drawables
             {
                 spriteBatch.Draw(
                     _backgroundImage,
-                    new Vector2((int)(Offset.X + (i * _backgroundImage.Width) - _backgroundImage.Width), (int)(Vestige.NativeResolution.Y - _backgroundImage.Height + Offset.Y)),
+                    new Vector2(Offset.X + (i * _backgroundImage.Width) - _backgroundImage.Width, Vestige.NativeResolution.Y - _backgroundImage.Height + Offset.Y),
                     color
                     );
             }

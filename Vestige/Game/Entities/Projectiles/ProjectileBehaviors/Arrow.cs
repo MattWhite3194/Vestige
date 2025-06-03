@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Diagnostics;
 
 namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
 {
@@ -18,7 +17,9 @@ namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
             projectile.Velocity = newVelocity;
             projectile.Rotation = (float)Math.Atan2(newVelocity.Y, newVelocity.X) + MathHelper.PiOver2;
         }
-
+        public void OnCollision(Projectile projectile, Entity entity) { }
+        public void OnDeath(Projectile projectile) { }
+        public void OnTileCollision(Projectile projectile) { }
         public IProjectileBehavior Clone()
         {
             return new Arrow();

@@ -95,6 +95,15 @@ namespace Vestige.Game.Inventory
                         (0, 2, 10),
                     ]
             ), 11},
+            //Bomb
+            {new CraftingKey(
+                new Point(2, 2),
+                    [
+                        (0, 0, 1), (1, 0, 1),
+                        (0, 1, 1), (1, 1, 1),
+
+                    ]
+            ), 12},
         };
         private static Dictionary<ShapelessCraftingKey, int> _shapelessRecipes = new Dictionary<ShapelessCraftingKey, int>()
         {

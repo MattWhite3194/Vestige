@@ -107,7 +107,7 @@ namespace Vestige.Game.Entities
 
         public void DrawItem(SpriteBatch spriteBatch)
         {
-            if (!ItemActive)
+            if (!ItemActive || Item.UseStyle == UseStyle.Throw)
                 return;
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Item.Image,

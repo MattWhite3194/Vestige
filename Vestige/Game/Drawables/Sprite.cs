@@ -72,7 +72,7 @@ namespace Vestige.Game.Drawables
         public virtual void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(Image,
-                new Vector2((int)Position.X, (int)Position.Y) + Origin,
+                Position + Origin,
                 Animation?.AnimationRectangle ?? new Rectangle(Point.Zero, Size.ToPoint()),
                 Color,
                 Rotation,

@@ -19,7 +19,7 @@ namespace Vestige.Game.Entities.Projectiles
         private int _tilePenetration;
         private int _entityPenetration;
         private HashSet<(int, int)> _tileCollisions;
-        public Projectile(int id, Texture2D image, Vector2 size, int damage, int knockback, float timeLeft, bool friendly, bool collidesWithTiles, int tilePenetration = -1, int entityPenetration = -1, IProjectileBehavior behavior = null, List<(int, int)> animationFrames = null) : base(image, default, size, animationFrames: animationFrames, drawLayer: 1)
+        public Projectile(int id, Texture2D image, Vector2 size, Vector2 origin, int damage, int knockback, float timeLeft, bool friendly, bool collidesWithTiles, int tilePenetration = -1, int entityPenetration = -1, IProjectileBehavior behavior = null, List<(int, int)> animationFrames = null) : base(image, default, size, origin, animationFrames: animationFrames, drawLayer: 1)
         {
             ID = id;
             Layer = 0;
@@ -43,9 +43,10 @@ namespace Vestige.Game.Entities.Projectiles
             if (_entityPenetration == -1)
                 return;
             _entityPenetration--;
+            _behavior.OnCollision(this, entity);
             if (_entityPenetration <= 0)
             {
-                Active = false;
+                OnDeath();
             }
         }
         public override void OnTileCollision(int x, int y, ushort tileID)
@@ -53,9 +54,10 @@ namespace Vestige.Game.Entities.Projectiles
             if (_tilePenetration == -1)
                 return;
             _tilePenetration--;
+            _behavior.OnTileCollision(this);
             if (_tilePenetration <= 0)
             {
-                Active = false;
+                OnDeath();
             }
         }
         public override void Update(double delta)
@@ -85,12 +87,19 @@ namespace Vestige.Game.Entities.Projectiles
             _behavior.AI(delta, this);
             _timeLeft -= (float)delta;
             if (_timeLeft <= 0.0f)
-                Active = false;
+                OnDeath();
             base.Update(delta);
+        }
+        private void OnDeath()
+        {
+            if (!Active)
+                return;
+            Active = false;
+            _behavior.OnDeath(this);
         }
         private Projectile CloneProjectile()
         {
-            return new Projectile(ID, Image, Size, Damage, Knockback, _timeLeft, Friendly, CollidesWithTiles, _tilePenetration, _entityPenetration, _behavior.Clone(), _animationFrames);
+            return new Projectile(ID, Image, Size, Origin, Damage, Knockback, _timeLeft, Friendly, CollidesWithTiles, _tilePenetration, _entityPenetration, _behavior.Clone(), _animationFrames);
         }
         public static Projectile InstantiateProjectileByID(int id)
         {
@@ -98,7 +107,8 @@ namespace Vestige.Game.Entities.Projectiles
         }
         private static Dictionary<int, Projectile> _projectiles = new Dictionary<int, Projectile>
         {
-            {0, new Projectile(0, ContentLoader.ProjectileTextures[0], default, 10, 2, 3.0f, true, false, 1, 1, new Arrow()) },
+            {0, new Projectile(0, ContentLoader.ProjectileTextures[0], new Vector2(4, 4), new Vector2(2.5f, 9), 10, 2, 3.0f, true, false, 1, 1, new Arrow()) },
+            {1, new Projectile(0, ContentLoader.ProjectileTextures[1], new Vector2(13, 13), new Vector2(6.5f, 11), 0, 0, 5, true, true, behavior: new Bomb(5)) }
         };
     }
 }

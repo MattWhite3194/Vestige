@@ -76,7 +76,8 @@ namespace Vestige.Game.Items
             {8, new WeaponItem(8, "Steel Hammer", "Time for smashing things", ContentLoader.ItemTextures[8], default, false, 0.3f, true, true, 8, 1, UseStyle.Swing, new Hammer(20)) },
             {9, new TileItem(9, "Wood Planks", "", ContentLoader.ItemTextures[9], 11) },
             {10, new Item(10, "Stick", "", ContentLoader.ItemTextures[10], stackable: true) },
-            {11, new WeaponItem(11, "Wood Bow", "", ContentLoader.ItemTextures[11], new Vector2(4, 15), false, 0.5f, true, false, 10, 2, UseStyle.Point, projectileID: 0, projectileSpeed: 500f) }
+            {11, new WeaponItem(11, "Wood Bow", "", ContentLoader.ItemTextures[11], new Vector2(4, 15), false, 0.5f, true, false, 10, 2, UseStyle.Point, projectileID: 0, projectileSpeed: 500f) }, //500f
+            {12, new WeaponItem(12, "Bomb", "", ContentLoader.ItemTextures[12], default, true, 0.5f, true, false, 10, 2, UseStyle.Throw, projectileID: 1, projectileSpeed: 200f, maxStack: 50) }
         };
         public static Item InstantiateItemByID(int id, int quantity = 1)
         {
@@ -95,6 +96,7 @@ namespace Vestige.Game.Items
         None,
         Swing,
         Hold,
-        Point
+        Point,
+        Throw,
     }
 }

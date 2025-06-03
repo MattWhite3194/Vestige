@@ -204,8 +204,7 @@ namespace Vestige.Game.Entities
             DrawBodyPart(spriteBatch, _headTexture, Animation.AnimationRectangle);
             DrawBodyPart(spriteBatch, _legsTexture, Animation.AnimationRectangle);
             ItemCollider.DrawItem(spriteBatch);
-            float armRotation = Math.Min(Math.Max(0, Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver2 : MathHelper.PiOver2)) - MathHelper.PiOver4 / 2), ItemCollider.MaxRotation);
-
+            float armRotation = Math.Min(ItemCollider.MaxRotation, Math.Max(0, Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver2 : MathHelper.PiOver2)) - MathHelper.PiOver4 / 2));
             int textureOffset = (int)Math.Floor(armRotation / MathHelper.PiOver4) * (int)Size.Y;
             DrawBodyPart(spriteBatch, _armTexture, ItemCollider.ItemActive ? new Rectangle(0, 11 * (int)Size.Y + textureOffset, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
         }

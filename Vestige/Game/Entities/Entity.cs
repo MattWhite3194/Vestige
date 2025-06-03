@@ -48,7 +48,7 @@ namespace Vestige.Game.Entities
         }
         public virtual CollisionRectangle GetBounds()
         {
-            return new CollisionRectangle(Position, Size.ToPoint());
+            return new CollisionRectangle(Position + Origin - Size / 2.0f, Size.ToPoint());
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
