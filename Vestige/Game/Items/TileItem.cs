@@ -19,7 +19,7 @@ namespace Vestige.Game.Items
             //TODO: check if the mouse is colliding with an entity or colliding with a tile that the entity is colliding with (will happen in entity manager)
             if (Vector2.Distance(mouseTilePosition.ToVector2() * Vestige.TILESIZE, Main.EntityManager.GetPlayer().Position) > Main.EntityManager.GetPlayer().MaxPlaceDistance)
                 return false;
-            if (Main.EntityManager.MouseCollidingWithEntityTile && TileDatabase.TileHasProperty(TileID, TileProperty.Solid))
+            if (Main.EntityManager.TileOccupied(mouseTilePosition.X, mouseTilePosition.Y) && TileDatabase.TileHasProperty(TileID, TileProperty.Solid))
                 return false;
             if (Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
             {

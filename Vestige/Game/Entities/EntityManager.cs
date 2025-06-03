@@ -21,15 +21,12 @@ namespace Vestige.Game.Entities
         /// The Entity the mouse is currently on. Ensure this is accessed post collision updates.
         /// </summary>
         public Entity MouseEntity;
-        /// <summary>
-        /// Is the mouse over a tile an entity is colliding with. Ensure this is accessed post collision updates.
-        /// </summary>
-        public bool MouseCollidingWithEntityTile;
         private List<IRespawnable> _respawnList = new List<IRespawnable>();
         private List<Entity> _queuedEntities = new List<Entity>();
 
         public void Update(double delta)
         {
+            MouseEntity = null;
             for (int i = _respawnList.Count - 1; i >= 0; i--)
             {
                 IRespawnable respawn = _respawnList[i];
@@ -118,26 +115,8 @@ namespace Vestige.Game.Entities
                         entity.Velocity.X = 0.0f;
                     }
                 }
-            }
-            MouseEntity = null;
-            MouseCollidingWithEntityTile = false;
-            for (int i = 0; i < _entities.Count; i++)
-            {
                 if (_entities[i].GetBounds().Contains(Main.GetMouseWorldPosition()))
                     MouseEntity = _entities[i];
-                //check if mouse tile is colliding with an entity
-                if (_entities[i].Layer != CollisionLayer.Enemy && _entities[i].Layer != CollisionLayer.Player)
-                    continue;
-                //add 1 pixel padding on every side since .Contains does not include edges
-                Point topLeft = (Vector2.Floor(_entities[i].Position / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint();
-                Point bottomRight = (Vector2.Ceiling((_entities[i].Position + _entities[i].Size) / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint() + new Point(1, 1);
-                Rectangle entityTileBounds = new Rectangle(
-                    topLeft, bottomRight - topLeft
-                    );
-                if (entityTileBounds.Contains(Main.GetMouseWorldPosition()))
-                {
-                    MouseCollidingWithEntityTile = true;
-                }
             }
             //check collisions between entities
             for (int i = _entities.Count - 1; i >= 0; i--)
@@ -159,6 +138,21 @@ namespace Vestige.Game.Entities
             {
                 _entities[i].PostCollisionUpdate(delta);
             }
+        }
+
+        //TODO: find a better solution than this, this is terrible
+        public bool TileOccupied(int x, int y)
+        {
+            Rectangle tile = new Rectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
+            for (int i = _entities.Count - 1; i >= 0; i--)
+            {
+                if (_entities[i].CollidesWithTiles && (_entities[i].Layer == CollisionLayer.Enemy || _entities[i].Layer == CollisionLayer.Player))
+                {
+                    if (_entities[i].GetBounds().Intersects(tile))
+                        return true;
+                }
+            }
+            return false;
         }
 
         /// <summary>
@@ -270,12 +264,6 @@ namespace Vestige.Game.Entities
             for (int i = _entities.Count - 1; i >= 0; i--)
             {
                 _entities[i].Draw(spriteBatch);
-                Point topLeft = (Vector2.Floor(_entities[i].Position / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint();
-                Point bottomRight = (Vector2.Ceiling((_entities[i].Position + _entities[i].Size) / Vestige.TILESIZE) * Vestige.TILESIZE).ToPoint() + new Point(1, 1);
-                Rectangle entityTileBounds = new Rectangle(
-                    topLeft, bottomRight - topLeft
-                    );
-                DebugHelper.DrawOutlineRectangle(spriteBatch, entityTileBounds, Color.Red);
             }
         }
 

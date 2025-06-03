@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 using Vestige.Game.Drawables;
 using Vestige.Game.Entities;
 using Vestige.Game.Input;
@@ -53,6 +54,7 @@ namespace Vestige.Game
         private Texture2D _daytimeSkyGradient;
         private Vestige _gameHandle;
         private Player _localPlayer;
+        private SunAndMoon _sunMoon;
 
         public Main(Vestige gameHandle, WorldGen world, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
@@ -68,6 +70,7 @@ namespace Vestige.Game
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X, Vestige.NativeResolution.Y);
+            _sunMoon = new SunAndMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
             InventoryManager inventory = new InventoryManager(_worldFile.GetPlayerItems(), 8);
             _localPlayer = new Player(inventory);
             InGameOptionsMenu inGameOptionsMenu = new InGameOptionsMenu(graphicsDevice);
@@ -81,7 +84,7 @@ namespace Vestige.Game
             InputManager.RegisterHandler(_localPlayer);
             InputManager.RegisterHandler(inGameUIHandler);
             UIManager.RegisterContainer(inGameUIHandler);
-            GameClock.StartGameClock(1000, 2000);
+            GameClock.SetGameClock(1000, 2000);
             World.InitializeGameUpdates();
             _localPlayer.InitializeGameUpdates(worldFile.GetSpawnTile());
             _graphicsDevice = graphicsDevice;
@@ -101,6 +104,7 @@ namespace Vestige.Game
         public void Update(double delta)
         {
             GameClock.Update(delta);
+            _sunMoon.UpdatePosition(new Vector2(-50, 200), (float)GameClock.GetCycleTime(), GameClock.TotalDayCycleTime / 2, Vestige.NativeResolution.X + 50, -100);
             World.Update(delta);
             _parallaxManager.Update(delta, GetCameraPosition() + Vestige.ScreenCenter.ToVector2());
             EntityManager.Update(delta);
@@ -119,6 +123,7 @@ namespace Vestige.Game
             _graphicsDevice.Clear(new Color((int)(50 * normalizedGlobalLight), (int)(109 * normalizedGlobalLight), (int)(255 * normalizedGlobalLight)));
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
             spriteBatch.Draw(_daytimeSkyGradient, new Rectangle(Point.Zero, Vestige.NativeResolution), new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
+            _sunMoon.Draw(spriteBatch);
             _parallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             spriteBatch.End();
 

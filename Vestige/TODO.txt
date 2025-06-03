@@ -1,26 +1,6 @@
 ﻿TODO:
 Walls: -50 on brightness photo editor (future reference)
 
-Temporary fix - Drawing entities at floating point position
-Entity collision overcorrection at certain depths
-Normal:
-01:21:04:752	4086
-01:21:04:945	4086.361
-01:21:04:945	4086
-01:21:04:945	4086.361
-01:21:04:945	4086
-
-Bug:
-01:21:04:945	4086.361
-01:21:04:945	4085.9998
-01:21:04:945	4086.3608
-01:21:04:945	4086
-01:21:04:945	4086.361
-01:21:04:945	4085.9998
-01:21:04:945	4086.3608
-01:21:04:945	4086
-
-Current method of sorting entities is causing update skips in the entitymanager loop. visible in the light engine.
 Stairs and Platforms
 Generate a building/city
 

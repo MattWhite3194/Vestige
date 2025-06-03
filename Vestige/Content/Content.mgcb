@@ -75,6 +75,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Backgrounds/Normal/TreesFarthest.png
 
+#begin Assets/Textures/Backgrounds/Sun.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Backgrounds/Sun.png
+
 #begin Assets/Textures/Enemies/Enemy0.png
 /importer:TextureImporter
 /processor:TextureProcessor

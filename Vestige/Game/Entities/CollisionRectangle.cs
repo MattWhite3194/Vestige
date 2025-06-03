@@ -45,6 +45,14 @@ namespace Vestige.Game.Entities
             }
             return false;
         }
+        public bool Intersects(Rectangle value)
+        {
+            if (value.Left < Right && Left < value.Right && value.Top < Bottom)
+            {
+                return Top < value.Bottom;
+            }
+            return false;
+        }
         public bool Contains(Vector2 value)
         {
             if (X <= value.X && value.X < (Right) && Y <= value.Y)

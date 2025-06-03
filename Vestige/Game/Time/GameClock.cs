@@ -27,13 +27,14 @@ namespace Vestige.Game.Time
         /// A mapping gradient of the current day time to the current Global lighting value.
         /// </summary>
         private List<(int, byte)> _timeToLightGradient;
-
+        private bool _dayTime;
         /// <summary>
         /// Should only be called at the start of the game
         /// </summary>
         /// <param name="time"></param><param name="totalDayCycleTime">The total time in a game day in seconds</param>
-        public void StartGameClock(int currentTime, int totalDayCycleTime)
+        public void SetGameClock(int currentTime, int totalDayCycleTime)
         {
+            //TODO: possibly create an actual gradient array. Memory over performance
             _gameTime = currentTime;
             TotalDayCycleTime = totalDayCycleTime;
             _timeToLightGradient = [
@@ -49,11 +50,8 @@ namespace Vestige.Game.Time
 
         public void Update(double delta)
         {
-            //wrap time between 0 and totalTimeInDay
             _gameTime += delta;
-            _gameTime = (_gameTime + TotalDayCycleTime) % TotalDayCycleTime;
-            //calculate gradient light value
-            GlobalLight = (byte)Lerp(0.0, 1.0, _gameTime);
+            _gameTime = _gameTime % TotalDayCycleTime;
             for (int i = 0; i < _timeToLightGradient.Count; i++)
             {
                 var (x1, y1) = _timeToLightGradient[i];
@@ -62,14 +60,23 @@ namespace Vestige.Game.Time
                 if (_gameTime >= x1 && _gameTime <= x2)
                 {
                     GlobalLight = (byte)Lerp(y1, y2, (_gameTime - x1) / (x2 - x1));
+                    _dayTime = x1 > TotalDayCycleTime / 4 || x2 < TotalDayCycleTime / 2 + TotalDayCycleTime / 4;
+                    break;
                 }
             }
         }
-        public int GetGameTime()
+        public double GetGameTime()
         {
-            return (int)_gameTime;
+            return _gameTime;
         }
-
+        public double GetCycleTime()
+        {
+            return (_gameTime + TotalDayCycleTime / 4) % (TotalDayCycleTime / 2);
+        }
+        public bool DayTime()
+        {
+            return _dayTime;
+        }
         private double Lerp(double y1, double y2, double t)
         {
             return y1 + (y2 - y1) * t;

@@ -15,7 +15,6 @@ namespace Vestige.Game.Entities
         public bool ItemActive = false;
         private double _holdTime;
         private bool _leftReleased = false;
-        private bool _canUseItem = true;
         public const float MaxRotation = MathHelper.PiOver4 * 2.5f;
         public bool ForcePlayerFlip = false;
         public ItemCollider(InventoryManager inventory) : base(null, default, default, drawLayer: 2)
