@@ -196,7 +196,7 @@ namespace Vestige.Game.Inventory
             {
                 if (_craftingInputItems[index].Stackable)
                 {
-                    Item splitItem = ItemDatabase.InstantiateItemByID(_craftingInputItems[index].ID);
+                    Item splitItem = Item.InstantiateItemByID(_craftingInputItems[index].ID);
                     splitItem.Quantity = (int)Math.Ceiling(_craftingInputItems[index].Quantity / 2.0f);
                     _dragItem.Item = splitItem;
                     SetItemQuantity(index, _craftingInputItems[index].Quantity - splitItem.Quantity);
@@ -211,7 +211,7 @@ namespace Vestige.Game.Inventory
             {
                 if (_craftingInputItems[index] == null)
                 {
-                    SetItem(ItemDatabase.InstantiateItemByID(_dragItem.Item.ID), index);
+                    SetItem(Item.InstantiateItemByID(_dragItem.Item.ID), index);
                 }
                 else
                 {

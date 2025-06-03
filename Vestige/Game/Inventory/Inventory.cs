@@ -144,7 +144,7 @@ namespace Vestige.Game.Inventory
             {
                 if (_inventoryItems[index].Stackable)
                 {
-                    Item splitItem = ItemDatabase.InstantiateItemByID(_inventoryItems[index].ID);
+                    Item splitItem = Item.InstantiateItemByID(_inventoryItems[index].ID);
                     splitItem.Quantity = (int)Math.Ceiling(_inventoryItems[index].Quantity / 2.0f);
                     _dragItem.Item = splitItem;
                     SetItemQuantity(index, _inventoryItems[index].Quantity - splitItem.Quantity);
@@ -159,7 +159,7 @@ namespace Vestige.Game.Inventory
             {
                 if (_inventoryItems[index] == null)
                 {
-                    SetItem(ItemDatabase.InstantiateItemByID(_dragItem.Item.ID), index);
+                    SetItem(Item.InstantiateItemByID(_dragItem.Item.ID), index);
                 }
                 else
                 {

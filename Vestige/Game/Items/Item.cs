@@ -1,5 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
+using Vestige.Game.Entities;
+using Vestige.Game.Items.Weapons;
+using Vestige.Game.Tiles;
 
 namespace Vestige.Game.Items
 {
@@ -25,15 +29,16 @@ namespace Vestige.Game.Items
         public readonly int MaxStack;
         public readonly bool CanUse;
         public float Scale = 1f;
-        
         public readonly UseStyle UseStyle;
+        public Vector2 Origin;
 
-        public Item(int id, string name, string description, Texture2D image, bool stackable = false, bool canUse = false, double useSpeed = 0.5f, bool autoUse = false, int maxStack = 999, UseStyle useStyle = UseStyle.None)
+        public Item(int id, string name, string description, Texture2D image, Vector2 origin = default, bool stackable = false, bool canUse = false, double useSpeed = 0.5f, bool autoUse = false, int maxStack = 999, UseStyle useStyle = UseStyle.None)
         {
             this.ID = id;
             this.Name = name;
             this.Description = description;
             this.Image = image;
+            this.Origin = origin;
             this.Stackable = stackable;
             this.UseSpeed = useSpeed;
             this.AutoUse = autoUse;
@@ -41,7 +46,7 @@ namespace Vestige.Game.Items
             this.MaxStack = maxStack;
             this.CanUse = canUse;
         }
-        public virtual bool UseItem()
+        public virtual bool UseItem(Player player)
         {
             return true;
         }
@@ -52,6 +57,38 @@ namespace Vestige.Game.Items
         /// <param name="spriteBatch"></param>
         /// <param name="drawPosition"></param>
         public virtual void Draw(SpriteBatch spriteBatch, Vector2 drawPosition) { }
+
+        protected virtual Item CloneItem()
+        {
+            return new Item(ID, Name, Description, Image, Origin, Stackable, CanUse, UseSpeed, AutoUse, MaxStack, UseStyle);
+        }
+
+        private static Dictionary<int, Item> _items = new Dictionary<int, Item>
+        {
+            {0, new TileItem(0, "Dirt", "Keep your hands off my dirt!", ContentLoader.ItemTextures[0], 1) },
+            {1, new TileItem(1, "Stone", "Hard as a rock.", ContentLoader.ItemTextures[1], 3) },
+            {2, new WeaponItem(2, "Stone Pickaxe", "Go and break something.", ContentLoader.ItemTextures[2], default, false, 0.4f, true, true, 4, 2, UseStyle.Swing, new Pickaxe(35)) }, //0.2f
+            {3, new TileItem(3, "Torch", "Light it up!", ContentLoader.ItemTextures[3], 7) },
+            {4, new LiquidItem(4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], 1) },
+            {5, new TileItem(5, "Chest", "For storing shiny things!", ContentLoader.ItemTextures[5], 8) },
+            {6, new WeaponItem(6, "Steel Axe", "Don't take from my pile.", ContentLoader.ItemTextures[6], default, false, 0.3f, true, true, 12, 1, UseStyle.Swing, new Axe(10)) },
+            {7, new TileItem(7, "Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[7], 9) },
+            {8, new WeaponItem(8, "Steel Hammer", "Time for smashing things", ContentLoader.ItemTextures[8], default, false, 0.3f, true, true, 8, 1, UseStyle.Swing, new Hammer(20)) },
+            {9, new TileItem(9, "Wood Planks", "", ContentLoader.ItemTextures[9], 11) },
+            {10, new Item(10, "Stick", "", ContentLoader.ItemTextures[10], stackable: true) },
+            {11, new WeaponItem(11, "Wood Bow", "", ContentLoader.ItemTextures[11], new Vector2(4, 15), false, 0.5f, true, false, 10, 2, UseStyle.Point, projectileID: 0, projectileSpeed: 500f) }
+        };
+        public static Item InstantiateItemByID(int id, int quantity = 1)
+        {
+            Item item = _items[id].CloneItem();
+            item.Quantity = quantity;
+            return item;
+        }
+        public static Item InstantiateItemByTileID(ushort tileID, int quantity = 1)
+        {
+            int itemID = TileDatabase.GetTileData(tileID).ItemID;
+            return itemID == -1 ? null : InstantiateItemByID(itemID);
+        }
     }
     public enum UseStyle
     {

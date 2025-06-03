@@ -25,6 +25,7 @@ namespace Vestige.Game.WorldGeneration
         /// </summary>
         public int SurfaceDepth;
         public Point WorldSize;
+        public int SpaceHeight;
         public static readonly byte MaxLiquid = 127;
         private int[,,] gradients = new int[256, 256, 2];
 
@@ -543,10 +544,10 @@ namespace Vestige.Game.WorldGeneration
             {
                 PlaceTile(x, y, TileDatabase.GetTileData(tileID) is OverlayTileData overlayTile ? overlayTile.BaseTileID : (ushort)0);
             }
-            Item item = ItemDatabase.InstantiateItemByTileID(tileID);
+            Item item = Item.InstantiateItemByTileID(tileID);
             if (item != null)
             {
-                Main.EntityManager.AddItemDrop(item, new Vector2(x, y) * Vestige.TILESIZE + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
+                Main.EntityManager.CreateItemDrop(item, new Vector2(x, y) * Vestige.TILESIZE + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
             }
         }
         private void SetLargeTile(int x, int y, ushort ID)

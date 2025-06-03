@@ -1,19 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Vestige.Game.Input;
+using Vestige.Game.Entities;
 using Vestige.Game.Tiles;
-using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Items
 {
     public class TileItem : Item
     {
         public readonly ushort TileID;
-        public TileItem(int id, string name, string description, Texture2D image, ushort tileID, int maxStack = 999) : base(id, name, description, image, true, true, 0.15, true, maxStack, UseStyle.Swing)
+        public TileItem(int id, string name, string description, Texture2D image, ushort tileID, int maxStack = 999) : base(id, name, description, image, default, true, true, 0.15, true, maxStack, UseStyle.Swing)
         { 
             this.TileID = tileID;
         }
-        public override bool UseItem()
+        public override bool UseItem(Player player)
         {
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
             //TODO: check if the mouse is colliding with an entity or colliding with a tile that the entity is colliding with (will happen in entity manager)
@@ -29,6 +28,10 @@ namespace Vestige.Game.Items
                 }
             }
             return false;
+        }
+        protected override Item CloneItem()
+        {
+            return new TileItem(ID, Name, Description, Image, TileID, MaxStack);
         }
     }
 }

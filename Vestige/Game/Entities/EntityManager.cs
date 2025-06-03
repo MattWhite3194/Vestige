@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Vestige.Game.Entities.NPCs;
+using Vestige.Game.Entities.Projectiles;
 using Vestige.Game.Items;
 using Vestige.Game.Tiles;
 using Vestige.Game.Tiles.TileData;
@@ -31,7 +32,7 @@ namespace Vestige.Game.Entities
             {
                 IRespawnable respawn = _respawnList[i];
                 respawn.RespawnTime -= (float)delta;
-                if (respawn.RespawnTime <= 0.0)
+                if (respawn.RespawnTime <= 0.0f)
                 {
                     respawn.Respawn();
                     _respawnList.Remove(respawn);
@@ -301,16 +302,29 @@ namespace Vestige.Game.Entities
         //Change this to spawn by enemy ID
         public void CreateEnemy(int enemyID, Vector2 Position)
         {
-            NPC enemy = NPCDatabase.InstantiateNPCByID(enemyID);
+            NPC enemy = NPC.InstantiateNPCByID(enemyID);
             enemy.Position = Position;
             AddEntity(enemy);
         }
-
-        public void AddItemDrop(Item item, Vector2 position, Vector2 velocity = default, bool canBePickedUp = true)
+        public void CreateItemDrop(Item item, Vector2 position, Vector2 velocity = default, bool canBePickedUp = true)
         {
             ItemDrop itemDrop = new ItemDrop(item, position - new Vector2(ItemDrop.ColliderSize.X / 2, ItemDrop.ColliderSize.Y / 2), canBePickedUp);
-            itemDrop.Velocity = velocity == default ? Vector2.Zero : velocity;
+            itemDrop.Velocity = velocity;
             AddEntity(itemDrop);
+        }
+        /// <summary>
+        /// Creates a new projectile in the world with the specified ID
+        /// </summary>
+        /// <param name="projectileID">The projectiles ID</param>
+        /// <param name="position">The position the projectile spawns at</param>
+        /// <param name="speed">The speed at which the projectile initially starts at</param>
+        /// <param name="direction">The normalized direction of the projectile</param>
+        public void CreateProjectile(int projectileID, Vector2 position, float speed, Vector2 direction)
+        {
+            Projectile projectile = Projectile.InstantiateProjectileByID(projectileID);
+            projectile.Position = position;
+            projectile.Velocity = direction * speed;
+            AddEntity(projectile);
         }
         public void AddEntity(Entity entity)
         {

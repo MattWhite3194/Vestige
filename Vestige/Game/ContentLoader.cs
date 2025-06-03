@@ -16,6 +16,7 @@ namespace Vestige.Game
         public static Texture2D[] WallTextures;
         public static Texture2D[] ItemTextures;
         public static Texture2D[] EnemyTextures;
+        public static Texture2D[] ProjectileTextures;
         public static Texture2D ItemSlotTexture;
         public static SpriteFont GameFont;
         public static Texture2D Cracks;
@@ -37,6 +38,7 @@ namespace Vestige.Game
             WallTextures = new Texture2D[200];
             ItemTextures = new Texture2D[200];
             EnemyTextures = new Texture2D[200];
+            ProjectileTextures = new Texture2D[200];
 
             PlayerHead = content.Load<Texture2D>("Assets/Textures/Player/PlayerHead");
             PlayerTorso = content.Load<Texture2D>("Assets/Textures/Player/PlayerTorso");
@@ -75,6 +77,12 @@ namespace Vestige.Game
             for (int i = 0; i < numEnemies; i++)
             {
                 EnemyTextures[i] = content.Load<Texture2D>("Assets/Textures/Enemies/Enemy" + i);
+            }
+
+            int numProjectiles = Directory.GetFiles(Path.Combine(fullContentDirectory, "Assets/Textures/Projectiles")).Length;
+            for (int i = 0; i < numProjectiles; i++)
+            {
+                ProjectileTextures[i] = content.Load<Texture2D>("Assets/Textures/Projectiles/Projectile" + i);
             }
 
             //load shaders

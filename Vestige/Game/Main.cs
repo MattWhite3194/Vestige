@@ -93,13 +93,13 @@ namespace Vestige.Game
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
 
             EntityManager.SetPlayer(_localPlayer);
-            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
-            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
+            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
+            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
             
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 30) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 30) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 30) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
         }
         public void Update(double delta)
         {
@@ -146,7 +146,6 @@ namespace Vestige.Game
             spriteBatch.End();
 
             _graphicsDevice.SetRenderTarget(null);
-            
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
             spriteBatch.Draw(_bgTarget, Vestige.RenderDestination, Color.White);
             spriteBatch.Draw(_gameTarget, Vestige.RenderDestination, Color.White);
@@ -180,6 +179,10 @@ namespace Vestige.Game
             EntityManager = null;
             World = null;
             _gameHandle.LoadMainMenu();
+        }
+        public void SetGameState(bool paused)
+        {
+
         }
     }
 }

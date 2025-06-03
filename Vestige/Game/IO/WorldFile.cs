@@ -221,7 +221,7 @@ namespace Vestige.Game.IO
                 {
                     int itemID = binaryReader.ReadInt32();
                     int itemQuantity = binaryReader.ReadInt32();
-                    items[j] = itemID == -1 ? null : ItemDatabase.InstantiateItemByID(itemID, itemQuantity);
+                    items[j] = itemID == -1 ? null : Item.InstantiateItemByID(itemID, itemQuantity);
                 }
                 world.AddTileInventory(tile, items);
             }
@@ -247,7 +247,7 @@ namespace Vestige.Game.IO
             {
                 int itemID = binaryReader.ReadInt32();
                 int itemQuantity = binaryReader.ReadInt32();
-                playerItems[i] = itemID == -1 ? null : ItemDatabase.InstantiateItemByID(itemID, itemQuantity);
+                playerItems[i] = itemID == -1 ? null : Item.InstantiateItemByID(itemID, itemQuantity);
             }
             return playerItems;
         }

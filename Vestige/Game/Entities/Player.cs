@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Vestige.Game.Entities.NPCs;
 using Vestige.Game.Entities.Projectiles;
 using Vestige.Game.Input;
@@ -114,7 +115,6 @@ namespace Vestige.Game.Entities
 
         public override void Update(double delta)
         {
-            base.Update(delta);
             Main.LightEngine.AddLight((int)Position.X / 16, (int)Position.Y / 16, Color.Aquamarine);
             if (_invincible)
             {
@@ -195,6 +195,7 @@ namespace Vestige.Game.Entities
             }
             
             Velocity = newVelocity;
+            base.Update(delta);
         }
 
         public override void Draw(SpriteBatch spriteBatch)
@@ -203,7 +204,10 @@ namespace Vestige.Game.Entities
             DrawBodyPart(spriteBatch, _headTexture, Animation.AnimationRectangle);
             DrawBodyPart(spriteBatch, _legsTexture, Animation.AnimationRectangle);
             ItemCollider.DrawItem(spriteBatch);
-            DrawBodyPart(spriteBatch, _armTexture, ItemCollider.ItemActive ? new Rectangle(0, 11 * (int)Size.Y + (int)(Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver4 : MathHelper.PiOver4)) / ItemCollider.MaxRotation * 3.0f) * (int)Size.Y, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
+            float armRotation = Math.Min(Math.Max(0, Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver2 : MathHelper.PiOver2)) - MathHelper.PiOver4 / 2), ItemCollider.MaxRotation);
+
+            int textureOffset = (int)Math.Floor(armRotation / MathHelper.PiOver4) * (int)Size.Y;
+            DrawBodyPart(spriteBatch, _armTexture, ItemCollider.ItemActive ? new Rectangle(0, 11 * (int)Size.Y + textureOffset, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
         }
         private void DrawBodyPart(SpriteBatch spriteBatch, Texture2D bodyPart, Rectangle animationRect)
         {

@@ -28,8 +28,8 @@ namespace Vestige.Game.Inventory
             if (_inventoryItems == null)
             {
                 _inventoryItems = new Item[5 * cols];
-                _inventoryItems[0] = ItemDatabase.InstantiateItemByID(2);
-                _inventoryItems[1] = ItemDatabase.InstantiateItemByID(6);
+                _inventoryItems[0] = Item.InstantiateItemByID(2);
+                _inventoryItems[1] = Item.InstantiateItemByID(6);
             }
 
             _toolTip = new ToolTip();
@@ -54,7 +54,7 @@ namespace Vestige.Game.Inventory
                     {
                         Vector2 velocity = new Vector2(Main.EntityManager.GetPlayer().FlipSprite ? -50 : 50, 0);
                         Vector2 position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2;
-                        Main.EntityManager.AddItemDrop(itemDrop, position, velocity, false);
+                        Main.EntityManager.CreateItemDrop(itemDrop, position, velocity, false);
                     }
                 }
                 InputManager.MarkInputAsHandled(@event);
@@ -73,7 +73,7 @@ namespace Vestige.Game.Inventory
                 Vector2 position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2;
                 int direction = Math.Sign(Main.GetMouseWorldPosition().X - position.X);
                 Vector2 itemVelocity = new Vector2(direction * 50, 0);
-                Main.EntityManager.AddItemDrop(_dragItem.Item, position, itemVelocity, false);
+                Main.EntityManager.CreateItemDrop(_dragItem.Item, position, itemVelocity, false);
                 _dragItem.Item = null;
                 InputManager.MarkInputAsHandled(@event);
             }
@@ -170,14 +170,14 @@ namespace Vestige.Game.Inventory
                 }
             }
         }
-        public bool UseSelected()
+        public void UseSelected()
         {
             Item item = GetSelected();
             if (item == null)
-                return false;
-            bool itemUsed = item.UseItem();
+                return;
+            bool itemUsed = item.UseItem(Main.EntityManager.GetPlayer());
             if (!item.Stackable || !itemUsed)
-                return itemUsed;
+                return;
             item.Quantity -= 1;
             if (item.Quantity <= 0)
             {
@@ -190,7 +190,6 @@ namespace Vestige.Game.Inventory
                     _inventoryItems[_hotbar.Selected] = null;
                 }
             }
-            return itemUsed;
         }
         public Item AddItemToPlayerInventory(Item item)
         {
@@ -199,6 +198,11 @@ namespace Vestige.Game.Inventory
         public Item[] GetItems()
         {
             return _inventoryItems;
+        }
+        public bool ConsumeAmmo(int ammoType)
+        {
+            //TODO: Implementation
+            return false;
         }
     }
 }

@@ -53,8 +53,8 @@ namespace Vestige.Game.Entities
                 return;
 
             FlipSprite = Main.EntityManager.GetPlayer().FlipSprite;
-            Position = Main.EntityManager.GetPlayer().Position + (FlipSprite ? new Vector2(-Item.Image.Width + 8, -2) : new Vector2(12, -2));
-            Origin = FlipSprite ? new Vector2(Item.Image.Width + 6, Item.Image.Height) : new Vector2(-6, Item.Image.Height);
+            Position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2 - new Vector2(0, Item.Image.Height - Item.Origin.Y + 4) + (FlipSprite ? new Vector2(-Item.Image.Width - 3, 0) : new Vector2(3, 0));
+            Origin = new Vector2(0, Item.Image.Height) + (FlipSprite ? new Vector2(Item.Image.Width - Item.Origin.X + 9, -Item.Origin.Y) : new Vector2(Item.Origin.X - 9, -Item.Origin.Y));
             switch (Item.UseStyle)
             {
                 case UseStyle.Point:
@@ -111,7 +111,7 @@ namespace Vestige.Game.Entities
                 return;
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Item.Image,
-                        Vector2.Round(Position) + Origin,
+                        Vector2.Round(Position + Origin),
                         null,
                         Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                         Rotation,

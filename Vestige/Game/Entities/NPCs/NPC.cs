@@ -10,7 +10,7 @@ namespace Vestige.Game.Entities.NPCs
 {
     public class NPC : Entity
     {
-        public int ID;
+        public readonly int ID;
         private int _health;
         public readonly int Damage;
         public readonly int Knockback;
@@ -106,11 +106,24 @@ namespace Vestige.Game.Entities.NPCs
         private void ApplyKnockback(int knockback, Vector2 knockbackSource)
         {
             this.Velocity.Y = -(knockback * 100);
-            this.Velocity.X = Math.Sign((Position.X + Origin.X) - knockbackSource.X) * (knockback * 100);
+            this.Velocity.X = Math.Sign(Position.X + Origin.X - knockbackSource.X) * (knockback * 100);
         }
-        public static NPC CloneNPC(NPC npc)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="npcID"></param>
+        /// <returns>A new npc instance with the specified id</returns>
+        public static NPC InstantiateNPCByID(int npcID)
+        {
+            return CloneNPC(_npcs[npcID]);
+        }
+        private static NPC CloneNPC(NPC npc)
         {
             return new NPC(npc.ID, npc.Name, npc.Image, npc.Size, npc._health, npc.Damage, npc.CollidesWithTiles, npc._behavior.Clone(), npc.DrawBehindTiles, npc.Friendly, npc._animationFrames, npc.Layer, npc.CollidesWith);
         }
+        private static Dictionary<int, NPC> _npcs = new Dictionary<int, NPC>
+        {
+            {0, new NPC(0, "Mutant Cricket", ContentLoader.EnemyTextures[0], new Vector2(69, 34), 100, 10, true, new MutantCricketBehavior(), animationFrames: new List<(int, int)> { (0, 3), (4, 4)})}
+        };
     }
 }

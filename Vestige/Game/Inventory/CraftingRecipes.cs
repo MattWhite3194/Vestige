@@ -78,15 +78,6 @@ namespace Vestige.Game.Inventory
                         (0, 1, 9),
                     ]
             ), 10},
-            //The Rizzler
-            {new CraftingKey(
-                new Point(3, 3),
-                    [
-                                   (1, 0, 9),
-                                   (1, 1, 9),
-                        (0, 2, 9), (1, 2, 9), (2, 2, 9)
-                    ]
-            ), 11},
             //Torch
             {new CraftingKey(
                 new Point(1, 2),
@@ -95,6 +86,15 @@ namespace Vestige.Game.Inventory
                         (0, 1, 10),
                     ]
             ), 3},
+            //Bow
+            {new CraftingKey(
+                new Point(2, 3),
+                    [
+                        (0, 0, 10),
+                                    (1, 1, 10),
+                        (0, 2, 10),
+                    ]
+            ), 11},
         };
         private static Dictionary<ShapelessCraftingKey, int> _shapelessRecipes = new Dictionary<ShapelessCraftingKey, int>()
         {
@@ -104,7 +104,7 @@ namespace Vestige.Game.Inventory
         {
             if (_recipes.TryGetValue(new CraftingKey(size, inputs), out int itemID)) 
             {
-                return ItemDatabase.InstantiateItemByID(itemID);
+                return Item.InstantiateItemByID(itemID);
             }
             return null;
         }

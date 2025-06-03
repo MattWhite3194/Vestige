@@ -42,7 +42,7 @@ namespace Vestige.Game.Entities
         {
 
         }
-        public virtual void OnTileCollision(ushort tileID)
+        public virtual void OnTileCollision(int x, int y, ushort tileID)
         {
             //TODO: call this method
         }
@@ -54,7 +54,7 @@ namespace Vestige.Game.Entities
         {
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Image,
-                Vector2.Round(Position) + Origin,
+                Vector2.Round(Position + Origin),
                 Animation?.AnimationRectangle ?? null,
                 Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                 Rotation,
