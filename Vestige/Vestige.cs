@@ -7,7 +7,7 @@ using Vestige.Game.Entities;
 using Vestige.Game.Input;
 using Vestige.Game.Inventory;
 using Vestige.Game.IO;
-using Vestige.Game.Menus;
+using Vestige.Game.Menus.MainMenu;
 using Vestige.Game.UI;
 using Vestige.Game.WorldGeneration;
 

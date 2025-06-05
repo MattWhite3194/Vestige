@@ -1,6 +1,7 @@
 ﻿TODO:
 Walls: -50 on brightness photo editor (future reference)
 
+Add a terminal to run commands in. Simple textbox that pops up when you press / or t, handles by the InGameUIHandler. On Enter Pressed will run a command.
 Stairs
 Generate a building/city
 
@@ -21,8 +22,6 @@ Add an entity that tracks if a player placed a tile in it, and if so, set the sp
 
 Fixes:
 Probably change the collision logic to sort through player->enemy, player->enemyprojectile, player->itemdrops enemy->hostileprojectile. Faster that O(n^2) checking every entity with every entity. Completely unnecessary.
-Fix doors being able to close with entities inside them
-Fix Door collision automatic closing so it works in both directions
 design better damage system
 Implement tile culling
 

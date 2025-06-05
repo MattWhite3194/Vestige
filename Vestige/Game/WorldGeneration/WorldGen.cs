@@ -42,6 +42,8 @@ namespace Vestige.Game.WorldGeneration
         private LiquidUpdater _liquidUpdater;
         private OverlayTileUpdater _overlayTileUpdater;
         private Dictionary<Point, Item[]> _tileInventories;
+        public delegate bool WorldUpdate();
+        public WorldUpdate OnWorldUpdate;
 
         public WorldGen(int sizeX, int sizeY)
         {
@@ -232,7 +234,16 @@ namespace Vestige.Game.WorldGeneration
                 else
                     _minedWalls[point] = damagedWallData;
             }
-
+            if (OnWorldUpdate != null)
+            {
+                foreach (WorldUpdate tileUpdate in OnWorldUpdate.GetInvocationList())
+                {
+                    if (tileUpdate.Invoke())
+                    {
+                        OnWorldUpdate -= tileUpdate;
+                    }
+                }
+            }
         }
 
         /// <summary>

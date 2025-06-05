@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 using Vestige.Game.Entities;
 using Vestige.Game.WorldGeneration;
 
@@ -41,22 +42,33 @@ namespace Vestige.Game.Tiles.TileData
             //Check here if the door was right click opened or not force opened, either or open door if so
             if (world.GetTileState(x, y) < 100)
                 return;
-            CloseDoor(world, x, y);
+            Point topLeft = GetTopLeft(world, x, y);
+            world.OnWorldUpdate += () => CloseDoor(world, topLeft.X, topLeft.Y);
+            //Update tilestate so it's not added multiple times
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    world.SetTileState(topLeft.X + i, topLeft.Y + j, (byte)(world.GetTileState(topLeft.X + i, topLeft.Y + j) - 100));
+                }
+            }
         }
 
         public void OnRightClick(WorldGen world, int x, int y)
         {
             CloseDoor(world, x, y);
         }
-        private void CloseDoor(WorldGen world, int x, int y)
+        private bool CloseDoor(WorldGen world, int x, int y)
         {
             Point topLeft = GetTopLeft(world, x, y);
             int closeDirection = world.GetTileState(topLeft.X, topLeft.Y) % 10 >= TileSize.X ? 1 : 0;
             //check if the player is colliding with any of the tiles
             for (int i = 0; i < TileSize.Y; i++)
             {
+                if (world.GetTileID(topLeft.X + closeDirection, topLeft.Y + i) != TileID)
+                    return true;
                 if (Main.EntityManager.TileOccupied(topLeft.X + closeDirection, topLeft.Y + i))
-                    return;
+                    return false;
             }
             for (int i = 0; i < TileSize.X; i++)
             {
@@ -66,6 +78,7 @@ namespace Vestige.Game.Tiles.TileData
                 }
             }
             world.PlaceTile(topLeft.X + closeDirection, topLeft.Y + TileSize.Y - 1, _closedDoorID);
+            return true;
         }
         public override void Draw(SpriteBatch spriteBatch, int x, int y, byte state, Color light)
         {

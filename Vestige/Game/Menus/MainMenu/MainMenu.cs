@@ -14,7 +14,7 @@ using System.Diagnostics;
 using Vestige.Game.IO;
 using System.Globalization;
 
-namespace Vestige.Game.Menus
+namespace Vestige.Game.Menus.MainMenu
 {
     public class MainMenu
     {
@@ -42,7 +42,7 @@ namespace Vestige.Game.Menus
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
             _createWorldMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 150), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
             _settingsMenu = new GridContainer(1);
-            
+
             //start menu
             Label _titleLabel = new Label(new Vector2(0, 0), "Vestige", Vector2.Zero, color: Vestige.HighlightedTextColor, scale: 4.0f, maxWidth: 288);
             _startMenu.AddComponentChild(_titleLabel);
@@ -80,9 +80,9 @@ namespace Vestige.Game.Menus
                 resolutionSelector.SetText($"{x} x {y}");
             };
             _settingsMenu.AddComponentChild(resolutionSelector);
-            
+
             //create world menu
-            _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288);
+            _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288, textAlign: TextAlign.Center);
             _createWorldMenu.AddComponentChild(_worldNameTextBox);
 
             _worldSizeSelector = new SelectionContainer(4, [(new Point(500, 500), "Tiny"), (new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.Gray, Color.White, Vestige.HighlightedTextColor, buttonWidth: 60, margin: 2, anchor: Anchor.MiddleMiddle);
@@ -92,7 +92,7 @@ namespace Vestige.Game.Menus
 
             Button createWorldButton = new Button(new Vector2(0, 70), "Create World", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             createWorldButton.OnButtonPress += CreateWorld;
-            _createWorldMenu.AddComponentChild( createWorldButton );
+            _createWorldMenu.AddComponentChild(createWorldButton);
 
             Button worldGenTestButton = new Button(new Vector2(0, 100), "Test World Gen", Vector2.Zero, color: Color.Yellow, clickedColor: Color.Salmon, hoveredColor: Color.LightSalmon, maxWidth: 288);
             worldGenTestButton.OnButtonPress += () =>
@@ -108,7 +108,7 @@ namespace Vestige.Game.Menus
             _backButton.OnButtonPress += RemoveSubMenu;
 
             _mainMenuBackground = new MainMenuBackground();
-            UIManager.RegisterContainer( _mainMenuBackground );
+            UIManager.RegisterContainer(_mainMenuBackground);
             UIManager.RegisterContainer(_startMenu);
             InputManager.RegisterHandler(_startMenu);
             _menus.Push(_startMenu);
@@ -121,7 +121,7 @@ namespace Vestige.Game.Menus
                 worldName = "New World";
             }
             WorldFile newWorldFile = new WorldFile();
-            newWorldFile.SetPath( worldName );
+            newWorldFile.SetPath(worldName);
             int numMenus = _menus.Count;
             UIManager.UnregisterContainer(_createWorldMenu);
             bool worldGenSuccessful = true;

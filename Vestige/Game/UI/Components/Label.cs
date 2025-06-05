@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace Vestige.Game.UI.Components
 {
+    //TODO: for text align center and right, either fill the lines with spaces or seperate them into different draw calls and draw them seperately (need to take text box into consideration)
     public class Label : UIComponent
     {
         protected string _text;

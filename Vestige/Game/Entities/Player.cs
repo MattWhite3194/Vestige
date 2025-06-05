@@ -283,12 +283,16 @@ namespace Vestige.Game.Entities
             _dead = false;
             Position = Main.World.SpawnTile.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y - 1);
             Velocity = Vector2.Zero;
-            _activeInputs.Clear();
+            ClearInputs();
             ItemCollider.ItemActive = false;
             _queueJump = false;
             Main.EntityManager.AddEntity(this);
             Main.EntityManager.AddEntity(ItemCollider);
             _health = 100;
+        }
+        public void ClearInputs()
+        {
+            _activeInputs.Clear();
         }
     }
 }

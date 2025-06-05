@@ -7,7 +7,7 @@ using Vestige.Game.Input;
 using Vestige.Game.Inventory;
 using Vestige.Game.IO;
 using Vestige.Game.Lighting;
-using Vestige.Game.Menus;
+using Vestige.Game.Menus.InGame;
 using Vestige.Game.Renderers;
 using Vestige.Game.Time;
 using Vestige.Game.UI;
@@ -80,8 +80,8 @@ namespace Vestige.Game
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
 
-            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
-            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
+            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
+            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
             
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));

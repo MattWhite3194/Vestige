@@ -16,6 +16,8 @@ namespace Vestige.Game.UI.Components
         private int _maxTextLength;
         private double _elapsedTime = 0.0;
         private double _cursorHideTime = 0.3;
+        public EventHandler OnEnterPressed;
+        public EventHandler OnEscapePressed;
         public TextBox(Vector2 position, string defaultText, Vector2 padding, int maxTextLength = -1, string placeHolder = null, int maxWidth = 0, TextAlign textAlign = TextAlign.Center) : base(position, defaultText, padding, maxWidth: maxWidth, textAlign: textAlign)
         {
             _maxTextLength = maxTextLength;
@@ -36,13 +38,13 @@ namespace Vestige.Game.UI.Components
             {
                 if (!MouseInside)
                 {
-                    UnfocusTextBox();
+                    SetFocused(false);
                 }
                 else
                 {
                     if (!IsFocused())
                     {
-                        FocusTextBox();
+                        SetFocused(true);
                     }
                     else
                     {
@@ -56,32 +58,34 @@ namespace Vestige.Game.UI.Components
                 }
             }
         }
-        private void UnfocusTextBox()
+        public override void SetFocused(bool isFocused)
         {
-            SetFocused(false);
-            _drawTextCursor = false;
-            _elapsedTime = 0.0;
-            Vestige.GameWindow.TextInput -= OnTextInput;
-            Vestige.GameWindow.KeyDown -= OnKeyDown;
-            if (_text == "")
+            if (isFocused)
             {
-                SetText(_placeHolder);
-                Color = Color.LightGray;
-                _usingPlaceHolder = true;
+                if (_usingPlaceHolder)
+                {
+                    _usingPlaceHolder = false;
+                    SetText("");
+                    Color = Color.White;
+                }
+                Vestige.GameWindow.TextInput += OnTextInput;
+                Vestige.GameWindow.KeyDown += OnKeyDown;
+                _cursorIndex = _text.Length;
             }
-        }
-        private void FocusTextBox()
-        {
-            if (_usingPlaceHolder)
+            else
             {
-                _usingPlaceHolder = false;
-                SetText("");
-                Color = Color.White;
+                _drawTextCursor = false;
+                _elapsedTime = 0.0;
+                Vestige.GameWindow.TextInput -= OnTextInput;
+                Vestige.GameWindow.KeyDown -= OnKeyDown;
+                if (_text == "")
+                {
+                    SetText(_placeHolder);
+                    Color = Color.LightGray;
+                    _usingPlaceHolder = true;
+                }
             }
-            SetFocused(true);
-            Vestige.GameWindow.TextInput += OnTextInput;
-            Vestige.GameWindow.KeyDown += OnKeyDown;
-            _cursorIndex = _text.Length;
+            base.SetFocused(isFocused);
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
@@ -118,7 +122,12 @@ namespace Vestige.Game.UI.Components
                     }
                     return;
                 case Keys.Enter:
-                    UnfocusTextBox();
+                    OnEnterPressed?.Invoke(this, EventArgs.Empty);
+                    SetFocused(false);
+                    return;
+                case Keys.Escape:
+                    OnEscapePressed?.Invoke(this, EventArgs.Empty);
+                    SetFocused(false);
                     return;
                 case Keys.Tab:
                     return;

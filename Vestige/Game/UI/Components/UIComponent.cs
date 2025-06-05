@@ -61,7 +61,7 @@ namespace Vestige.Game.UI.Components
             return focused;
         }
 
-        public void SetFocused(bool isFocused)
+        public virtual void SetFocused(bool isFocused)
         {
             focused = isFocused;
         }

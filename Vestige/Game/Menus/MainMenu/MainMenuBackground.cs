@@ -4,7 +4,7 @@ using Vestige.Game.Drawables;
 using Vestige.Game.UI.Containers;
 using Vestige.Game.UI;
 
-namespace Vestige.Game.Menus
+namespace Vestige.Game.Menus.MainMenu
 {
     public class MainMenuBackground : UIContainer
     {
