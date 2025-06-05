@@ -3,6 +3,7 @@ namespace Vestige.Game.UI
 {
     public enum Anchor
     {
+        None,
         TopLeft,
         TopMiddle,
         TopRight,

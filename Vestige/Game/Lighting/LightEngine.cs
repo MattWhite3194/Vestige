@@ -39,7 +39,7 @@ namespace Vestige.Game.Lighting
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
                     _lightMap[mapIndex].light = Vector3.Zero;
                     _lightMap[mapIndex].mask = _wallAbsorption;
-                    if (TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.Solid))
+                    if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid))
                     {
                         _lightMap[mapIndex].mask = _tileAbsorption;
                     }
@@ -51,7 +51,7 @@ namespace Vestige.Game.Lighting
                     {
                         _lightMap[mapIndex].mask = _liquidLightAbsorption;
                     }
-                    if (TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.LightEmitting))
+                    if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.LightEmitting))
                     {
                         _lightMap[mapIndex].light = Vector3.Max(TileDatabase.GetTileData(Main.World.GetTileID(x, y)).MapColor.ToVector3(), _lightMap[mapIndex].light);
                         _lightMap[mapIndex].mask = new Vector3(1f, 1f, 1f);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Diagnostics;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
 using Vestige.Game.Tiles.TileData;
@@ -16,7 +17,7 @@ namespace Vestige.Game.Inventory
         private Inventory _inventoryMenu;
         private DragItem _dragItem;
         private InventoryTileData _inventoryTileData;
-        private Point _inventoryTileDataCoordinates;
+        private Point _inventoryTileLocation;
         private Inventory _tileInventory;
         private bool _inventoryOpen;
         private CraftingGrid _craftingMenu;
@@ -84,7 +85,7 @@ namespace Vestige.Game.Inventory
             base.Update(delta);
             _dragItem.Update(delta);
             _toolTip.Update(delta);
-            if (_toolTip.ItemSlotIndex == -1)
+            if (_toolTip.ItemSlotIndex == -1 && _dragItem.Item == null)
             {
                 if (Main.EntityManager.MouseEntity != null)
                 {
@@ -94,6 +95,13 @@ namespace Vestige.Game.Inventory
                 {
                     _toolTip.SetText("");
                 }
+            }
+            if (_tileInventory != null && Vector2.DistanceSquared(Main.EntityManager.GetPlayer().Position, _inventoryTileLocation.ToVector2() * Vestige.TILESIZE) > 9216)
+            {
+                Debug.WriteLine(Vector2.DistanceSquared(Main.EntityManager.GetPlayer().Position, _inventoryTileLocation.ToVector2() * Vestige.TILESIZE));
+                _inventoryTileData.CloseInventory(Main.World, _inventoryTileLocation.X, _inventoryTileLocation.Y);
+                RemoveContainerChild(_tileInventory);
+                _tileInventory = null;
             }
         }
 
@@ -127,12 +135,12 @@ namespace Vestige.Game.Inventory
             {
                 RemoveContainerChild(_tileInventory);
             }
-            if (_inventoryTileData != null && coordinates != _inventoryTileDataCoordinates)
+            if (_inventoryTileData != null && coordinates != _inventoryTileLocation)
             {
-                _inventoryTileData.CloseInventory(Main.World, _inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
+                _inventoryTileData.CloseInventory(Main.World, _inventoryTileLocation.X, _inventoryTileLocation.Y);
             }
             _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, _toolTip, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20 ), itemSlotColor: new Color(75, 70, 60, 220));
-            _inventoryTileDataCoordinates = coordinates;
+            _inventoryTileLocation = coordinates;
             _inventoryTileData = inventoryTileData;
             AddContainerChild(_tileInventory);
         }
@@ -164,20 +172,20 @@ namespace Vestige.Game.Inventory
 
                     if (_inventoryTileData != null)
                     {
-                        _inventoryTileData.CloseInventory(Main.World, _inventoryTileDataCoordinates.X, _inventoryTileDataCoordinates.Y);
+                        _inventoryTileData.CloseInventory(Main.World, _inventoryTileLocation.X, _inventoryTileLocation.Y);
                         _inventoryTileData = null;
                     }
                 }
             }
         }
-        public void UseSelected()
+        public bool UseSelected()
         {
             Item item = GetSelected();
             if (item == null)
-                return;
+                return false;
             bool itemUsed = item.UseItem(Main.EntityManager.GetPlayer());
             if (!item.Stackable || !itemUsed)
-                return;
+                return itemUsed;
             item.Quantity -= 1;
             if (item.Quantity <= 0)
             {
@@ -190,6 +198,7 @@ namespace Vestige.Game.Inventory
                     _inventoryItems[_hotbar.Selected] = null;
                 }
             }
+            return itemUsed;
         }
         public Item AddItemToPlayerInventory(Item item)
         {

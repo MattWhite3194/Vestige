@@ -7,7 +7,7 @@ using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game
 {
-    public static class DebugHelper
+    public static class Utilities
     {
         private static Texture2D _pixel;
         public static void Initialize(GraphicsDevice graphicsDevice)
@@ -16,16 +16,33 @@ namespace Vestige.Game
             _pixel = new Texture2D(graphicsDevice, 1, 1);
             _pixel.SetData([Color.White]);
         }
-        public static void DrawOutlineRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color)
+        public static void DrawOutlineRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color, int lineWidth = 1)
         {
-            spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, 1), color);
-            spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y + rect.Height, rect.Width, 1), color);
-            spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y, 1, rect.Height), color);
-            spriteBatch.Draw(_pixel, new Rectangle(rect.X + rect.Width, rect.Y, 1, rect.Height), color);
+            spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y, rect.Width, lineWidth), color);
+            spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y + rect.Height - lineWidth, rect.Width, lineWidth), color);
+            spriteBatch.Draw(_pixel, new Rectangle(rect.X, rect.Y, lineWidth, rect.Height), color);
+            spriteBatch.Draw(_pixel, new Rectangle(rect.X + rect.Width - lineWidth, rect.Y, lineWidth, rect.Height), color);
         }
         public static void DrawFilledRectangle(SpriteBatch spriteBatch, Rectangle rect, Color color)
         {
             spriteBatch.Draw(_pixel, rect, color);
+        }
+        public static void DrawRoundedRectangle(SpriteBatch spriteBatch, int x, int y, int width, int height, Color color)
+        {
+            //4 corners
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x - 8, y - 8, 8, 8), new Rectangle(0, 0, 8, 8), color);
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x + width, y + height, 8, 8), new Rectangle(8, 8, 8, 8), color);
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x + width, y - 8, 8, 8), new Rectangle(8, 0, 8, 8), color);
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x - 8, y + height, 8, 8), new Rectangle(0, 8, 8, 8), color);
+
+            //4 sides
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x, y - 8, width, 8), new Rectangle(5, 0, 5, 8), color);
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x, y + height, width, 8), new Rectangle(5, 8, 5, 8), color);
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x - 8, y, 8, height), new Rectangle(0, 5, 8, 5), color);
+            spriteBatch.Draw(ContentLoader.Squircle, new Rectangle(x + width, y, 8, height), new Rectangle(8, 5, 8, 5), color);
+
+            //fill
+            DrawFilledRectangle(spriteBatch, new Rectangle(x, y, width, height), color);
         }
         public static Texture2D GenerateVerticalGradient(GraphicsDevice graphicsDevice, Color[] colors, int height, bool wrap = false)
         {

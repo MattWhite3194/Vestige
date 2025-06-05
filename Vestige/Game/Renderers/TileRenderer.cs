@@ -38,7 +38,7 @@ namespace Vestige.Game.Renderers
                 {
                     ushort tileID = Main.World.GetTileID(i, j);
                     //Draw all tiles that are not solid in the wall layer
-                    if (TileDatabase.TileHasProperty(tileID, TileProperty.Solid) || tileID == 0)
+                    if (TileDatabase.TileHasProperties(tileID, TileProperty.Solid) || tileID == 0)
                         continue;
                     TileDatabase.GetTileData(tileID).Draw(spriteBatch, i, j, Main.World.GetTileState(i, j), Main.LightEngine.GetLight(i, j));
                 }
@@ -52,7 +52,7 @@ namespace Vestige.Game.Renderers
                 for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
                 {
                     ushort tileID = Main.World.GetTileID(i, j);
-                    if (!TileDatabase.TileHasProperty(tileID, TileProperty.Solid))
+                    if (!TileDatabase.TileHasProperties(tileID, TileProperty.Solid))
                         continue;
                     TileDatabase.GetTileData(tileID).Draw(spriteBatch, i, j, Main.World.GetTileState(i, j), Main.LightEngine.GetLight(i, j));
                 }

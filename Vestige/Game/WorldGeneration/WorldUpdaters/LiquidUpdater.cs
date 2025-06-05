@@ -39,7 +39,7 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
         private void SettleLiquid(int x, int y)
         {
             int remainingMass = Main.World.GetLiquid(x, y);
-            if (Main.World.IsTileInBounds(x, y + 1) && !TileDatabase.TileHasProperty(Main.World.GetTileID(x, y + 1), TileProperty.Solid))
+            if (Main.World.IsTileInBounds(x, y + 1) && !TileDatabase.TileHasProperties(Main.World.GetTileID(x, y + 1), TileProperty.Solid))
             {
                 int flow = Math.Min(WorldGen.MaxLiquid - Main.World.GetLiquid(x, y + 1), remainingMass);
                 if (flow != 0)
@@ -58,12 +58,12 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
                 int left = 0;
                 int right = 0;
                 int totalLiquid = remainingMass;
-                if (Main.World.IsTileInBounds(x + 1, y) && !TileDatabase.TileHasProperty(Main.World.GetTileID(x + 1, y), TileProperty.Solid))
+                if (Main.World.IsTileInBounds(x + 1, y) && !TileDatabase.TileHasProperties(Main.World.GetTileID(x + 1, y), TileProperty.Solid))
                 {
                     totalLiquid += Main.World.GetLiquid(x + 1, y);
                     right++;
                 }
-                if (Main.World.IsTileInBounds(x - 1, y) && !TileDatabase.TileHasProperty(Main.World.GetTileID(x - 1, y), TileProperty.Solid))
+                if (Main.World.IsTileInBounds(x - 1, y) && !TileDatabase.TileHasProperties(Main.World.GetTileID(x - 1, y), TileProperty.Solid))
                 {
                     totalLiquid += Main.World.GetLiquid(x - 1, y);
                     left++;

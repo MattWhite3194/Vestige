@@ -122,21 +122,18 @@ namespace Vestige.Game.Entities
             //check collisions between entities
             for (int i = _entities.Count - 1; i >= 0; i--)
             {
+                CollisionRectangle entityBounds = _entities[i].GetBounds();
                 for (int j = i - 1; j >= 0; j--)
                 {
                     if ((_entities[i].CollidesWith & _entities[j].Layer) == 0 && (_entities[j].CollidesWith & _entities[i].Layer) == 0)
                         continue;
-                    if (!_entities[i].GetBounds().Intersects(_entities[j].GetBounds()))
+                    if (!entityBounds.Intersects(_entities[j].GetBounds()))
                         continue;
                     if ((_entities[j].CollidesWith & _entities[i].Layer) != 0)
                         _entities[j].OnCollision(_entities[i]);
                     if ((_entities[i].CollidesWith & _entities[j].Layer) != 0)
                         _entities[i].OnCollision(_entities[j]);
                 }
-            }
-            //Post collision updates
-            for (int i = _entities.Count - 1; i >= 0; i--)
-            {
                 _entities[i].PostCollisionUpdate(delta);
             }
         }
@@ -144,7 +141,7 @@ namespace Vestige.Game.Entities
         //TODO: find a better solution than this, this is terrible
         public bool TileOccupied(int x, int y)
         {
-            Rectangle tile = new Rectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
+            CollisionRectangle tile = new CollisionRectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
             for (int i = _entities.Count - 1; i >= 0; i--)
             {
                 if (_entities[i].CollidesWithTiles && (_entities[i].Layer == CollisionLayer.Enemy || _entities[i].Layer == CollisionLayer.Player))
@@ -184,7 +181,12 @@ namespace Vestige.Game.Entities
                     {
                         if (TileDatabase.GetTileData(Main.World.GetTileID(x, y)) is ICollideableTile collideableTile)
                             collideableTile.OnCollision(Main.World, x, y, entity);
-                        if (!TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.Solid))
+                        if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Platform))
+                        {
+                            //TODO: stairs eventually
+                            continue;
+                        }
+                        else if (!TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid))
                         {
                             continue;
                         }
@@ -215,7 +217,7 @@ namespace Vestige.Game.Entities
                 floorCollision = entity.IsOnFloor;
                 ceilingCollision = entity.IsOnCeiling;
             }
-
+            Vector2 initialPosition = entity.Position;
             entity.Position.Y += distance;
 
             CollisionRectangle entityBounds = entity.GetBounds();
@@ -232,7 +234,17 @@ namespace Vestige.Game.Entities
                     {
                         if (TileDatabase.GetTileData(Main.World.GetTileID(x, y)) is ICollideableTile collideableTile)
                             collideableTile.OnCollision(Main.World, x, y, entity);
-                        if (!TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.Solid))
+                        if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Platform))
+                        {
+                            if (!entity.CollidesWithPlatforms)
+                            {
+                                continue;
+                            }
+                            bool validPlatformCollision = initialPosition.Y + entity.Size.Y <= tileCollider.Y && entity.Position.Y + entity.Size.Y > tileCollider.Y;
+                            if (!validPlatformCollision)
+                                continue;
+                        }
+                        else if (!TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid))
                         {
                             continue;
                         }
@@ -254,6 +266,7 @@ namespace Vestige.Game.Entities
                     }
                 }
             }
+            entity.CollidesWithPlatforms = true;
             entity.IsOnFloor = floorCollision;
             entity.IsOnCeiling = ceilingCollision;
             return collisionDetected;
@@ -353,13 +366,13 @@ namespace Vestige.Game.Entities
                 return false;
             for (int x = 0; x <= tileWidth; x++)
             {
-                if (TileDatabase.TileHasProperty(Main.World.GetTileID(tilePoint.X + x, tilePoint.Y - 1), TileProperty.Solid))
+                if (TileDatabase.TileHasProperties(Main.World.GetTileID(tilePoint.X + x, tilePoint.Y - 1), TileProperty.Solid))
                     return false;
             }
             int tilesInFrontOffset = direction == -1 ? -1 : tileWidth + 1;
             for (int y = -1; y < tileHeight; y++)
             {
-                if (TileDatabase.TileHasProperty(Main.World.GetTileID(tilePoint.X + tilesInFrontOffset, tilePoint.Y + y), TileProperty.Solid))
+                if (TileDatabase.TileHasProperties(Main.World.GetTileID(tilePoint.X + tilesInFrontOffset, tilePoint.Y + y), TileProperty.Solid))
                     return false;
             }
             return true;

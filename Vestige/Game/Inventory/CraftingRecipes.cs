@@ -104,6 +104,13 @@ namespace Vestige.Game.Inventory
 
                     ]
             ), 12},
+            //Wood Platform
+            {new CraftingKey(
+                new Point(2, 1),
+                    [
+                        (0, 0, 9), (1, 0, 9),
+                    ]
+            ), 13},
         };
         private static Dictionary<ShapelessCraftingKey, int> _shapelessRecipes = new Dictionary<ShapelessCraftingKey, int>()
         {

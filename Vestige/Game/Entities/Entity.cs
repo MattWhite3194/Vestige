@@ -17,6 +17,14 @@ namespace Vestige.Game.Entities
         /// The entity will stop when it collides with a tile
         /// </summary>
         public bool CollidesWithTiles;
+        public bool CollidesWithPlatforms;
+        /// <summary>
+        /// If true, the entity will not stop when colliding with a single-tile tall barrier. Instead it will move over it.
+        /// </summary>
+        public bool HopTiles;
+        /// <summary>
+        /// When set to false, the entity will be removed in the next update
+        /// </summary>
         public bool Active = true;
         /// <summary>
         /// The layer other entities receive when they collide with this entity
@@ -31,7 +39,6 @@ namespace Vestige.Game.Entities
         /// </summary>
         public readonly int DrawLayer;
         public readonly string Name;
-
         protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null, int drawLayer = 0, string name = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
         {
             this.DrawLayer = drawLayer;

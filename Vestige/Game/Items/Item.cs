@@ -77,7 +77,8 @@ namespace Vestige.Game.Items
             {9, new TileItem(9, "Wood Planks", "", ContentLoader.ItemTextures[9], 11) },
             {10, new Item(10, "Stick", "", ContentLoader.ItemTextures[10], stackable: true) },
             {11, new WeaponItem(11, "Wood Bow", "", ContentLoader.ItemTextures[11], new Vector2(4, 15), false, 0.5f, true, false, 10, 2, UseStyle.Point, projectileID: 0, projectileSpeed: 500f) }, //500f
-            {12, new WeaponItem(12, "Bomb", "", ContentLoader.ItemTextures[12], default, true, 0.5f, true, false, 10, 2, UseStyle.Throw, projectileID: 1, projectileSpeed: 200f, maxStack: 50) }
+            {12, new WeaponItem(12, "Bomb", "", ContentLoader.ItemTextures[12], default, true, 0.5f, true, false, 10, 2, UseStyle.Throw, projectileID: 1, projectileSpeed: 200f, maxStack: 50) },
+            {13, new TileItem(13, "Wood Platform", "", ContentLoader.ItemTextures[13], 13) }
         };
         public static Item InstantiateItemByID(int id, int quantity = 1)
         {

@@ -485,7 +485,7 @@ namespace Vestige.Game.WorldGeneration
         {
             if (ID != 0 && TileDatabase.GetTileData(ID).VerifyTile(this, x, y) != 1)
                 return false;
-            if (TileDatabase.TileHasProperty(ID, TileProperty.LargeTile))
+            if (TileDatabase.TileHasProperties(ID, TileProperty.LargeTile))
             {
                 SetLargeTile(x, y, ID);
                 //TEMPORARY
@@ -495,7 +495,7 @@ namespace Vestige.Game.WorldGeneration
             else
             {
                 _tiles[y * WorldSize.X + x].ID = ID;
-                if (TileDatabase.TileHasProperty(ID, TileProperty.Solid))
+                if (TileDatabase.TileHasProperties(ID, TileProperty.Solid))
                     SetLiquid(x, y, 0);
             }
             //tile states need to be updated first before calling any other checks
@@ -542,7 +542,7 @@ namespace Vestige.Game.WorldGeneration
         public void RemoveTile(int x, int y)
         {
             ushort tileID = GetTileID(x, y);
-            if (TileDatabase.TileHasProperty(tileID, TileProperty.LargeTile))
+            if (TileDatabase.TileHasProperties(tileID, TileProperty.LargeTile))
             {
                 RemoveLargeTile(x, y, tileID);
             }
@@ -567,7 +567,7 @@ namespace Vestige.Game.WorldGeneration
                 {
                     _tiles[(topLeft.Y + j) * WorldSize.X + (topLeft.X + i)].ID = ID;
                     SetTileState(topLeft.X + i, topLeft.Y + j, (byte)(j * 10 + i));
-                    if (TileDatabase.TileHasProperty(ID, TileProperty.Solid))
+                    if (TileDatabase.TileHasProperties(ID, TileProperty.Solid))
                     {
                         SetLiquid(topLeft.X + i, topLeft.Y + j, 0);
                     }
@@ -693,7 +693,7 @@ namespace Vestige.Game.WorldGeneration
                         {
                             if (!replaceOnly)
                                 ForceTile(i, j, tileID);
-                            else if (replaceTiles?.Contains(GetTileID(i, j)) ?? TileDatabase.TileHasProperty(GetTileID(i, j), TileProperty.Solid))
+                            else if (replaceTiles?.Contains(GetTileID(i, j)) ?? TileDatabase.TileHasProperties(GetTileID(i, j), TileProperty.Solid))
                                 ForceTile(i, j, tileID);
                         }
                     }

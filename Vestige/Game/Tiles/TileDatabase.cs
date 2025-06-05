@@ -31,6 +31,7 @@ namespace Vestige.Game.Tiles
             new OpenDoorData(10, TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7),
             new DefaultTileData(11, TileProperty.Solid | TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 9, health: 40, tileMerges: [1]),  //Wood
             new DefaultTileData(12, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Black, health: 110, tileMerges: [1, 4]), //Coal
+            new PlatformData(13, TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 13, health: 0)
         ];
 
         //Only add walls here that require special functions, all walls should more or less work the exact same way.
@@ -69,11 +70,16 @@ namespace Vestige.Game.Tiles
             {40, CreateWallAtlasRect(0,1)}, {42, CreateWallAtlasRect(1,1)}, {128, CreateWallAtlasRect(2,1)}, {130, CreateWallAtlasRect(3,1)}, {136, CreateWallAtlasRect(4,1)}, {138, CreateWallAtlasRect(5,1)},
             {160, CreateWallAtlasRect(0,2)}, {162, CreateWallAtlasRect(1,2)}, {168, CreateWallAtlasRect(2,2)}, {170, CreateWallAtlasRect(3,2)}
         };
-
-        public static bool TileHasProperty(ushort tileID, TileProperty property)
+        /// <summary>
+        /// Check if the tile type has a property or properties.
+        /// </summary>
+        /// <param name="tileID"></param>
+        /// <param name="properties"></param>
+        /// <returns>True if the tile type contains any of the properties specified.</returns>
+        public static bool TileHasProperties(ushort tileID, TileProperty properties)
         {
-            if (property == TileProperty.None) return _tileData[tileID].Properties == TileProperty.None;
-            return (_tileData[tileID].Properties & property) == property;
+            if (properties == TileProperty.None) return _tileData[tileID].Properties == TileProperty.None;
+            return (_tileData[tileID].Properties & properties) != 0;
         }
 
         public static DefaultTileData GetTileData(ushort tileID)

@@ -19,7 +19,7 @@ namespace Vestige.Game.Tiles.TileData
             ushort left = world.GetTileID(x - 1, y);
             ushort right = world.GetTileID(x + 1, y);
             byte state = world.GetTileState(x, y);
-            if (TileDatabase.GetTileData(bottom) is not TreeData && !TileDatabase.TileHasProperty(bottom, TileProperty.Solid))
+            if (TileDatabase.GetTileData(bottom) is not TreeData && !TileDatabase.TileHasProperties(bottom, TileProperty.Solid))
                 return -1;
             else if ((state == 62 || state == 130) && left != TileID && right != TileID)
                 return -1;

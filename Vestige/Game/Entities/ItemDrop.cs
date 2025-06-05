@@ -22,7 +22,6 @@ namespace Vestige.Game.Entities
             CollidesWithTiles = true;
             this.Size = ColliderSize;
             this.Layer = CollisionLayer.ItemDrop;
-            this.CollidesWith = CollisionLayer.ItemDrop;
             CanBePickedUp = canBePickedUp;
             _pickupTimer = canBePickedUp ? 0.0f : 1.0f;
         }
@@ -56,7 +55,7 @@ namespace Vestige.Game.Entities
         {
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Image,
-                new Vector2((int)Position.X, (int)Position.Y) + Origin + new Vector2(-_item.Image.Width / 2 + 5, -_item.Image.Height + 10),
+                Vector2.Round(Position + Origin) + new Vector2(-_item.Image.Width / 2 + 5, -_item.Image.Height + 10),
                 Animation?.AnimationRectangle ?? null,
                 Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                 Rotation,

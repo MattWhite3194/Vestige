@@ -1,7 +1,7 @@
 ﻿TODO:
 Walls: -50 on brightness photo editor (future reference)
 
-Stairs and Platforms
+Stairs
 Generate a building/city
 
 Make Entity/NPC scope knockback function. Fix when it's applied
@@ -20,6 +20,8 @@ SpawnTile
 Add an entity that tracks if a player placed a tile in it, and if so, set the spawn point to the players current position
 
 Fixes:
+Probably change the collision logic to sort through player->enemy, player->enemyprojectile, player->itemdrops enemy->hostileprojectile. Faster that O(n^2) checking every entity with every entity. Completely unnecessary.
+Fix doors being able to close with entities inside them
 Fix Door collision automatic closing so it works in both directions
 design better damage system
 Implement tile culling
@@ -33,6 +35,6 @@ Split Screen
 UI: 
 if inventory was open on death, reopen it when you respawn
 draw map to a render target2D the size of the map. 
-Only draw to this render target when the map is updated, and draw the pixels at the coresponding positions.
+Only draw to this render target when the map is updated, and draw the pixels at the corresponding positions.
 
 player inventory and world are tied together

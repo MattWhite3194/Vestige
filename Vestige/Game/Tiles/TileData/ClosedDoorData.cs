@@ -17,7 +17,7 @@ namespace Vestige.Game.Tiles.TileData
         public override int VerifyTile(WorldGen world, int x, int y)
         {
             Point topLeft = GetTopLeft(world, x, y);
-            if (!TileDatabase.TileHasProperty(world.GetTileID(topLeft.X, topLeft.Y - 1), TileProperty.Solid))
+            if (!TileDatabase.TileHasProperties(world.GetTileID(topLeft.X, topLeft.Y - 1), TileProperty.Solid))
                 return -1;
             return base.VerifyTile(world, x, y);
         }

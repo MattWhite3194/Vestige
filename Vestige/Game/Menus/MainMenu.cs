@@ -64,19 +64,13 @@ namespace Vestige.Game.Menus
             _startMenu.AddComponentChild(exitButton);
 
             //settings menu
-            Button reduceUIScaleButton = new Button(new Vector2(0, 0), "Reduce UI Scale", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
-            reduceUIScaleButton.OnButtonPress += () => 
+            Slider uiScaleSlider = new Slider(Vector2.Zero, new Vector2(288, 10), "UI Scale:", 50, 200, 100, "%");
+            uiScaleSlider.OnValueChanged += (value) =>
             {
-                _game.SetUIScaleMatrix(Math.Max(0.1f, Vestige.UIScaleMatrix.M11 - 0.1f));
+                value = (int)value;
+                _game.SetUIScaleMatrix(value / 100 * Vestige.DefaultUIScale);
             };
-            _settingsMenu.AddComponentChild(reduceUIScaleButton);
-
-            Button increaseUIScaleButton = new Button(new Vector2(0, 0), "Increase UI Scale", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
-            increaseUIScaleButton.OnButtonPress += () =>
-            { 
-                _game.SetUIScaleMatrix(Math.Min(5f, Vestige.UIScaleMatrix.M11 + 0.1f));
-            };
-            _settingsMenu.AddComponentChild(increaseUIScaleButton);
+            _settingsMenu.AddComponentChild(uiScaleSlider);
 
             Button resolutionSelector = new Button(new Vector2(0, 0), $"{Vestige.ScreenResolution.X} x {Vestige.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             resolutionSelector.OnButtonPress += () =>
@@ -104,7 +98,7 @@ namespace Vestige.Game.Menus
             worldGenTestButton.OnButtonPress += () =>
             {
                 Point worldSize = (Point)_worldSizeSelector.GetSelected();
-                DebugHelper.RunWorldGenTest(worldSize.X, worldSize.Y, _graphicsDevice, 69);
+                Utilities.RunWorldGenTest(worldSize.X, worldSize.Y, _graphicsDevice, 69);
             };
             _createWorldMenu.AddComponentChild(worldGenTestButton);
 
@@ -203,6 +197,7 @@ namespace Vestige.Game.Menus
             _backButton.Size = new Vector2(menu.Size.X, _backButton.Size.Y);
             _backButton.Position = new Vector2(0, menu.Size.Y);
             menu.AddComponentChild(_backButton);
+            UIManager.OnUIScaleChanged(Vestige.ScreenResolution.X, Vestige.ScreenResolution.Y);
         }
         private void RemoveSubMenu()
         {

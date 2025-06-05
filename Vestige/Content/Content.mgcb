@@ -159,6 +159,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Items/Item12.png
 
+#begin Assets/Textures/Items/Item13.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Items/Item13.png
+
 #begin Assets/Textures/Items/Item2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -411,6 +423,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Tiles/Tile12.png
 
+#begin Assets/Textures/Tiles/Tile13.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Tiles/Tile13.png
+
 #begin Assets/Textures/Tiles/Tile2.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -518,6 +542,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/UIComponents/ItemSlot.png
+
+#begin Assets/Textures/UIComponents/Squircle.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/UIComponents/Squircle.png
 
 #begin Assets/Textures/Walls/Wall1.png
 /importer:TextureImporter

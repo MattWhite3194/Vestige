@@ -20,6 +20,10 @@ namespace Vestige
         private SpriteBatch _spriteBatch;
         private Main _gameManager;
         public static Matrix UIScaleMatrix;
+        /// <summary>
+        /// The default scale of the UI in relation to the current screen resolution
+        /// </summary>
+        public static float DefaultUIScale;
         public static Rectangle RenderDestination;
         public static GameWindow GameWindow;
         public static readonly Point NativeResolution = new Point(960, 640);
@@ -30,6 +34,7 @@ namespace Vestige
         public static Point ScreenResolution;
         public static Settings Settings;
         public static readonly Color UIPanelColor = new Color(42, 45, 48, 196);
+        public static readonly Color UIPanelColorOpaque = new Color(42, 45, 48, 255);
         public static readonly Color HighlightedTextColor = new Color(163, 213, 255, 255);
         public static readonly Color SelectedTextColor = new Color(120, 180, 230, 255);
         /*
@@ -65,7 +70,7 @@ namespace Vestige
             Window.ClientSizeChanged += OnClientSizeChanged;
             //For unlimited fps:
             //IsFixedTimeStep = false;
-            DebugHelper.Initialize(GraphicsDevice);
+            Utilities.Initialize(GraphicsDevice);
             base.Initialize();
         }
         private void OnClientSizeChanged(object sender, EventArgs e)
@@ -105,7 +110,7 @@ namespace Vestige
         }
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.BlanchedAlmond);
+            GraphicsDevice.Clear(Color.Gray);
             _gameManager?.Draw(_spriteBatch, gameTime);
             
             UIManager.Draw(_spriteBatch);
@@ -132,7 +137,8 @@ namespace Vestige
             ScreenResolution = new Point(width, height);
             int xScale = (int)Math.Ceiling(width / (float)NativeResolution.X);
             int yScale = (int)Math.Ceiling(height / (float)NativeResolution.Y);
-            SetUIScaleMatrix(width / (float)NativeResolution.X);
+            DefaultUIScale = width / (float)NativeResolution.X;
+            SetUIScaleMatrix(DefaultUIScale);
             float scale = Math.Max(xScale, yScale);
             RenderDestination = new Rectangle(
                 width / 2 - (int)(NativeResolution.X * scale) / 2,

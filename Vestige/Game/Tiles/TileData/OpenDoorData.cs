@@ -1,7 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.Diagnostics;
 using Vestige.Game.Entities;
 using Vestige.Game.WorldGeneration;
 
@@ -21,9 +19,9 @@ namespace Vestige.Game.Tiles.TileData
             if (world.GetTileID(topLeft.X, topLeft.Y) != TileID)
                 return 1;
             int closeDirection = world.GetTileState(topLeft.X, topLeft.Y) % 10 >= TileSize.X ? 1 : 0;
-            if (!TileDatabase.TileHasProperty(world.GetTileID(topLeft.X + closeDirection, topLeft.Y - 1), TileProperty.Solid))
+            if (!TileDatabase.TileHasProperties(world.GetTileID(topLeft.X + closeDirection, topLeft.Y - 1), TileProperty.Solid))
                 return -1;
-            else if (!TileDatabase.TileHasProperty(world.GetTileID(topLeft.X + closeDirection, topLeft.Y + TileSize.Y), TileProperty.Solid))
+            else if (!TileDatabase.TileHasProperties(world.GetTileID(topLeft.X + closeDirection, topLeft.Y + TileSize.Y), TileProperty.Solid))
                 return -1;
             return 1;
         }
@@ -57,9 +55,7 @@ namespace Vestige.Game.Tiles.TileData
             //check if the player is colliding with any of the tiles
             for (int i = 0; i < TileSize.Y; i++)
             {
-                CollisionRectangle tileCollider = new CollisionRectangle((topLeft.X + closeDirection) * Vestige.TILESIZE, (topLeft.Y + i) * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
-                //possibly change this to all entities
-                if (Main.EntityManager.GetPlayer().GetBounds().Intersects(tileCollider))
+                if (Main.EntityManager.TileOccupied(topLeft.X + closeDirection, topLeft.Y + i))
                     return;
             }
             for (int i = 0; i < TileSize.X; i++)

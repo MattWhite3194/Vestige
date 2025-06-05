@@ -17,7 +17,7 @@ namespace Vestige.Game.Tiles.TileData
             ushort wall = world.GetWallID(x, y);
             if (world.GetLiquid(x, y) != 0)
                 return -1;
-            if (wall != 0 || TileDatabase.TileHasProperty(right, TileProperty.Solid) || TileDatabase.TileHasProperty(bottom, TileProperty.Solid) || TileDatabase.TileHasProperty(left, TileProperty.Solid))
+            if (wall != 0 || TileDatabase.TileHasProperties(right, TileProperty.Solid) || TileDatabase.TileHasProperties(bottom, TileProperty.Solid) || TileDatabase.TileHasProperties(left, TileProperty.Solid))
                 return 1;
             return -1;
         }
@@ -31,11 +31,11 @@ namespace Vestige.Game.Tiles.TileData
             ushort left = world.GetTileID(x - 1, y);
             ushort right = world.GetTileID(x + 1, y);
 
-            if (TileDatabase.TileHasProperty(bottom, TileProperty.Solid))
+            if (TileDatabase.TileHasProperties(bottom, TileProperty.Solid))
                 return 0;
-            else if (TileDatabase.TileHasProperty(left, TileProperty.Solid))
+            else if (TileDatabase.TileHasProperties(left, TileProperty.Solid))
                 return 34;
-            else if (TileDatabase.TileHasProperty(right, TileProperty.Solid))
+            else if (TileDatabase.TileHasProperties(right, TileProperty.Solid))
                 return 62;
             else
                 return 0;

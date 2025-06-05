@@ -10,6 +10,8 @@ using System.Collections.Generic;
 namespace Vestige.Game.Inventory
 {
     //TODO: add ability to hold down on crafting output slot and automatically pick up items.
+
+    //TODO: craft all available
     public class CraftingGrid : UIContainer
     {
         private Item[] _craftingInputItems;
@@ -45,9 +47,9 @@ namespace Vestige.Game.Inventory
                 {
                     if (_dragItem.Item == null)
                     {
-                        toolTip.SetText(_craftingInputItems[index]?.Name ?? "");
-                        toolTip.ItemSlotIndex = index;
+                        toolTip.ShowItemStats(_craftingInputItems[index]);
                     }
+                    toolTip.ItemSlotIndex = index;
                 };
                 _craftingInputSlots[i].OnMouseExited += () =>
                 {
@@ -66,7 +68,7 @@ namespace Vestige.Game.Inventory
             { 
                 if (_dragItem.Item == null)
                 {
-                    toolTip.SetText(_craftingOutputItem?.Name ?? "");
+                    toolTip.ShowItemStats(_craftingOutputItem);
                     toolTip.ItemSlotIndex = _craftingInputSlots.Length;
                 }
             };
@@ -84,11 +86,13 @@ namespace Vestige.Game.Inventory
         {
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
+                _toolTip.SetText("");
                 PlaceItem(index);
                 FindRecipe();
             }
             else if (@mouseEvent.InputButton == InputButton.RightMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
+                _toolTip.SetText("");
                 SplitItem(index);
                 FindRecipe();
             }
@@ -98,12 +102,33 @@ namespace Vestige.Game.Inventory
         {
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
-                _toolTip.SetText("");
-                if (_dragItem.Item != null || _craftingOutputItem == null)
+                InputManager.MarkInputAsHandled(@mouseEvent);
+                if (_craftingOutputItem == null)
                     return;
-                _dragItem.Item = _craftingOutputItem;
-                _craftingOutputItem = null;
-
+                _toolTip.SetText("");
+                if (_dragItem.Item != null)
+                {
+                    if (_dragItem.Item.ID == _craftingOutputItem.ID && _dragItem.Item.Stackable)
+                    {
+                        _dragItem.Item.Quantity += _craftingOutputItem.Quantity;
+                        if (_dragItem.Item.Quantity > _dragItem.Item.MaxStack)
+                        {
+                            //drag item is full, don't consume recipe
+                            _dragItem.Item.Quantity -= _craftingOutputItem.Quantity;
+                            return;
+                        }
+                        else
+                        {
+                            _craftingOutputItem = null;
+                        }
+                    }
+                    else return;
+                }
+                else
+                {
+                    _dragItem.Item = _craftingOutputItem;
+                    _craftingOutputItem = null;
+                }
                 for (int i = 0; i < _currentRecipe.Count; i++)
                 {
                     int index = (_recipeLocation.Y + _currentRecipe[i].Item2) * _gridSize + _recipeLocation.X + _currentRecipe[i].Item1;
@@ -115,7 +140,6 @@ namespace Vestige.Game.Inventory
                 }
                 FindRecipe();
             }
-            InputManager.MarkInputAsHandled(@mouseEvent);
         }
         private void FindRecipe()
         {
@@ -166,6 +190,7 @@ namespace Vestige.Game.Inventory
             else if (_craftingInputItems[index] == null)
             {
                 SetItem(_dragItem.Item, index);
+                _toolTip.ShowItemStats(_craftingInputItems[index]);
                 _dragItem.Item = null;
             }
             else if (_craftingInputItems[index].ID == _dragItem.Item.ID && _craftingInputItems[index].Stackable && _craftingInputItems[index].Quantity < _craftingInputItems[index].MaxStack)
@@ -178,6 +203,7 @@ namespace Vestige.Game.Inventory
                     return;
                 }
                 SetItemQuantity(index, newQuantity);
+                _toolTip.ShowItemStats(_craftingInputItems[index]);
                 _dragItem.Item = null;
             }
             else
@@ -222,7 +248,10 @@ namespace Vestige.Game.Inventory
                 }
                 _dragItem.Item.Quantity -= 1;
                 if (_dragItem.Item.Quantity <= 0)
+                {
                     _dragItem.Item = null;
+                    _toolTip.ShowItemStats(_craftingInputItems[index]);
+                }
             }
         }
         private void SetItem(Item item, int index)

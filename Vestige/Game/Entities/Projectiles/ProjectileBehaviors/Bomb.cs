@@ -13,6 +13,7 @@ namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
         }
         public void AI(double delta, Projectile projectile)
         {
+            Main.LightEngine.AddLight((int)projectile.Position.X / Vestige.TILESIZE, (int)projectile.Position.Y / Vestige.TILESIZE, new Color(150, 100, 0));
             Vector2 newVelocity = projectile.Velocity;
             newVelocity.Y = newVelocity.Y + (float)delta * (Vestige.GRAVITY / 3);
             if (newVelocity.Y > _maxFallSpeed)

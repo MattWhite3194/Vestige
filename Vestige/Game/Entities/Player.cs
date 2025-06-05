@@ -58,6 +58,7 @@ namespace Vestige.Game.Entities
             _armTexture = ContentLoader.PlayerArm;
             this.Inventory = inventory;
             CollidesWithTiles = true;
+            CollidesWithPlatforms = true;
             _health = 100;
             this.Layer = CollisionLayer.Player;
             this.CollidesWith = CollisionLayer.Enemy | CollisionLayer.ItemDrop | CollisionLayer.HostileProjectile;
@@ -94,6 +95,11 @@ namespace Vestige.Game.Entities
                     _activeInputs.Remove(InputButton.Right);
                 InputManager.MarkInputAsHandled(@event);
             }
+            else if (@event.InputButton == InputButton.Down)
+            {
+                if (@event.EventType == InputEventType.KeyDown)
+                    CollidesWithPlatforms = false;
+            }
             else if (@event.InputButton == InputButton.Jump)
             {
                 _queueJump = @event.EventType == InputEventType.KeyDown;
@@ -115,7 +121,6 @@ namespace Vestige.Game.Entities
 
         public override void Update(double delta)
         {
-            Main.LightEngine.AddLight((int)Position.X / 16, (int)Position.Y / 16, Color.Aquamarine);
             if (_invincible)
             {
                 _invincibilityTimeLeft -= (float)delta;
@@ -212,7 +217,7 @@ namespace Vestige.Game.Entities
         {
             Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(bodyPart,
-                Vector2.Round(Position) + Origin,
+                Vector2.Round(Position + Origin),
                 animationRect,
                 Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
                 Rotation,

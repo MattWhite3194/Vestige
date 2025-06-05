@@ -91,8 +91,8 @@ namespace Vestige.Game.UI.Containers
             base.DrawComponents(spriteBatch);
             if (Size.Y > _viewHeight)
             {
-                DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, 0, 4, (int)_viewHeight - 1), Color.DimGray);
-                DebugHelper.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, (int)((_initialPositionY - (Position.Y + _scrollOffset)) / (base.Size.Y - _viewHeight) * (_viewHeight - _scrollerSize)), 4, (int)_scrollerSize), Color.LightGray);
+                Utilities.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, 0, 4, (int)_viewHeight - 1), Color.DimGray);
+                Utilities.DrawFilledRectangle(spriteBatch, new Rectangle((int)Size.X - 5, (int)((_initialPositionY - (Position.Y + _scrollOffset)) / (base.Size.Y - _viewHeight) * (_viewHeight - _scrollerSize)), 4, (int)_scrollerSize), Color.LightGray);
             }
         }
     }

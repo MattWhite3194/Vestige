@@ -23,6 +23,10 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
             newVelocity.Y += Vestige.GRAVITY * (float)delta;
             _elapsedTime += delta;
             _directionX = -MathF.Sign((enemy.Position.X + enemy.Origin.X) - (_player.Position.X + _player.Origin.X));
+            if (_player.Position.Y + _player.Origin.Y > enemy.Position.Y + enemy.Origin.Y)
+            {
+                enemy.CollidesWithPlatforms = false;
+            }
 
             enemy.Animation.SetCurrentAnimation(0);
             enemy.Animation.SetAnimationSpeed(Math.Abs(newVelocity.X) / 10);

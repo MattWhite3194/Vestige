@@ -39,6 +39,7 @@ namespace Vestige.Game.Entities.NPCs
             Damage = damage;
             _health = health;
             CollidesWithTiles = collidesWithTiles;
+            CollidesWithPlatforms = collidesWithTiles;
             Friendly = friendly;
             _behavior = behavior;
             _animationFrames = animationFrames;

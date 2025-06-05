@@ -35,9 +35,9 @@ namespace Vestige.Game.Inventory
                 { 
                     if (_dragItem.Item == null)
                     {
-                        toolTip.SetText(_inventoryItems[index]?.Name ?? "");
-                        toolTip.ItemSlotIndex = index;
+                        toolTip.ShowItemStats(_inventoryItems[index]);
                     }
+                    toolTip.ItemSlotIndex = index;
                 };
                 _inventoryItemSlots[i].OnMouseExited += () =>
                 {
@@ -54,12 +54,13 @@ namespace Vestige.Game.Inventory
         {
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
-                PlaceItem(index);
                 _toolTip.SetText("");
+                PlaceItem(index);
                 InputManager.MarkInputAsHandled(@mouseEvent);
             }
             else if (@mouseEvent.InputButton == InputButton.RightMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
+                _toolTip.SetText("");
                 SplitItem(index);
                 InputManager.MarkInputAsHandled(@mouseEvent);
             }
@@ -114,6 +115,7 @@ namespace Vestige.Game.Inventory
             else if (_inventoryItems[index] == null)
             {
                 SetItem(_dragItem.Item, index);
+                _toolTip.ShowItemStats(_inventoryItems[index]);
                 _dragItem.Item = null;
             }
             else if (_inventoryItems[index].ID == _dragItem.Item.ID && _inventoryItems[index].Stackable && _inventoryItems[index].Quantity < _inventoryItems[index].MaxStack)
@@ -126,6 +128,7 @@ namespace Vestige.Game.Inventory
                     return;
                 }
                 SetItemQuantity(index, newQuantity);
+                _toolTip.ShowItemStats(_inventoryItems[index]);
                 _dragItem.Item = null;
             }
             else
@@ -172,6 +175,7 @@ namespace Vestige.Game.Inventory
                 if (_dragItem.Item.Quantity <= 0)
                 {
                     _dragItem.Item = null;
+                    _toolTip.ShowItemStats(_inventoryItems[index]);
                 }
             }
         }

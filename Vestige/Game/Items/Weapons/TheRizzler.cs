@@ -13,7 +13,7 @@ namespace Vestige.Game.Items.Weapons
             {
                 for (int j = 0; j < playerTileSize.Y; j++)
                 {
-                    if (TileDatabase.TileHasProperty(Main.World.GetTileID(mouseTilePosition.X + i, mouseTilePosition.Y + j), TileProperty.Solid))
+                    if (TileDatabase.TileHasProperties(Main.World.GetTileID(mouseTilePosition.X + i, mouseTilePosition.Y + j), TileProperty.Solid))
                         return false;
                 }
             }

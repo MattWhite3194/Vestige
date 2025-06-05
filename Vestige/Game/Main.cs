@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 using Vestige.Game.Drawables;
 using Vestige.Game.Entities;
 using Vestige.Game.Input;
@@ -13,22 +12,10 @@ using Vestige.Game.Renderers;
 using Vestige.Game.Time;
 using Vestige.Game.UI;
 using Vestige.Game.WorldGeneration;
+using Vestige.Game.WorldMap;
 
 namespace Vestige.Game
 {
-    /*
-     Some important formulas for later reference
-
-    Rotation over a distance:
-    Rotation += (Velocity.X * delta) / Radius
-     */
-
-    /*
-     */
-
-    /// <summary>
-    /// The instance of the game itself.
-    /// </summary>
     public class Main
     {
         private GraphicsDevice _graphicsDevice;
@@ -40,6 +27,7 @@ namespace Vestige.Game
         private ParallaxManager _parallaxManager;
         public static GameClock GameClock;
         public static WorldGen World;
+        public static Map map;
         private WorldFile _worldFile;
         private RenderTarget2D _bgTarget;
         private RenderTarget2D _gameTarget;
@@ -48,27 +36,32 @@ namespace Vestige.Game
         private Vestige _gameHandle;
         private Player _localPlayer;
         private SunAndMoon _sunMoon;
+        private bool _gamePaused;
 
         public Main(Vestige gameHandle, WorldGen world, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
             _gameHandle = gameHandle;
+            World = world;
+            _graphicsDevice = graphicsDevice;
             _tileRenderer = new TileRenderer();
-            _daytimeSkyGradient = DebugHelper.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], Vestige.NativeResolution.Y);
+            _daytimeSkyGradient = Utilities.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], Vestige.NativeResolution.Y);
             LightEngine = new LightEngine(_graphicsDevice);
             EntityManager = new EntityManager();
             _parallaxManager = new ParallaxManager();
             GameClock = new GameClock();
             _worldFile = worldFile;
-            World = world;
+            InventoryManager inventory = new InventoryManager(_worldFile.GetPlayerItems(), 8);
+            _localPlayer = new Player(inventory);
+
             //2x supersampling on all render targets
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 4, Vestige.NativeResolution.Y * 4);
             _sunMoon = new SunAndMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
-            InventoryManager inventory = new InventoryManager(_worldFile.GetPlayerItems(), 8);
-            _localPlayer = new Player(inventory);
+
+
             InGameOptionsMenu inGameOptionsMenu = new InGameOptionsMenu(graphicsDevice);
-            InGameUIHandler inGameUIHandler = new InGameUIHandler(inventory, inGameOptionsMenu, Vestige.NativeResolution.ToVector2());
+            InGameUIHandler inGameUIHandler = new InGameUIHandler(this, inventory, inGameOptionsMenu, Vestige.NativeResolution.ToVector2());
             inGameOptionsMenu.AssignSaveAndQuitAction(() =>
             {
                 inGameUIHandler.Dereference();
@@ -78,17 +71,17 @@ namespace Vestige.Game
             InputManager.RegisterHandler(_localPlayer);
             InputManager.RegisterHandler(inGameUIHandler);
             UIManager.RegisterContainer(inGameUIHandler);
+
             GameClock.SetGameClock(1000, 2000);
             World.InitializeGameUpdates();
             _localPlayer.InitializeGameUpdates(worldFile.GetSpawnTile());
-            _graphicsDevice = graphicsDevice;
+            EntityManager.SetPlayer(_localPlayer);
 
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
 
-            EntityManager.SetPlayer(_localPlayer);
-            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
-            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
+            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
+            EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
             
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
@@ -97,6 +90,8 @@ namespace Vestige.Game
         }
         public void Update(double delta)
         {
+            if (_gamePaused)
+                return;
             GameClock.Update(delta);
             _sunMoon.UpdatePosition(new Vector2(-50, 200), (float)GameClock.GetCycleTime(), GameClock.TotalDayCycleTime / 2, Vestige.NativeResolution.X + 50, -100);
             World.Update(delta);
@@ -179,7 +174,7 @@ namespace Vestige.Game
         }
         public void SetGameState(bool paused)
         {
-
+            _gamePaused = paused;
         }
     }
 }

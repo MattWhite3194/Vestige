@@ -26,7 +26,7 @@ namespace Vestige.Game
         public static Texture2D MountainsBackground;
         public static Texture2D LiquidTexture;
         public static Texture2D SunMoonTexture;
-
+        public static Texture2D Squircle;
         //Shaders
         public static Effect WaterShader;
 
@@ -53,6 +53,7 @@ namespace Vestige.Game
             MountainsBackground = content.Load<Texture2D>("Assets/Textures/Backgrounds/Normal/Mountains");
             LiquidTexture = content.Load<Texture2D>("Assets/Textures/Tiles/Liquids/Liquid0");
             SunMoonTexture = content.Load<Texture2D>("Assets/Textures/Backgrounds/Sun");
+            Squircle = content.Load<Texture2D>("Assets/Textures/UIComponents/Squircle");
 
             //load tile textures into an array
             int numTiles = Directory.GetFiles(Path.Combine(fullContentDirectory, "Assets/Textures/Tiles")).Length;

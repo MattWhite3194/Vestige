@@ -27,7 +27,7 @@ namespace Vestige.Game.Tiles.TileData
             int verification = 1;
             for (int i = 0; i < TileSize.X; i++)
             {
-                if (!TileDatabase.TileHasProperty(world.GetTileID(bottomLeft.X + i, bottomLeft.Y + 1), TileProperty.Solid))
+                if (!TileDatabase.TileHasProperties(world.GetTileID(bottomLeft.X + i, bottomLeft.Y + 1), TileProperty.Solid))
                     return -1;
                 for (int j = 0; j < TileSize.Y; j++)
                 {

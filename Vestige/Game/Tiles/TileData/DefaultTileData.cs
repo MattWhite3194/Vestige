@@ -33,14 +33,14 @@ namespace Vestige.Game.Tiles.TileData
         /// <returns>An integer representing the tiles verifcation state. -1: tile should be removed, 0: tile is not verified for placing, 1: tile is verified</returns>
         public virtual int VerifyTile(WorldGen world, int x, int y)
         {
-            ushort top = world.GetTileID(x, y - 1);
-            ushort right = world.GetTileID(x + 1, y);
-            ushort bottom = world.GetTileID(x, y + 1);
-            ushort left = world.GetTileID(x - 1, y);
-            ushort wall = world.GetWallID(x, y);
+            bool top = TileDatabase.TileHasProperties(world.GetTileID(x, y - 1), TileProperty.Solid | TileProperty.Platform);
+            bool right = TileDatabase.TileHasProperties(world.GetTileID(x + 1, y), TileProperty.Solid | TileProperty.Platform);
+            bool bottom = TileDatabase.TileHasProperties(world.GetTileID(x, y + 1), TileProperty.Solid | TileProperty.Platform);
+            bool left = TileDatabase.TileHasProperties(world.GetTileID(x - 1, y), TileProperty.Solid | TileProperty.Platform);
+            bool wall = TileDatabase.TileHasProperties(world.GetWallID(x, y), TileProperty.Solid | TileProperty.Platform);
 
 
-            return Math.Sign(top + right + bottom + left + wall);
+            return top || right || bottom || left ? 1 : 0;
         }
         /// <summary>
         /// Used by any damage inflictors like pickaxes or bombs.
@@ -51,9 +51,9 @@ namespace Vestige.Game.Tiles.TileData
         public virtual bool CanTileBeDamaged(WorldGen world, int x, int y)
         {
             ushort top = world.GetTileID(x, y - 1);
-            if (TileDatabase.TileHasProperty(top, TileProperty.LargeTile))
+            if (TileDatabase.TileHasProperties(top, TileProperty.LargeTile))
                 return (TileDatabase.GetTileData(top) as LargeTileData).CanTileBeDamaged(world, x, y - 1);
-            if (TileDatabase.TileHasProperty(top, TileProperty.AxeMineable))
+            if (TileDatabase.TileHasProperties(top, TileProperty.AxeMineable))
                 return false;
             return true;
         }

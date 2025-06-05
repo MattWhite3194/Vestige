@@ -162,7 +162,7 @@ namespace Vestige.Game.UI.Containers
             InputManager.UnregisterHandler(this);
             UIManager.UnregisterContainer(this);
         }
-        public void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
+        public virtual void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
             _anchorMatrix = GetAnchorMatrix(parentWidth, parentHeight, parentMatrix);
             invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);
@@ -173,6 +173,10 @@ namespace Vestige.Game.UI.Containers
         }
         private Matrix GetAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
+            if (_anchor == Anchor.None)
+            {
+                return default;
+            }
             Vector2 transformedPosition = Vector2.Transform(Position, Vestige.UIScaleMatrix);
             if (parentMatrix == default)
             {

@@ -97,6 +97,7 @@ namespace Vestige.Game.IO
         }
         private void SaveTiles(WorldGen world, BinaryWriter binaryWriter)
         {
+            _spawnTile = world.SpawnTile;
             binaryWriter.Write(world.SpawnTile.X);
             binaryWriter.Write(world.SpawnTile.Y);
             binaryWriter.Write(world.WorldSize.X);
@@ -151,8 +152,9 @@ namespace Vestige.Game.IO
             }
             else
             {
-                binaryWriter.Write((int)(player.Position.X / 16));
-                binaryWriter.Write((int)(player.Position.Y + player.Size.Y) / 16);
+                binaryWriter.Write((int)(player.Position.X / Vestige.TILESIZE));
+                binaryWriter.Write((int)(player.Position.Y + player.Size.Y) / Vestige.TILESIZE);
+                _spawnTile = (player.Position / Vestige.TILESIZE).ToPoint();
             }
             Item[] playerItems = player.Inventory.GetItems();
             binaryWriter.Write(playerItems.Length);

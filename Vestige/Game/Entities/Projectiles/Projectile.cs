@@ -74,9 +74,9 @@ namespace Vestige.Game.Entities.Projectiles
                 {
                     for (int y = startY; y <= endY; y++)
                     {
-                        if (!GetBounds().Intersects(new Rectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE)))
+                        if (!GetBounds().Intersects(new CollisionRectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE)))
                             continue;
-                        if (TileDatabase.TileHasProperty(Main.World.GetTileID(x, y), TileProperty.Solid) && !_tileCollisions.Contains((x, y)))
+                        if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid) && !_tileCollisions.Contains((x, y)))
                         {
                             _tileCollisions.Add((x, y));
                             OnTileCollision(x, y, Main.World.GetTileID(x, y));
