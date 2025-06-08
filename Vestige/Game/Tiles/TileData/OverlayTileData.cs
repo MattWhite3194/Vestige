@@ -5,7 +5,7 @@ namespace Vestige.Game.Tiles.TileData
     public class OverlayTileData : DefaultTileData
     {
         public readonly ushort BaseTileID;
-        public OverlayTileData(int tileID, TileProperty properties, Color color, int itemID = -1, int health = 0, ushort baseTileID = 0) : base(tileID, properties, color, itemID, health)
+        public OverlayTileData(int tileID, string name, TileProperty properties, Color color, int itemID = -1, int health = 0, ushort baseTileID = 0) : base(tileID, name, properties, color, itemID, -1, health)
         {
             this.BaseTileID = baseTileID;
         }

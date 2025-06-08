@@ -13,15 +13,16 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
         private Queue<(int, int, ushort)> _overlayUpdateQueue = new Queue<(int, int, ushort)>();
         private HashSet<(int, int, ushort)> _baseTiles = new HashSet<(int, int, ushort)>();
         private Point[] _surroundingTiles = { new Point(0, 1), new Point(0, -1), new Point(1, 0), new Point(-1, 0) };
-        public OverlayTileUpdater(double updateRate) : base(updateRate)
-        {
 
+        public OverlayTileUpdater(WorldGen world, double updateRate) : base(world, updateRate)
+        {
         }
+
         public void EnqueueOverlayTile(int x, int y, ushort overlayTileID)
         {
             foreach (Point point in _surroundingTiles)
             {
-                if (!Main.World.IsTileInBounds(x + point.X, y + point.Y))
+                if (!world.IsTileInBounds(x + point.X, y + point.Y))
                 {
                     continue;
                 }
@@ -30,7 +31,7 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
                 {
                     continue;
                 }
-                if (Main.World.GetTileID(x + point.X, y + point.Y) != ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID || Main.World.GetTileState(x + point.X, y + point.Y) == 255)
+                if (world.GetTileID(x + point.X, y + point.Y) != ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID || world.GetTileState(x + point.X, y + point.Y) == 255)
                     continue;
                 _overlayUpdateQueue.Enqueue((x + point.X, y + point.Y, overlayTileID));
                 _baseTiles.Add((x + point.X, y + point.Y, overlayTileID));
@@ -46,7 +47,7 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
             bool foundOverlayTile = false;
             foreach (Point point in _surroundingTiles)
             {
-                if (Main.World.GetTileID(x + point.X, y + point.Y) == overlayTileID)
+                if (world.GetTileID(x + point.X, y + point.Y) == overlayTileID)
                 {
                     foundOverlayTile = true;
                     break;
@@ -54,9 +55,9 @@ namespace Vestige.Game.WorldGeneration.WorldUpdaters
             }
             if (!foundOverlayTile)
                 return;
-            if (Main.World.GetTileState(x, y) != 255 && Main.World.GetTileID(x, y) == ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID)
+            if (world.GetTileState(x, y) != 255 && world.GetTileID(x, y) == ((OverlayTileData)TileDatabase.GetTileData(overlayTileID)).BaseTileID)
             {
-                Main.World.PlaceTile(x, y, overlayTileID);
+                world.PlaceTile(x, y, overlayTileID);
             }
         }
     }

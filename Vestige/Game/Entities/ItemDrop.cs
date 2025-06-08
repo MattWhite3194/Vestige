@@ -16,12 +16,11 @@ namespace Vestige.Game.Entities
         private float _acceleration = 50f;
         public bool CanBePickedUp;
         private float _pickupTimer;
-        public ItemDrop(Item item, Vector2 position, bool canBePickedUp = true) : base(item.Image, position, drawLayer: 0, name: item.Name)
+        public ItemDrop(Item item, Vector2 position, bool canBePickedUp = true) : base(item.Image, position, ColliderSize, new Vector2(item.Image.Width / 2, item.Image.Height - ColliderSize.Y / 2), hitboxSize: ColliderSize, drawLayer: 0, name: item.Name)
         {
             _item = item;
             CollidesWithTiles = true;
-            this.Size = ColliderSize;
-            this.Layer = CollisionLayer.ItemDrop;
+            Layer = CollisionLayer.ItemDrop;
             CanBePickedUp = canBePickedUp;
             _pickupTimer = canBePickedUp ? 0.0f : 1.0f;
         }
@@ -49,21 +48,6 @@ namespace Vestige.Game.Entities
                     newVelocity.X = 0.0f;
             }
             Velocity = newVelocity;
-        }
-
-        public override void Draw(SpriteBatch spriteBatch)
-        {
-            Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
-            spriteBatch.Draw(Image,
-                Vector2.Round(Position + Origin) + new Vector2(-_item.Image.Width / 2 + 5, -_item.Image.Height + 10),
-                Animation?.AnimationRectangle ?? null,
-                Main.LightEngine.GetLight(centerTilePosition.X, centerTilePosition.Y),
-                Rotation,
-                Origin,
-                Scale,
-                FlipSprite ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                0.0f
-            );
         }
     }
 }

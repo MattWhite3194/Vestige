@@ -12,16 +12,23 @@ namespace Vestige.Game.Tiles.TileData
         public readonly int ItemID;
         public readonly int Health;
         public readonly int TileID;
+        public readonly string Name;
+        /// <summary>
+        /// The wall that this tile places when shift clicking.
+        /// </summary>
+        public readonly int WallID;
         private readonly ushort[] tileMerges;
 
         //TODO: add WorldGen world to constructor
-        public DefaultTileData(int tileID, TileProperty properties, Color color, int itemID = -1, int health = 0, ushort[] tileMerges = null)
+        public DefaultTileData(int tileID, string name, TileProperty properties, Color color, int itemID = -1, int wallID = -1, int health = 0, ushort[] tileMerges = null)
         {
             TileID = tileID;
             Properties = properties;
             MapColor = color;
             ItemID = itemID;
             Health = health;
+            WallID = wallID;
+            Name = name;
             this.tileMerges = tileMerges ?? [];
         }
         /// <summary>

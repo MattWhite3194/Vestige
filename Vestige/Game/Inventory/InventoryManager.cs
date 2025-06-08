@@ -1,12 +1,10 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
 using Vestige.Game.Tiles.TileData;
 using Vestige.Game.UI;
-using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
 
 namespace Vestige.Game.Inventory
@@ -89,19 +87,19 @@ namespace Vestige.Game.Inventory
             {
                 if (Main.EntityManager.MouseEntity != null)
                 {
-                    _toolTip.SetText(Main.EntityManager.MouseEntity.Name);
+                    _toolTip.SetText(Main.EntityManager.MouseEntity.GetTooltipDisplay());
                 }
                 else
                 {
                     _toolTip.SetText("");
                 }
             }
-            if (_tileInventory != null && Vector2.DistanceSquared(Main.EntityManager.GetPlayer().Position, _inventoryTileLocation.ToVector2() * Vestige.TILESIZE) > 9216)
+            if (_tileInventory != null && Vector2.DistanceSquared(Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Origin, _inventoryTileLocation.ToVector2() * Vestige.TILESIZE) > 16384)
             {
-                Debug.WriteLine(Vector2.DistanceSquared(Main.EntityManager.GetPlayer().Position, _inventoryTileLocation.ToVector2() * Vestige.TILESIZE));
                 _inventoryTileData.CloseInventory(Main.World, _inventoryTileLocation.X, _inventoryTileLocation.Y);
                 RemoveContainerChild(_tileInventory);
                 _tileInventory = null;
+                _inventoryTileData = null;
             }
         }
 
@@ -178,12 +176,12 @@ namespace Vestige.Game.Inventory
                 }
             }
         }
-        public bool UseSelected()
+        public bool UseSelected(bool altUse)
         {
             Item item = GetSelected();
             if (item == null)
                 return false;
-            bool itemUsed = item.UseItem(Main.EntityManager.GetPlayer());
+            bool itemUsed = item.UseItem(Main.EntityManager.GetPlayer(), altUse);
             if (!item.Stackable || !itemUsed)
                 return itemUsed;
             item.Quantity -= 1;

@@ -5,7 +5,7 @@ namespace Vestige.Game.Tiles.TileData
 {
     public class PlatformData : DefaultTileData
     {
-        public PlatformData(int tileID, TileProperty properties, Color color, int itemID = -1, int health = 0) : base(tileID, properties | TileProperty.Platform, color, itemID, health)
+        public PlatformData(int tileID, string name, TileProperty properties, Color color, int itemID = -1, int health = 0) : base(tileID, name, properties | TileProperty.Platform, color, itemID, -1, health)
         {
         }
         public override byte GetUpdatedTileState(WorldGen world, int x, int y)

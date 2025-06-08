@@ -5,6 +5,6 @@
     /// </summary>
     public interface IWeapon
     {
-        public bool UseItem();
+        public bool UseItem(bool altUse);
     }
 }

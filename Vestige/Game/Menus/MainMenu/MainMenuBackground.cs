@@ -26,7 +26,7 @@ namespace Vestige.Game.Menus.MainMenu
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(Vestige.ScreenResolution.X / (float)Vestige.NativeResolution.X));
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(Vestige.ScreenResolution.X / (float)Vestige.NativeResolution.X));
             parallaxManager.Draw(spriteBatch, Color.White);
             spriteBatch.End();
         }

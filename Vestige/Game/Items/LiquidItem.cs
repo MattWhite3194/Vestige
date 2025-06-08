@@ -14,7 +14,7 @@ namespace Vestige.Game.Items
             //TODO: liquid IDS like lava or water or whatever
             this.LiquidID = liquidID;
         }
-        public override bool UseItem(Player player)
+        public override bool UseItem(Player player, bool altUse)
         {
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE);
             if (Main.World.GetLiquid(mouseTilePosition.X, mouseTilePosition.Y) != WorldGen.MaxLiquid)

@@ -100,7 +100,7 @@ namespace Vestige.Game.UI.Containers
         }
         public virtual void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
-            spriteBatch.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, DepthStencilState.None, transformMatrix: AnchorMatrix, rasterizerState: rasterizerState);
+            spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, null, transformMatrix: AnchorMatrix, rasterizerState: rasterizerState);
             DrawComponents(spriteBatch);
             //DebugHelper.DrawOutlineRectangle(spriteBatch, new Rectangle(Point.Zero, Size.ToPoint()), Color.Red);
             spriteBatch.End();

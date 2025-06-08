@@ -13,6 +13,7 @@ namespace Vestige.Game.Entities
         public float Top;
         public float Bottom;
         public Vector2 Center;
+        public Vector2 Position;
         public CollisionRectangle(float x, float y, int width, int height)
         {
             X = x;
@@ -24,6 +25,7 @@ namespace Vestige.Game.Entities
             Top = Y;
             Bottom = Y + Height;
             Center = new Vector2(X + Width / 2.0f, Y + Height / 2.0f);
+            Position = new Vector2(X, Y);
         }
         public CollisionRectangle(Vector2 location, Point size)
         {
@@ -36,6 +38,7 @@ namespace Vestige.Game.Entities
             Top = Y;
             Bottom = Y + Height;
             Center = new Vector2(X + Width / 2.0f, Y + Height / 2.0f);
+            Position = new Vector2(X, Y);
         }
         public bool Intersects(CollisionRectangle value)
         {

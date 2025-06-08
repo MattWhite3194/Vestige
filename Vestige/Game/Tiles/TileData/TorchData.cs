@@ -6,7 +6,7 @@ namespace Vestige.Game.Tiles.TileData
 {
     public class TorchData : DefaultTileData
     {
-        public TorchData(int tileID, TileProperty properties, Color color, int itemID = -1) : base(tileID, properties | TileProperty.LightEmitting, color, itemID)
+        public TorchData(int tileID, string name, TileProperty properties, Color color, int itemID = -1) : base(tileID, name, properties | TileProperty.LightEmitting, color, itemID)
         {
         }
         public override int VerifyTile(WorldGen world, int x, int y)

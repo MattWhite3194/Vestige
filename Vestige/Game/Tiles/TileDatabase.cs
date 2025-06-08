@@ -18,27 +18,31 @@ namespace Vestige.Game.Tiles
         /// e.x. Dirt: _tileProperties[1].TileProperties & Solid; returns true
         /// </summary>
         private static readonly DefaultTileData[] _tileData = [
-            new DefaultTileData(0, TileProperty.None, Color.CornflowerBlue),                     //Air
-            new DefaultTileData(1, TileProperty.Solid | TileProperty.PickaxeMineable, new Color(142, 96, 59), itemID: 0, health: 40, tileMerges: [2]),           //Dirt
-            new OverlayTileData(2, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Green, baseTileID: 1),           //Grass
-            new DefaultTileData(3, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health : 100, tileMerges: [1, 4]), //CobbleStone
-            new DefaultTileData(4, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, health: 100, tileMerges: [1]),  //Stone
-            new TreeData(5, TileProperty.AxeMineable, Color.Brown, itemID: 9, health: 80),    //Tree
-            new TreeTopData(6, TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)), //TreeTop
-            new TorchData(7, TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),  //Torch
-            new InventoryTileData(8, TileProperty.PickaxeMineable, Color.Brown, itemID: 5, cols: 5, rows: 3),
-            new ClosedDoorData(9, TileProperty.PickaxeMineable | TileProperty.Solid, Color.Brown, 10, itemID: 7),
-            new OpenDoorData(10, TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7),
-            new DefaultTileData(11, TileProperty.Solid | TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 9, health: 40, tileMerges: [1]),  //Wood
-            new DefaultTileData(12, TileProperty.Solid | TileProperty.PickaxeMineable, Color.Black, health: 110, tileMerges: [1, 4]), //Coal
-            new PlatformData(13, TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 13, health: 0)
+            new DefaultTileData(0, "", TileProperty.None, Color.CornflowerBlue),
+            new DefaultTileData(1, "Dirt", TileProperty.Solid | TileProperty.PickaxeMineable, new Color(142, 96, 59), itemID: 0, wallID: 1, health: 40, tileMerges: [2]),
+            new OverlayTileData(2, "Grass", TileProperty.Solid | TileProperty.PickaxeMineable, Color.Green, baseTileID: 1),
+            new DefaultTileData(3, "Cobblestone", TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, wallID: 4, health : 100, tileMerges: [1, 4]),
+            new DefaultTileData(4, "Stone", TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 1, wallID: 2, health: 100, tileMerges: [1]),
+            new TreeData(5, "Spruce Log", TileProperty.AxeMineable, Color.Brown, itemID: 8, health: 80),
+            new TreeTopData(6, "Spruce Treetop", TileProperty.AxeMineable, Color.Green, offset: new Vector2(-48, -152)),
+            new TorchData(7, "Torch", TileProperty.PickaxeMineable, Color.Yellow, itemID: 3),
+            new InventoryTileData(8, "Wood Chest", TileProperty.PickaxeMineable, Color.Brown, itemID: 5, cols: 5, rows: 3),
+            new ClosedDoorData(9, "Wood Door", TileProperty.PickaxeMineable | TileProperty.Solid, Color.Brown, 10, itemID: 7),
+            new OpenDoorData(10, "Wood Door", TileProperty.PickaxeMineable, Color.Brown, 9, itemID: 7),
+            new DefaultTileData(11, "Wood", TileProperty.Solid | TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 8, wallID: 3, health: 40, tileMerges: [1]),
+            new DefaultTileData(12, "Coal Ore", TileProperty.Solid | TileProperty.PickaxeMineable, Color.Black, itemID: 13, health: 110, tileMerges: [1, 4]),
+            new PlatformData(13, "Wood Platform", TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 12, health: 0),
+            new DefaultTileData(14, "Stone Bricks", TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 14, wallID: 5, health: 100, tileMerges: [1]),
         ];
 
         //Only add walls here that require special functions, all walls should more or less work the exact same way.
         private static readonly DefaultWallData[] _wallData = [
-            new DefaultWallData(0),
-            new DefaultWallData(1),
-            new DefaultWallData(2)
+            new DefaultWallData(0, ""),
+            new DefaultWallData(1, "Dirt Wall", 0),
+            new DefaultWallData(2, "Stone Wall", 1),
+            new DefaultWallData(3, "Wood Wall", 8),
+            new DefaultWallData(4, "Cobblestone Wall", 1),
+            new DefaultWallData(5, "Stone Brick Wall", 14)
         ];
 
         private static Rectangle CreateAtlasRect(int x, int y)

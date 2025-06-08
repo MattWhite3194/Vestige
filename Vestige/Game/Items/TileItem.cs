@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 using Vestige.Game.Entities;
 using Vestige.Game.Tiles;
 
@@ -12,20 +13,28 @@ namespace Vestige.Game.Items
         { 
             this.TileID = tileID;
         }
-        public override bool UseItem(Player player)
+        public override bool UseItem(Player player, bool altUse)
         {
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
             //TODO: check if the mouse is colliding with an entity or colliding with a tile that the entity is colliding with (will happen in entity manager)
             if (Vector2.Distance(mouseTilePosition.ToVector2() * Vestige.TILESIZE, Main.EntityManager.GetPlayer().Position) > Main.EntityManager.GetPlayer().MaxPlaceDistance)
                 return false;
-            if (Main.EntityManager.TileOccupied(mouseTilePosition.X, mouseTilePosition.Y) && TileDatabase.TileHasProperties(TileID, TileProperty.Solid))
-                return false;
-            if (Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0)
+            if (altUse)
             {
-                if (Main.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID))
+                int wallID = TileDatabase.GetTileData(TileID).WallID;
+                if (wallID == -1)
+                    return false;
+                if (Main.World.GetWallID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceWall(mouseTilePosition.X, mouseTilePosition.Y, (byte)wallID))
                 {
                     return true;
                 }
+                return false;
+            }
+            if (Main.EntityManager.TileOccupied(mouseTilePosition.X, mouseTilePosition.Y) && TileDatabase.TileHasProperties(TileID, TileProperty.Solid))
+                return false;
+            if (Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID))
+            {
+                return true;
             }
             return false;
         }

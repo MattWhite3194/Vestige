@@ -73,7 +73,6 @@ namespace Vestige.Game
             UIManager.RegisterContainer(inGameUIHandler);
 
             GameClock.SetGameClock(1000, 2000);
-            World.InitializeGameUpdates();
             _localPlayer.InitializeGameUpdates(worldFile.GetSpawnTile());
             EntityManager.SetPlayer(_localPlayer);
 
@@ -110,7 +109,7 @@ namespace Vestige.Game
 
             _graphicsDevice.SetRenderTarget(_bgTarget);
             _graphicsDevice.Clear(new Color((int)(50 * normalizedGlobalLight), (int)(109 * normalizedGlobalLight), (int)(255 * normalizedGlobalLight)));
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(4.0f));
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(4.0f));
             spriteBatch.Draw(_daytimeSkyGradient, new Rectangle(Point.Zero, Vestige.NativeResolution), new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             _sunMoon.Draw(spriteBatch);
             _parallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
@@ -154,9 +153,9 @@ namespace Vestige.Game
         private void CalculateTranslation()
         {
             Player player = EntityManager.GetPlayer();
-            int dx = (int)Math.Round(Vestige.NativeResolution.X / 2 - player.Position.X);
+            int dx = (int)Math.Round(Vestige.NativeResolution.X / 2 - player.Position.X - player.Origin.X);
             dx = MathHelper.Clamp(dx, -World.WorldSize.X * Vestige.TILESIZE + Vestige.NativeResolution.X, 0);
-            int dy = (int)Math.Round(Vestige.NativeResolution.Y / 2 - player.Position.Y);
+            int dy = (int)Math.Round(Vestige.NativeResolution.Y / 2 - player.Position.Y - player.Origin.Y);
             dy = MathHelper.Clamp(dy, -World.WorldSize.Y * Vestige.TILESIZE + Vestige.NativeResolution.Y, 0);
             _translation = Matrix.CreateTranslation(dx, dy, 0f);
         }

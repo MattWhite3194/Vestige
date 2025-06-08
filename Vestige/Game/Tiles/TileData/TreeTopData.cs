@@ -6,7 +6,7 @@ namespace Vestige.Game.Tiles.TileData
     public class TreeTopData : TreeData
     {
         private Vector2 _offset;
-        public TreeTopData(int tileID, TileProperty properties, Color color, Vector2 offset) : base(tileID, properties, color)
+        public TreeTopData(int tileID, string name, TileProperty properties, Color color, Vector2 offset) : base(tileID, name, properties, color)
         {
             _offset = offset;
         }

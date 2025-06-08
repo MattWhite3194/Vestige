@@ -12,7 +12,7 @@ namespace Vestige.Game.Items.Weapons
         {
             this._axePower = axePower;
         }
-        public bool UseItem()
+        public bool UseItem(bool altUse)
         {
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
             if (Vector2.Distance(mouseTilePosition.ToVector2() * Vestige.TILESIZE, Main.EntityManager.GetPlayer().Position) > Main.EntityManager.GetPlayer().MaxBreakDistance)

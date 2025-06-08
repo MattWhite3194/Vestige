@@ -21,6 +21,7 @@ namespace Vestige.Game.Entities
         private int _jumpVelocity = -450;
         public InventoryManager Inventory;
         private int _health;
+        private int _maxHealth;
         private float _fallDistance = 0;
         private bool _queueJump = false;
         public ItemCollider ItemCollider;
@@ -60,6 +61,7 @@ namespace Vestige.Game.Entities
             CollidesWithTiles = true;
             CollidesWithPlatforms = true;
             _health = 100;
+            _maxHealth = 100;
             this.Layer = CollisionLayer.Player;
             this.CollidesWith = CollisionLayer.Enemy | CollisionLayer.ItemDrop | CollisionLayer.HostileProjectile;
         }
@@ -108,6 +110,8 @@ namespace Vestige.Game.Entities
             else if (@event.InputButton == InputButton.RightMouse && @event.EventType == InputEventType.MouseButtonDown)
             {
                 Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE);
+                if (Vector2.Distance(Position + Origin, mouseTilePosition.ToVector2() * Vestige.TILESIZE) > MaxPlaceDistance)
+                    return;
                 if (TileDatabase.GetTileData(Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y)) is IInteractableTile interactableTile)
                 {
                     interactableTile.OnRightClick(Main.World, mouseTilePosition.X, mouseTilePosition.Y);
@@ -293,6 +297,10 @@ namespace Vestige.Game.Entities
         public void ClearInputs()
         {
             _activeInputs.Clear();
+        }
+        public override string GetTooltipDisplay()
+        {
+            return $"{Name} {_health} / {_maxHealth}";
         }
     }
 }

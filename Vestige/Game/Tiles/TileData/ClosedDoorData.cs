@@ -9,7 +9,7 @@ namespace Vestige.Game.Tiles.TileData
     public class ClosedDoorData : LargeTileData, ICollideableTile, IInteractableTile
     {
         private ushort _openDoorID;
-        public ClosedDoorData(int tileID, TileProperty properties, Color color, ushort openDoorID, int itemID = -1) : base(tileID, properties | TileProperty.Solid, color, new Point(1, 3), itemID: itemID)
+        public ClosedDoorData(int tileID, string name, TileProperty properties, Color color, ushort openDoorID, int itemID = -1) : base(tileID, name, properties | TileProperty.Solid, color, new Point(1, 3), itemID: itemID)
         {
             _openDoorID = openDoorID;
         }

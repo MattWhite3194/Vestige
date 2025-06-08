@@ -6,7 +6,7 @@ namespace Vestige.Game.Tiles.TileData
 {
     public class TreeData : DefaultTileData
     {
-        public TreeData(int tileID, TileProperty properties, Color color, int itemID = -1, int health = 0) : base(tileID, properties, color, itemID, health)
+        public TreeData(int tileID, string name, TileProperty properties, Color color, int itemID = -1, int health = 0) : base(tileID, name, properties, color, itemID, -1, health)
         {
         }
         public override bool CanTileBeDamaged(WorldGen world, int x, int y)

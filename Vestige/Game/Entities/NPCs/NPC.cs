@@ -11,6 +11,7 @@ namespace Vestige.Game.Entities.NPCs
     public class NPC : Entity
     {
         public readonly int ID;
+        private int _maxHealth;
         private int _health;
         public readonly int Damage;
         public readonly int Knockback;
@@ -37,6 +38,7 @@ namespace Vestige.Game.Entities.NPCs
         {
             ID = id;
             Damage = damage;
+            _maxHealth = health;
             _health = health;
             CollidesWithTiles = collidesWithTiles;
             CollidesWithPlatforms = collidesWithTiles;
@@ -106,8 +108,7 @@ namespace Vestige.Game.Entities.NPCs
         }
         private void ApplyKnockback(int knockback, Vector2 knockbackSource)
         {
-            this.Velocity.Y = -(knockback * 100);
-            this.Velocity.X = Math.Sign(Position.X + Origin.X - knockbackSource.X) * (knockback * 100);
+            this.Velocity = new Vector2(1.0f, 0.5f) * new Vector2(Math.Sign(Position.X + Origin.X - knockbackSource.X) * knockback);
         }
         /// <summary>
         /// 
@@ -126,5 +127,9 @@ namespace Vestige.Game.Entities.NPCs
         {
             {0, new NPC(0, "Mutant Cricket", ContentLoader.EnemyTextures[0], new Vector2(69, 34), 100, 10, true, new MutantCricketBehavior(), animationFrames: new List<(int, int)> { (0, 3), (4, 4)})}
         };
+        public override string GetTooltipDisplay()
+        {
+            return $"{Name} {_health} / {_maxHealth}";
+        }
     }
 }

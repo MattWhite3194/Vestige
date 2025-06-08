@@ -47,6 +47,7 @@ namespace Vestige.Game.Input
         RightMouse,
         MiddleMouse,
         Options,
-        Terminal
+        Terminal,
+        AltUse
     }
 }

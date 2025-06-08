@@ -9,7 +9,7 @@ namespace Vestige.Game.Tiles.TileData
         //TODO: change this file to InventoryTileData, and make it reusable for other inventory tile types
         public readonly int Cols;
         private readonly int Rows;
-        public InventoryTileData(int tileID, TileProperty properties, Color color, int itemID = -1, int cols = 8, int rows = 5) : base(tileID, properties, color, new Point(2, 2), new Point(0, 1), itemID, 0)
+        public InventoryTileData(int tileID, string name, TileProperty properties, Color color, int itemID = -1, int cols = 8, int rows = 5) : base(tileID, name, properties, color, new Point(2, 2), new Point(0, 1), itemID, 0)
         {
             Cols = cols;
             Rows = rows;

@@ -106,7 +106,7 @@ namespace Vestige.Game.Entities
                 //Determine if an entity who has horizontally collided with a tile can hop up
                 if (horizontalCollisionDirection != 0)
                 {
-                    if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.Position / Vestige.TILESIZE).ToPoint(), entity.GetBounds().Width / Vestige.TILESIZE, entity.GetBounds().Height / Vestige.TILESIZE, horizontalCollisionDirection))
+                    if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.GetBounds().Position / Vestige.TILESIZE).ToPoint(), entity.GetBounds().Width / Vestige.TILESIZE, entity.GetBounds().Height / Vestige.TILESIZE, horizontalCollisionDirection))
                     {
                         entity.Position.Y -= Vestige.TILESIZE;
                         entity.Position.X += 2 * Math.Sign(entity.Velocity.X);
@@ -177,7 +177,7 @@ namespace Vestige.Game.Entities
                 {
                     CollisionRectangle tileCollider = new CollisionRectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
                     //IMPORTANT: entity bounds will not intersect a tile or other collision if the position update is less than a pixels width, since bounds are calculated using integers. Players Velocity will get up to 30 before the player actually moves enough to detect a collision.
-                    if (entity.GetBounds().Intersects(tileCollider))
+                    if (entityBounds.Intersects(tileCollider))
                     {
                         if (TileDatabase.GetTileData(Main.World.GetTileID(x, y)) is ICollideableTile collideableTile)
                             collideableTile.OnCollision(Main.World, x, y, entity);
@@ -193,12 +193,12 @@ namespace Vestige.Game.Entities
                         float penetrationDistance = GetPenetrationX(entity.GetBounds(), tileCollider);
                         if (penetrationDistance < 0)
                         {
-                            entity.Position.X = tileCollider.Left - entity.Size.X;
+                            entity.Position.X = tileCollider.Left - entity.Origin.X - entityBounds.Width / 2.0f;
                             horizontalCollisionDirection = 1;
                         }
                         else if (penetrationDistance > 0)
                         {
-                            entity.Position.X = tileCollider.Right;
+                            entity.Position.X = tileCollider.Right - entity.Origin.X + entityBounds.Width / 2.0f;
                             horizontalCollisionDirection = -1;
                         }
                     }
@@ -212,11 +212,6 @@ namespace Vestige.Game.Entities
             bool floorCollision = false;
             bool ceilingCollision = false;
             bool collisionDetected = false;
-            if ((int)(entity.Position.Y + distance) == (int)entity.Position.Y)
-            {
-                floorCollision = entity.IsOnFloor;
-                ceilingCollision = entity.IsOnCeiling;
-            }
             Vector2 initialPosition = entity.Position;
             entity.Position.Y += distance;
 
@@ -225,12 +220,17 @@ namespace Vestige.Game.Entities
             int endX = (int)Math.Ceiling(entityBounds.Right / Vestige.TILESIZE);
             int startY = (int)entityBounds.Top / Vestige.TILESIZE;
             int endY = (int)Math.Ceiling(entityBounds.Bottom / Vestige.TILESIZE);
+            //TODO: water
+            /*
+             Resolve collisions first, cache water tiles, check collisions after, so colliding with a floor and a water tile will not register as a water collision, since you're hitting a floor.
+             
+             */
             for (int x = startX; x <= endX; x++)
             {
                 for (int y = startY; y <= endY; y++)
                 {
                     CollisionRectangle tileCollider = new CollisionRectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
-                    if (entity.GetBounds().Intersects(tileCollider))
+                    if (entityBounds.Intersects(tileCollider))
                     {
                         if (TileDatabase.GetTileData(Main.World.GetTileID(x, y)) is ICollideableTile collideableTile)
                             collideableTile.OnCollision(Main.World, x, y, entity);

@@ -10,6 +10,9 @@ namespace Vestige.Game.Entities
     /// </summary>
     public abstract class Entity : Sprite
     {
+        /// <summary>
+        /// The entity's velocity in pixels/second
+        /// </summary>
         public Vector2 Velocity;
         public bool IsOnFloor = false, IsOnCeiling = false;
         public bool DrawBehindTiles = false;
@@ -39,12 +42,16 @@ namespace Vestige.Game.Entities
         /// </summary>
         public readonly int DrawLayer;
         public readonly string Name;
-        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, List<(int, int)> animationFrames = null, int drawLayer = 0, string name = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
+        /// <summary>
+        /// the size of the entities hit box, will be calculated relative to the entities origin
+        /// </summary>
+        public readonly Vector2 HitboxSize;
+        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, Vector2 hitboxSize = default, List<(int, int)> animationFrames = null, int drawLayer = 0, string name = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
         {
             this.DrawLayer = drawLayer;
             Name = name != null ? name : "";
-         }
-
+            HitboxSize = hitboxSize != default ? hitboxSize : Size;
+        }
         public virtual void OnCollision(Entity entity)
         {
 
@@ -53,9 +60,13 @@ namespace Vestige.Game.Entities
         {
             //TODO: call this method
         }
+        public virtual void OnLiquidCollision(int x, int y, ushort liquidID)
+        {
+            //TODO: call this method
+        }
         public virtual CollisionRectangle GetBounds()
         {
-            return new CollisionRectangle(Position + Origin - Size / 2.0f, Size.ToPoint());
+            return new CollisionRectangle(Position + Origin - HitboxSize / 2.0f, HitboxSize.ToPoint());
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
@@ -76,5 +87,9 @@ namespace Vestige.Game.Entities
         /// </summary>
         /// <param name="delta"></param>
         public virtual void PostCollisionUpdate(double delta) { }
+        public virtual string GetTooltipDisplay() 
+        {
+            return Name;
+        }
     }
 }

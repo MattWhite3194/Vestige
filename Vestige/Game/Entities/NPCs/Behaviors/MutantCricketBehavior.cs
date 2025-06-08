@@ -12,10 +12,11 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
         private int _directionX = 0;
         private double _elapsedTime = 0.0f;
         private double _nextJumpTime = 2.0;
-        private float _maxSpeed = 100;
-        private float _acceleration = 1000;
+        private float _maxSpeed = 50;
+        private float _acceleration = 500;
         private Player _player;
-        private bool _lockDirection = false;
+        private bool _jumping = false;
+        private int _lockedDirection;
         public void AI(double delta, NPC enemy)
         {
             _player = Main.EntityManager.GetPlayer();
@@ -33,7 +34,7 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
 
             if (enemy.IsOnFloor)
             {
-                _lockDirection = false;
+                _jumping = false;
                 _maxSpeed = 100;
             }
             else
@@ -41,8 +42,8 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
                 enemy.Animation.SetCurrentAnimation(1);
             }
             
-            if (_directionX != MathF.Sign(enemy.Velocity.X) && _lockDirection)
-                newVelocity.X += _directionX * (_acceleration * 2.0f) * (float)delta;
+            if (_directionX != MathF.Sign(enemy.Velocity.X) && _jumping)
+                newVelocity.X += _lockedDirection * (_acceleration * 2.0f) * (float)delta;
             else
                 newVelocity.X += _acceleration * _directionX * (float)delta;
             if (MathF.Abs(enemy.Velocity.X) > _maxSpeed)
@@ -53,7 +54,8 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
                 _elapsedTime = 0.0;
                 newVelocity.Y = _maxSpeed * Main.Random.Next(-4, -3);
                 newVelocity.X = _maxSpeed * _directionX * Main.Random.Next(2, 5);
-                _lockDirection = true;
+                _jumping = true;
+                _lockedDirection = _directionX;
                 _maxSpeed = Math.Abs(newVelocity.X);
             }
 

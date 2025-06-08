@@ -16,9 +16,10 @@ static const float waves = 1000.0;
 static const float horizontal_waves = 1000.0;
 static const float amplitude = 0.69;
 static const float horizontal_amplitude = 0.91;
-static const float wave_amplitude = 0.06;
 static const float wave_offset = -0.04;
 static const float2 screen_size = float2(1920.0, 1280.0);
+static const float wave_amplitude = 0.03;
+static const float wave_period = 0.005;
 
 sampler2D SpriteTextureSampler
 {
@@ -53,16 +54,24 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     
     if (fgColor.g != 1.0)
     {
-        float2 coords = float2(uv.x, uv.y + (sin(2.0 * (transform.x * waves / 10.0 - (Time * speed))) * 0.5 + cos(3.0 * transform.x * waves / 10.0 - (Time * speed)) * 0.5) * wave_amplitude + wave_offset);
-        fgColor = tex2D(SpriteTextureSampler, coords) * input.Color;
+        float waves = uv.y + sin(transform.x / wave_period - Time * speed) * cos(0.2 * transform.x / wave_period + Time * speed) * wave_amplitude - wave_amplitude;
+        if (waves > 0.1)
+        {
+            fgColor = float4(0.0, 0.6902, 1.0, 1.0) * input.Color;
+        }
+        else if (waves > 0.0)
+        {
+            fgColor = float4(1.0, 1.0, 1.0, 1.0) * input.Color;
+        }
+        else
+        {
+            fgColor = float4(0.0, 0.0, 0.0, 0.0) * input.Color;
+        }
     }
-    else if (fgColor.g == 1.0)
+    else
     {
         fgColor = float4(0.0, 0.6902, 1.0, 1.0) * input.Color;
     }
-        
-    if (fgColor.a == 0.0) 
-        return float4(0.0, 0.0, 0.0, 0.0);
     
     float value = (sin(2.0 * (transform.x * waves / 10.0 - (Time * speed))) * 0.5 + cos(3.0 * transform.x * waves / 10.0 - (Time * speed)) * 0.5) * amplitude;
     screenUV.y += Remap01(value, -waves, waves) - 0.5;

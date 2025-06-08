@@ -30,6 +30,8 @@ namespace Vestige.Game.Menus.MainMenu
         private GraphicsDevice _graphicsDevice;
         private SelectionContainer _worldSizeSelector;
         private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _worldSortMethod;
+        private PanelContainer _confirmDeletionMenu;
+
 
         //TODO: Make each menu a separate UIComponentContainer, use this class to add and remove them from the UIManager and InputHandler
         //make the back button return menu a paramater in the menu declaration so the back button can be placed anywhere in the menu
@@ -102,7 +104,18 @@ namespace Vestige.Game.Menus.MainMenu
             };
             _createWorldMenu.AddComponentChild(worldGenTestButton);
 
+            //Confirm delete menu
+            _confirmDeletionMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 60), Vestige.UIPanelColor, Color.Black, 20, 1, 5, graphicsDevice: graphicsDevice);
+            
+            Label confirmationTextLabel = new Label(Vector2.Zero, "Are you sure you want to deletethis? This cannot be undone.", Vector2.Zero, Color.White, 288);
+            _confirmDeletionMenu.AddComponentChild(confirmationTextLabel);
 
+            Button cancelButton = new Button(new Vector2(40, 40), "Cancel", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 60);
+            cancelButton.OnButtonPress += RemoveSubMenu;
+            _confirmDeletionMenu.AddComponentChild(cancelButton);
+
+            Button deleteButton = new Button(new Vector2(188, 40), "Delete", Vector2.Zero, color: Color.Red, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 60);
+            _confirmDeletionMenu.AddComponentChild(deleteButton);
 
             _backButton = new Button(new Vector2(0, 0), "Back", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             _backButton.OnButtonPress += RemoveSubMenu;
@@ -184,7 +197,7 @@ namespace Vestige.Game.Menus.MainMenu
         {
             return worldContainers.OrderBy(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
         }
-        private void AddSubMenu(UIContainer menu)
+        private void AddSubMenu(UIContainer menu, bool addBackButton = true)
         {
             if (_menus.Count != 0)
             {
@@ -194,9 +207,12 @@ namespace Vestige.Game.Menus.MainMenu
             UIManager.RegisterContainer(menu);
             InputManager.RegisterHandler(menu);
             _menus.Push(menu);
-            _backButton.Size = new Vector2(menu.Size.X, _backButton.Size.Y);
-            _backButton.Position = new Vector2(0, menu.Size.Y);
-            menu.AddComponentChild(_backButton);
+            if (addBackButton)
+            {
+                _backButton.Size = new Vector2(menu.Size.X, _backButton.Size.Y);
+                _backButton.Position = new Vector2(0, menu.Size.Y);
+                menu.AddComponentChild(_backButton);
+            }
             UIManager.OnUIScaleChanged(Vestige.ScreenResolution.X, Vestige.ScreenResolution.Y);
         }
         private void RemoveSubMenu()
@@ -242,10 +258,15 @@ namespace Vestige.Game.Menus.MainMenu
             };
             deleteButton.OnButtonPress += () =>
             {
-                File.Delete(path);
-                Directory.Delete(Path.GetDirectoryName(path));
-                RemoveSubMenu();
-                ListWorlds();
+                (_confirmDeletionMenu.GetComponentChild(2) as Button).OnButtonPress = () =>
+                {
+                    File.Delete(path);
+                    Directory.Delete(Path.GetDirectoryName(path));
+                    RemoveSubMenu();
+                    RemoveSubMenu();
+                    ListWorlds();
+                };
+                AddSubMenu(_confirmDeletionMenu, false);
             };
             worldPanel.AddComponentChild(worldName);
             worldPanel.AddComponentChild(worldDate);

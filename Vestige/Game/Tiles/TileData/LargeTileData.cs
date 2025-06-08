@@ -13,7 +13,7 @@ namespace Vestige.Game.Tiles.TileData
         /// </summary>
         public readonly Point Origin;
         private int _animations;
-        public LargeTileData(int tileID, TileProperty properties, Color color, Point tileSize, Point origin = default, int itemID = -1, int health = 0, int animations = 0) : base(tileID, properties | TileProperty.LargeTile, color, itemID, health)
+        public LargeTileData(int tileID, string name, TileProperty properties, Color color, Point tileSize, Point origin = default, int itemID = -1, int health = 0, int animations = 0) : base(tileID, name, properties | TileProperty.LargeTile, color, itemID, -1, health)
         {
             TileSize = tileSize;
             Origin = origin == default ? new Point(0, TileSize.Y - 1) : origin;

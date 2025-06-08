@@ -9,12 +9,25 @@ namespace Vestige.Game.Tiles.WallData
     {
         public readonly ushort WallID;
         public readonly int Health;
-        public DefaultWallData(ushort wallID, int health = 100) 
+        public readonly string Name;
+        public readonly int ItemID;
+        public DefaultWallData(ushort wallID, string name, int itemID = -1, int health = 100) 
         { 
             this.WallID = wallID;
+            this.Name = name;
             this.Health = health;
+            this.ItemID = itemID;
         }
+        public virtual int VerifyWall(WorldGen world, int x, int y)
+        {
+            ushort top = world.GetWallID(x, y - 1);
+            ushort right = world.GetWallID(x + 1, y);
+            ushort bottom = world.GetWallID(x, y + 1);
+            ushort left = world.GetWallID(x - 1, y);
+            ushort tile = world.GetTileID(x, y);
 
+            return Math.Sign(top + right + bottom + left + tile);
+        }
         public virtual byte GetUpdatedWallState(WorldGen world, int x, int y)
         {
             if (world.GetWallID(x, y) == 0)

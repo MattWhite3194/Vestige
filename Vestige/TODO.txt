@@ -1,7 +1,7 @@
 ﻿TODO:
 Walls: -50 on brightness photo editor (future reference)
 
-Add a terminal to run commands in. Simple textbox that pops up when you press / or t, handles by the InGameUIHandler. On Enter Pressed will run a command.
+Get rid of treetop tile, move texture into tree and edit the draw function, Vector2 TreeTopOffset
 Stairs
 Generate a building/city
 
@@ -27,7 +27,6 @@ Implement tile culling
 
 Features:
 add equipment (maybe make accessories input handlers, and store them in a list and call them before calling the players input)
-projectiles
 Ambitious Features:
 Split Screen
 

@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-
-namespace Vestige.Game.Entities
+﻿namespace Vestige.Game.Entities
 {
     internal interface IRespawnable
     {

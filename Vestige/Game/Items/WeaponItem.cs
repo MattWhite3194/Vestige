@@ -26,14 +26,14 @@ namespace Vestige.Game.Items
             _projectileID = projectileID;
             _projectileSpeed = projectileSpeed;
         }
-        public override bool UseItem(Player player)
+        public override bool UseItem(Player player, bool altUse)
         {
             if (_projectileID != -1)
             {
                 Vector2 direction = Vector2.Normalize(Main.GetMouseWorldPosition().ToVector2() - player.Position);
                 Main.EntityManager.CreateProjectile(_projectileID, player.Position, _projectileSpeed, direction);
             }
-            return _weaponBehavior?.UseItem() ?? true;
+            return _weaponBehavior?.UseItem(altUse) ?? true;
         }
         protected override Item CloneItem()
         {

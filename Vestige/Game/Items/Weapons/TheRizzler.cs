@@ -5,7 +5,7 @@ namespace Vestige.Game.Items.Weapons
 {
     public class TheRizzler : IWeapon
     {
-        public bool UseItem()
+        public bool UseItem(bool altUse)
         {
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
             Point playerTileSize = Vector2.Ceiling(Main.EntityManager.GetPlayer().Size / Vestige.TILESIZE).ToPoint();

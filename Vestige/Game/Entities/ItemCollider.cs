@@ -18,6 +18,7 @@ namespace Vestige.Game.Entities
         public const float MaxRotation = MathHelper.PiOver4 * 2.5f;
         public bool ForcePlayerFlip = false;
         private bool _canUseItem = false;
+        private bool _altUse;
         public ItemCollider(InventoryManager inventory) : base(null, default, default, drawLayer: 2)
         {
             this._inventory = inventory;
@@ -36,7 +37,7 @@ namespace Vestige.Game.Entities
                         Item = _inventory.GetSelected();
                         if (Item == null || !Item.CanUse) return;
                         _holdTime = 0.0f;
-                        _canUseItem = !_inventory.UseSelected();
+                        _canUseItem = !_inventory.UseSelected(_altUse);
                         ItemActive = true;
                     }
                     else if (mouseInputEvent.EventType == InputEventType.MouseButtonUp)
@@ -46,6 +47,10 @@ namespace Vestige.Game.Entities
                     }
                     InputManager.MarkInputAsHandled(@event);
                 }
+            }
+            else if (@event.InputButton == InputButton.AltUse)
+            {
+                _altUse = @event.EventType == InputEventType.KeyDown;
             }
         }
 
@@ -100,7 +105,7 @@ namespace Vestige.Game.Entities
             if (ItemActive)
             {
                 if (_holdTime == 0.0f || (_canUseItem && !_leftReleased))
-                    _canUseItem = !_inventory.UseSelected();
+                    _canUseItem = !_inventory.UseSelected(_altUse);
             }
         }
         public override void Draw(SpriteBatch spriteBatch)

@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vestige.Game.WorldGeneration.WorldUpdaters
+﻿namespace Vestige.Game.WorldGeneration.WorldUpdaters
 {
     internal abstract class WorldUpdater
     {
         private double _updateRate;
         private double _elapsedTime;
-        protected WorldUpdater(double updateRate)
+        protected WorldGen world;
+        protected WorldUpdater(WorldGen world, double updateRate)
         {
             _updateRate = updateRate;
+            this.world = world;
         }
         internal void Update(double delta)
         {

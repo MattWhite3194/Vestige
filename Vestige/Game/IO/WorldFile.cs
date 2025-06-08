@@ -202,9 +202,9 @@ namespace Vestige.Game.IO
             {
                 for (int j = 0; j < worldSize.Y; j++)
                 {
-                    world.ForceTile(i, j, binaryReader.ReadUInt16());
+                    world.SetTile(i, j, binaryReader.ReadUInt16());
                     world.SetTileState(i, j, binaryReader.ReadByte());
-                    world.ForceWall(i, j, binaryReader.ReadUInt16());
+                    world.SetWall(i, j, binaryReader.ReadUInt16());
                     world.SetWallState(i, j, binaryReader.ReadByte());
                     world.SetLiquid(i, j, binaryReader.ReadByte());
                 }

@@ -74,8 +74,15 @@ namespace Vestige.Game.Renderers
                 {
                     if (Main.World.GetLiquid(i, j) != 0)
                     {
-                        int rectX = Main.World.GetLiquid(i, j - 1) != 0 ? 15 * 18 : (int)(Main.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * 14) * 18;
-                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE - 1, j * Vestige.TILESIZE), new Rectangle(rectX, 0, 18, 17), Main.LightEngine.GetLight(i, j));
+                        if (Main.World.GetLiquid(i, j) == WorldGen.MaxLiquid && Main.World.GetLiquid(i, j - 1) != 0)
+                        {
+                            spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i, j) * Vestige.TILESIZE, new Rectangle(Vestige.TILESIZE, 0, Vestige.TILESIZE, Vestige.TILESIZE), Main.LightEngine.GetLight(i, j));
+                        }
+                        else
+                        {
+                            int textureOffset = 2 + (int)(Main.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * (Vestige.TILESIZE - 2));
+                            spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE, j * Vestige.TILESIZE + Vestige.TILESIZE - textureOffset), new Rectangle(0, 0, Vestige.TILESIZE, textureOffset), Main.LightEngine.GetLight(i, j));
+                        }
                     }
                 }
             }
