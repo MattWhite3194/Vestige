@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using Vestige.Game.Entities;
 using Vestige.Game.Items.Weapons;
-using Vestige.Game.Tiles;
 
 namespace Vestige.Game.Items
 {
@@ -12,12 +11,6 @@ namespace Vestige.Game.Items
     /// </summary>
     public class Item
     {
-        /*
-        Saving to file:
-        id, name, description, image (stored in dictionary), quantity (if applicable), type, usespeed
-        store other related attributes based on type
-        instantiate the appropriate subclass based on type, add the attributes
-        */
         public readonly int ID;
         public readonly string Name;
         public readonly string Description;
@@ -50,14 +43,6 @@ namespace Vestige.Game.Items
         {
             return true;
         }
-
-        /// <summary>
-        /// Override this for any custom drawing effects
-        /// </summary>
-        /// <param name="spriteBatch"></param>
-        /// <param name="drawPosition"></param>
-        public virtual void Draw(SpriteBatch spriteBatch, Vector2 drawPosition) { }
-
         protected virtual Item CloneItem()
         {
             return new Item(ID, Name, Description, Image, Origin, Stackable, CanUse, UseSpeed, AutoUse, MaxStack, UseStyle);
@@ -72,7 +57,7 @@ namespace Vestige.Game.Items
             {4, new LiquidItem(4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], 1) },
             {5, new TileItem(5, "Chest", "For storing shiny things!", ContentLoader.ItemTextures[5], 8) },
             {6, new WeaponItem(6, "Steel Axe", "Don't take from my pile.", ContentLoader.ItemTextures[6], default, false, 0.3f, true, true, 12, 1, UseStyle.Swing, new Axe(10)) },
-            {7, new TileItem(7, "Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[7], 9) },
+            {7, new TileItem(7, "Wood Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[7], 9) },
             {8, new TileItem(8, "Wood Planks", "", ContentLoader.ItemTextures[8], 11) },
             {9, new Item(9, "Stick", "", ContentLoader.ItemTextures[9], stackable: true) },
             {10, new WeaponItem(10, "Wood Bow", "", ContentLoader.ItemTextures[10], new Vector2(4, 15), false, 0.5f, true, false, 10, 2, UseStyle.Point, projectileID: 0, projectileSpeed: 500f) }, //500f

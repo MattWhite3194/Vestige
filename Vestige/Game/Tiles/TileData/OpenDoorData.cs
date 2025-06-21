@@ -54,7 +54,7 @@ namespace Vestige.Game.Tiles.TileData
             }
         }
 
-        public void OnRightClick(WorldGen world, int x, int y)
+        public void OnRightClick(WorldGen world, Player player, int x, int y)
         {
             CloseDoor(world, x, y);
         }

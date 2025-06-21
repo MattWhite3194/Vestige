@@ -32,25 +32,17 @@ namespace Vestige.Game.Entities
         /// <summary>
         /// The layer other entities receive when they collide with this entity
         /// </summary>
-        public CollisionLayer Layer;
-        /// <summary>
-        /// The collision layers this entity receives collision events from
-        /// </summary>
-        public CollisionLayer CollidesWith;
-        /// <summary>
-        /// The layer this entity draws on
-        /// </summary>
-        public readonly int DrawLayer;
         public readonly string Name;
         /// <summary>
         /// the size of the entities hit box, will be calculated relative to the entities origin
         /// </summary>
-        public readonly Vector2 HitboxSize;
-        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, Vector2 hitboxSize = default, List<(int, int)> animationFrames = null, int drawLayer = 0, string name = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
+        private Point _hitboxSize;
+        private Vector2 _hitboxCenter;
+        protected Entity(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, Point hitboxSize = default, List<(int, int)> animationFrames = null, string name = null) : base(image, position, size, origin: origin, animationFrames: animationFrames)
         {
-            this.DrawLayer = drawLayer;
             Name = name != null ? name : "";
-            HitboxSize = hitboxSize != default ? hitboxSize : Size;
+            _hitboxSize = hitboxSize != default ? hitboxSize : Size.ToPoint();
+            _hitboxCenter = Origin - _hitboxSize.ToVector2() / 2.0f;
         }
         public virtual void OnCollision(Entity entity)
         {
@@ -66,11 +58,11 @@ namespace Vestige.Game.Entities
         }
         public virtual CollisionRectangle GetBounds()
         {
-            return new CollisionRectangle(Position + Origin - HitboxSize / 2.0f, HitboxSize.ToPoint());
+            return new CollisionRectangle(Position + _hitboxCenter, _hitboxSize);
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
-            Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
+            Point centerTilePosition = ((Position + Origin) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Image,
                 Vector2.Round(Position + Origin),
                 Animation?.AnimationRectangle ?? null,
@@ -82,11 +74,6 @@ namespace Vestige.Game.Entities
                 0.0f
             );
         }
-        /// <summary>
-        /// Fired after all collisions are resolved
-        /// </summary>
-        /// <param name="delta"></param>
-        public virtual void PostCollisionUpdate(double delta) { }
         public virtual string GetTooltipDisplay() 
         {
             return Name;

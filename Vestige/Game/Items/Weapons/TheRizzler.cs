@@ -1,14 +1,15 @@
 ﻿using Microsoft.Xna.Framework;
+using Vestige.Game.Entities;
 using Vestige.Game.Tiles;
 
 namespace Vestige.Game.Items.Weapons
 {
     public class TheRizzler : IWeapon
     {
-        public bool UseItem(bool altUse)
+        public bool UseItem(Player player, bool altUse)
         {
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
-            Point playerTileSize = Vector2.Ceiling(Main.EntityManager.GetPlayer().Size / Vestige.TILESIZE).ToPoint();
+            Point playerTileSize = Vector2.Ceiling(player.Size / Vestige.TILESIZE).ToPoint();
             for (int i = 0; i < playerTileSize.X; i++)
             {
                 for (int j = 0; j < playerTileSize.Y; j++)
@@ -17,8 +18,8 @@ namespace Vestige.Game.Items.Weapons
                         return false;
                 }
             }
-            Main.EntityManager.GetPlayer().Position = mouseTilePosition.ToVector2() * Vestige.TILESIZE;
-            Main.EntityManager.GetPlayer().Velocity = new Vector2(Main.EntityManager.GetPlayer().Velocity.X, 0);
+            player.Position = mouseTilePosition.ToVector2() * Vestige.TILESIZE;
+            player.Velocity = new Vector2(player.Velocity.X, 0);
             return true;
         }
     }

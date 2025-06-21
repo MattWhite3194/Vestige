@@ -19,11 +19,9 @@ namespace Vestige.Game.Entities.Projectiles
         private int _tilePenetration;
         private int _entityPenetration;
         private HashSet<(int, int)> _tileCollisions;
-        public Projectile(int id, Texture2D image, Vector2 size, Vector2 origin, int damage, int knockback, float timeLeft, bool friendly, bool collidesWithTiles, int tilePenetration = -1, int entityPenetration = -1, IProjectileBehavior behavior = null, List<(int, int)> animationFrames = null) : base(image, default, size, origin, animationFrames: animationFrames, drawLayer: 1)
+        public Projectile(int id, Texture2D image, Vector2 size, Vector2 origin, int damage, int knockback, float timeLeft, bool friendly, bool collidesWithTiles, int tilePenetration = -1, int entityPenetration = -1, IProjectileBehavior behavior = null, List<(int, int)> animationFrames = null) : base(image, default, size, origin, animationFrames: animationFrames)
         {
             ID = id;
-            Layer = 0;
-            CollidesWith = 0;
             CollidesWithTiles = collidesWithTiles;
             if (tilePenetration != -1) 
                 _tileCollisions = new HashSet<(int, int)> ();
@@ -35,8 +33,6 @@ namespace Vestige.Game.Entities.Projectiles
             _entityPenetration = entityPenetration;
             _tilePenetration = tilePenetration;
             _animationFrames = animationFrames;
-            Layer |= friendly ? CollisionLayer.FriendlyProjectile : CollisionLayer.HostileProjectile;
-            CollidesWith |= friendly ? CollisionLayer.Enemy : CollisionLayer.Player;
         }
         public override void OnCollision(Entity entity)
         {

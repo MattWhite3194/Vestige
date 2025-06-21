@@ -43,6 +43,11 @@ float Remap01(float value, float from, float to)
     return (value - from) / (to - from);
 }
 
+float whiteNoise(float2 uv)
+{
+    return frac(sin(dot(uv, float2(12.9898, 78.233))) * 43758.5453);
+}
+
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
     float2 uv = input.TextureCoordinates;
@@ -51,7 +56,9 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     float2 WorldSpace = mul(float4(input.Position.xy, 0.0, 1.0), ModelMatrix).xy;
     float2 transform = WorldSpace / screen_size;
     
-    
+    //float noise = whiteNoise(WorldSpace + float2(Time / 60.0, 0));
+    //fgColor = float4(noise, noise, noise, 1.0);
+    //TODO: add noise to the shader
     if (fgColor.g != 1.0)
     {
         float waves = uv.y + sin(transform.x / wave_period - Time * speed) * cos(0.2 * transform.x / wave_period + Time * speed) * wave_amplitude - wave_amplitude;
@@ -81,7 +88,7 @@ float4 MainPS(VertexShaderOutput input) : COLOR
 	
     float4 bgColor = tex2D(BackgroundTextureSampler, screenUV);
 
-    if (bgColor.a == 0.0) 
+    if (bgColor.a == 0.0)
         bgColor = fgColor;
     
     return lerp(bgColor, fgColor, 0.5);

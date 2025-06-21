@@ -7,7 +7,7 @@ using Vestige.Game.Input;
 using Vestige.Game.Inventory;
 using Vestige.Game.IO;
 using Vestige.Game.Lighting;
-using Vestige.Game.Menus.InGame;
+using Vestige.Game.Menus;
 using Vestige.Game.Renderers;
 using Vestige.Game.Time;
 using Vestige.Game.UI;
@@ -50,8 +50,9 @@ namespace Vestige.Game
             _parallaxManager = new ParallaxManager();
             GameClock = new GameClock();
             _worldFile = worldFile;
-            InventoryManager inventory = new InventoryManager(_worldFile.GetPlayerItems(), 8);
-            _localPlayer = new Player(inventory);
+            _localPlayer = new Player();
+            InventoryManager inventory = new InventoryManager(_localPlayer, _worldFile.GetPlayerItems(), 8);
+            _localPlayer.Inventory = inventory;
 
             //2x supersampling on all render targets
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
@@ -59,10 +60,8 @@ namespace Vestige.Game
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 4, Vestige.NativeResolution.Y * 4);
             _sunMoon = new SunAndMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
 
-
-            InGameOptionsMenu inGameOptionsMenu = new InGameOptionsMenu(graphicsDevice);
-            InGameUIHandler inGameUIHandler = new InGameUIHandler(this, inventory, inGameOptionsMenu, Vestige.NativeResolution.ToVector2());
-            inGameOptionsMenu.AssignSaveAndQuitAction(() =>
+            InGameMenu inGameUIHandler = new InGameMenu(gameHandle, this, _localPlayer, inventory, graphicsDevice);
+            inGameUIHandler.AssignSaveAndQuitAction(() =>
             {
                 inGameUIHandler.Dereference();
                 InputManager.UnregisterHandler(_localPlayer);
@@ -74,18 +73,14 @@ namespace Vestige.Game
 
             GameClock.SetGameClock(1000, 2000);
             _localPlayer.InitializeGameUpdates(worldFile.GetSpawnTile());
-            EntityManager.SetPlayer(_localPlayer);
 
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
-
-            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(500, -100));
-            //EntityManager.CreateEnemy(0, _localPlayer.Position + new Vector2(-500, -100));
             
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), EntityManager.GetPlayer().Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), EntityManager.GetPlayer().Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), _localPlayer.Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), _localPlayer.Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), _localPlayer.Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), _localPlayer.Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
         }
         public void Update(double delta)
         {
@@ -152,10 +147,9 @@ namespace Vestige.Game
         }
         private void CalculateTranslation()
         {
-            Player player = EntityManager.GetPlayer();
-            int dx = (int)Math.Round(Vestige.NativeResolution.X / 2 - player.Position.X - player.Origin.X);
+            int dx = (int)Math.Round(Vestige.NativeResolution.X / 2 - _localPlayer.Position.X - _localPlayer.Origin.X);
             dx = MathHelper.Clamp(dx, -World.WorldSize.X * Vestige.TILESIZE + Vestige.NativeResolution.X, 0);
-            int dy = (int)Math.Round(Vestige.NativeResolution.Y / 2 - player.Position.Y - player.Origin.Y);
+            int dy = (int)Math.Round(Vestige.NativeResolution.Y / 2 - _localPlayer.Position.Y - _localPlayer.Origin.Y);
             dy = MathHelper.Clamp(dy, -World.WorldSize.Y * Vestige.TILESIZE + Vestige.NativeResolution.Y, 0);
             _translation = Matrix.CreateTranslation(dx, dy, 0f);
         }

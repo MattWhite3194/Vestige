@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Vestige.Game.Input;
 using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
 using Vestige.Game.UI;
@@ -13,34 +12,39 @@ using Vestige.Game.WorldGeneration;
 using System.Diagnostics;
 using Vestige.Game.IO;
 using System.Globalization;
+using Vestige.Game.Drawables;
 
-namespace Vestige.Game.Menus.MainMenu
+namespace Vestige.Game.Menus
 {
-    public class MainMenu
+    //TODO: clear the delegate on the resolution selector when this Menu is removed, or keep a single main menu open
+    public class MainMenu : UIContainer
     {
+        private ParallaxManager parallaxManager;
+        private Vector2 parallaxOffset;
         private UIContainer _startMenu;
         private PanelContainer _createWorldMenu;
         private GridContainer _settingsMenu;
         private PanelContainer _loadGameMenu;
         private Button _backButton;
-        private Stack<UIContainer> _menus;
+        private Stack<UIContainer> _subMenus;
         private Vestige _game;
-        private MainMenuBackground _mainMenuBackground;
         private TextBox _worldNameTextBox;
         private GraphicsDevice _graphicsDevice;
         private SelectionContainer _worldSizeSelector;
         private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _worldSortMethod;
-        private PanelContainer _confirmDeletionMenu;
 
-
-        //TODO: Make each menu a separate UIComponentContainer, use this class to add and remove them from the UIManager and InputHandler
-        //make the back button return menu a paramater in the menu declaration so the back button can be placed anywhere in the menu
-        public MainMenu(Vestige gameHandle, GraphicsDevice graphicsDevice)
+        public MainMenu(Vestige gameHandle, GraphicsDevice graphicsDevice) : base(anchor: Anchor.None)
         {
+            parallaxOffset = new Vector2(0, Vestige.NativeResolution.Y);
+            parallaxManager = new ParallaxManager();
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(2f, 0), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(30f, 1), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(35f, 1), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(40f, 1), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
             _worldSortMethod = SortWorldsByDateDescending;
             _game = gameHandle;
             _graphicsDevice = graphicsDevice;
-            _menus = new Stack<UIContainer>();
+            _subMenus = new Stack<UIContainer>();
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
             _createWorldMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 150), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
             _settingsMenu = new GridContainer(1);
@@ -70,18 +74,35 @@ namespace Vestige.Game.Menus.MainMenu
             uiScaleSlider.OnValueChanged += (value) =>
             {
                 value = (int)value;
-                _game.SetUIScaleMatrix(value / 100 * Vestige.DefaultUIScale);
+                _game.SetUIScale(value / 100);
             };
             _settingsMenu.AddComponentChild(uiScaleSlider);
 
-            Button resolutionSelector = new Button(new Vector2(0, 0), $"{Vestige.ScreenResolution.X} x {Vestige.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            //TODO: add an apply button
+            Button resolutionSelector = new Button(Vector2.Zero, $"{Vestige.ScreenResolution.X} x {Vestige.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             resolutionSelector.OnButtonPress += () =>
             {
-                (int x, int y) = Vestige.Settings.GetNextResolution();
-                gameHandle.SetWindowProperties(x, y, false);
-                resolutionSelector.SetText($"{x} x {y}");
+                (int width, int height) = _game.GetNextSupportedResolution();
+                gameHandle.SetResolution(width, height);
+                resolutionSelector.SetText($"{width} x {height}");
             };
+            Vestige.GameWindow.ClientSizeChanged += (sender, e) =>
+            {
+                resolutionSelector.SetText($"{Vestige.ScreenResolution.X} x {Vestige.ScreenResolution.Y}");
+            };
+
             _settingsMenu.AddComponentChild(resolutionSelector);
+
+            string fullScreenSelectorText = _game.IsFullScreen ? "Toggle Windowed" : "Toggle Fullscreen";
+            Button fullScreenSelector = new Button(Vector2.Zero, fullScreenSelectorText, Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            fullScreenSelector.OnButtonPress += () =>
+            {
+                bool fullscreen = !_game.IsFullScreen;
+                gameHandle.SetFullScreen(fullscreen);
+                fullScreenSelector.SetText(fullscreen ? "Toggle Windowed" : "Toggle Fullscreen");
+            };
+
+            _settingsMenu.AddComponentChild(fullScreenSelector);
 
             //create world menu
             _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288, textAlign: TextAlign.Center);
@@ -104,39 +125,30 @@ namespace Vestige.Game.Menus.MainMenu
             };
             _createWorldMenu.AddComponentChild(worldGenTestButton);
 
-            //Confirm delete menu
-            _confirmDeletionMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 60), Vestige.UIPanelColor, Color.Black, 20, 1, 5, graphicsDevice: graphicsDevice);
-            
-            Label confirmationTextLabel = new Label(Vector2.Zero, "Are you sure you want to deletethis? This cannot be undone.", Vector2.Zero, Color.White, 288);
-            _confirmDeletionMenu.AddComponentChild(confirmationTextLabel);
-
-            Button cancelButton = new Button(new Vector2(40, 40), "Cancel", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 60);
-            cancelButton.OnButtonPress += RemoveSubMenu;
-            _confirmDeletionMenu.AddComponentChild(cancelButton);
-
-            Button deleteButton = new Button(new Vector2(188, 40), "Delete", Vector2.Zero, color: Color.Red, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 60);
-            _confirmDeletionMenu.AddComponentChild(deleteButton);
-
             _backButton = new Button(new Vector2(0, 0), "Back", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             _backButton.OnButtonPress += RemoveSubMenu;
 
-            _mainMenuBackground = new MainMenuBackground();
-            UIManager.RegisterContainer(_mainMenuBackground);
-            UIManager.RegisterContainer(_startMenu);
-            InputManager.RegisterHandler(_startMenu);
-            _menus.Push(_startMenu);
+            AddSubMenu(_startMenu);
+        }
+        public override void Update(double delta)
+        {
+            parallaxOffset.X += (float)delta;
+            parallaxManager.Update(delta, parallaxOffset);
+            base.Update(delta);
+        }
+        public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
+        {
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(Vestige.ScreenResolution.X / (float)Vestige.NativeResolution.X));
+            parallaxManager.Draw(spriteBatch, Color.White);
+            spriteBatch.End();
+            base.Draw(spriteBatch, rasterizerState);
         }
         private async void CreateWorld()
         {
             string worldName = _worldNameTextBox.GetText();
-            if (string.IsNullOrEmpty(worldName))
-            {
-                worldName = "New World";
-            }
             WorldFile newWorldFile = new WorldFile();
             newWorldFile.SetPath(worldName);
-            int numMenus = _menus.Count;
-            UIManager.UnregisterContainer(_createWorldMenu);
+            RemoveContainerChild(_createWorldMenu);
             bool worldGenSuccessful = true;
             Point worldSize = (Point)_worldSizeSelector.GetSelected();
             WorldGen world = new WorldGen(worldSize.X, worldSize.Y);
@@ -155,14 +167,9 @@ namespace Vestige.Game.Menus.MainMenu
             });
             if (!worldGenSuccessful)
             {
-                UIManager.RegisterContainer(_createWorldMenu);
+                AddContainerChild(_createWorldMenu);
                 return;
             }
-            for (int i = 0; i < numMenus; i++)
-            {
-                _menus.Pop().Dereference();
-            }
-            UIManager.UnregisterContainer(_mainMenuBackground);
             _game.StartGame(world, newWorldFile);
         }
         private void ListWorlds()
@@ -197,36 +204,7 @@ namespace Vestige.Game.Menus.MainMenu
         {
             return worldContainers.OrderBy(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
         }
-        private void AddSubMenu(UIContainer menu, bool addBackButton = true)
-        {
-            if (_menus.Count != 0)
-            {
-                UIManager.UnregisterContainer(_menus.Peek());
-                InputManager.UnregisterHandler(_menus.Peek());
-            }
-            UIManager.RegisterContainer(menu);
-            InputManager.RegisterHandler(menu);
-            _menus.Push(menu);
-            if (addBackButton)
-            {
-                _backButton.Size = new Vector2(menu.Size.X, _backButton.Size.Y);
-                _backButton.Position = new Vector2(0, menu.Size.Y);
-                menu.AddComponentChild(_backButton);
-            }
-            UIManager.OnUIScaleChanged(Vestige.ScreenResolution.X, Vestige.ScreenResolution.Y);
-        }
-        private void RemoveSubMenu()
-        {
-            UIManager.UnregisterContainer(_menus.Peek());
-            InputManager.UnregisterHandler(_menus.Peek());
-            _menus.Peek().RemoveComponentChild(_backButton);
-            _menus.Pop();
-            if (_menus.Count != 0)
-            {
-                UIManager.RegisterContainer(_menus.Peek());
-                InputManager.RegisterHandler(_menus.Peek());
-            }
-        }
+
         private (UIContainer, Dictionary<string, string>) GetWorldContainer(string path)
         {
             WorldFile worldFile = new WorldFile(path);
@@ -248,25 +226,12 @@ namespace Vestige.Game.Menus.MainMenu
                     Debug.WriteLine(ex.Message);
                     return;
                 }
-                int numMenus = _menus.Count;
-                for (int i = 0; i < numMenus; i++)
-                {
-                    _menus.Pop().Dereference();
-                }
-                UIManager.UnregisterContainer(_mainMenuBackground);
                 _game.StartGame(world, worldFile);
             };
             deleteButton.OnButtonPress += () =>
             {
-                (_confirmDeletionMenu.GetComponentChild(2) as Button).OnButtonPress = () =>
-                {
-                    File.Delete(path);
-                    Directory.Delete(Path.GetDirectoryName(path));
-                    RemoveSubMenu();
-                    RemoveSubMenu();
-                    ListWorlds();
-                };
-                AddSubMenu(_confirmDeletionMenu, false);
+                UIContainer confirmDeletionMenu = CreateDeletionMenu(path);
+                AddSubMenu(confirmDeletionMenu, false);
             };
             worldPanel.AddComponentChild(worldName);
             worldPanel.AddComponentChild(worldDate);
@@ -274,6 +239,52 @@ namespace Vestige.Game.Menus.MainMenu
             worldPanel.AddComponentChild(deleteButton);
             DateTime parsedDate = DateTime.ParseExact(worldMetaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture);
             return (worldPanel, worldMetaData);
+        }
+        private UIContainer CreateDeletionMenu(string path)
+        {
+            PanelContainer confirmDeletionMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 60), Vestige.UIPanelColor, Color.Black, 20, 1, 5, graphicsDevice: _graphicsDevice);
+
+            Label confirmationTextLabel = new Label(Vector2.Zero, "Are you sure you want to deletethis? This cannot be undone.", Vector2.Zero, Color.White, 288);
+            confirmDeletionMenu.AddComponentChild(confirmationTextLabel);
+
+            Button cancelButton = new Button(new Vector2(40, 40), "Cancel", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 60);
+            cancelButton.OnButtonPress += RemoveSubMenu;
+            confirmDeletionMenu.AddComponentChild(cancelButton);
+
+            Button deleteButton = new Button(new Vector2(188, 40), "Delete", Vector2.Zero, color: Color.Red, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 60);
+            deleteButton.OnButtonPress += () =>
+            {
+                File.Delete(path);
+                Directory.Delete(Path.GetDirectoryName(path));
+                RemoveSubMenu();
+                RemoveSubMenu();
+                ListWorlds();
+            };
+            confirmDeletionMenu.AddComponentChild(deleteButton);
+
+            return confirmDeletionMenu;
+        }
+        private void AddSubMenu(UIContainer menu, bool addBackButton = true)
+        {
+            if (_subMenus.Count > 0)
+            {
+                RemoveContainerChild(_subMenus.Peek());
+                if (addBackButton)
+                {
+                    _backButton.Size = new Vector2(menu.Size.X, _backButton.Size.Y);
+                    _backButton.Position = new Vector2(0, menu.Size.Y);
+                    menu.AddComponentChild(_backButton);
+                }
+            }
+            AddContainerChild(menu);
+            _subMenus.Push(menu);
+        }
+        private void RemoveSubMenu()
+        {
+            UIContainer menu = _subMenus.Pop();
+            menu.RemoveComponentChild(_backButton);
+            RemoveContainerChild(menu);
+            AddContainerChild(_subMenus.Peek());
         }
     }
 }

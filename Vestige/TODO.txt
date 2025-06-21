@@ -1,6 +1,8 @@
 ﻿TODO:
 Walls: -50 on brightness photo editor (future reference)
 
+Make UseItem containe a reference to Player to avoid GetPlayer() function
+Assign Player to UI instance
 Get rid of treetop tile, move texture into tree and edit the draw function, Vector2 TreeTopOffset
 Stairs
 Generate a building/city

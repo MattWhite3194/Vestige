@@ -1,13 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Vestige.Game;
-using Vestige.Game.Entities;
 using Vestige.Game.Input;
-using Vestige.Game.Inventory;
 using Vestige.Game.IO;
-using Vestige.Game.Menus.MainMenu;
+using Vestige.Game.Menus;
 using Vestige.Game.UI;
 using Vestige.Game.WorldGeneration;
 
@@ -15,6 +15,7 @@ namespace Vestige
 {
     public class Vestige : Microsoft.Xna.Framework.Game
     {
+        private MainMenu _mainMenu;
         public static string SavePath;
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
@@ -23,7 +24,8 @@ namespace Vestige
         /// <summary>
         /// The default scale of the UI in relation to the current screen resolution
         /// </summary>
-        public static float DefaultUIScale;
+        private float _defaultUIScale;
+        private float _userUIScale = 1.0f;
         public static Rectangle RenderDestination;
         public static GameWindow GameWindow;
         public static readonly Point NativeResolution = new Point(960, 640);
@@ -37,6 +39,9 @@ namespace Vestige
         public static readonly Color UIPanelColorOpaque = new Color(42, 45, 48, 255);
         public static readonly Color HighlightedTextColor = new Color(163, 213, 255, 255);
         public static readonly Color SelectedTextColor = new Color(120, 180, 230, 255);
+        private List<Point> _supportedResolutions;
+        private Point _maxScreenResolution;
+        public bool IsFullScreen;
         /*
          Charcoal Gray - Color(42, 45, 48, 196)
          Steel Blue - Color(58, 74, 89, 196)
@@ -63,21 +68,15 @@ namespace Vestige
 
         protected override void Initialize()
         {
-            //Screen settings
+            GetSupportedDisplayModes();
             Settings.Load();
-            SetWindowProperties((int)Settings.Get("screen-width"), (int)Settings.Get("screen-height"), (bool)Settings.Get("fullscreen"));
+            SetWindowProperties((int)Settings.Get("screen-width"), (int)Settings.Get("screen-height"), false);
             Window.AllowUserResizing = true;
-            Window.ClientSizeChanged += OnClientSizeChanged;
+            Window.ClientSizeChanged += (sender, e) => UpdateRenderDestination(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
             //For unlimited fps:
             //IsFixedTimeStep = false;
             Utilities.Initialize(GraphicsDevice);
             base.Initialize();
-        }
-        private void OnClientSizeChanged(object sender, EventArgs e)
-        {
-            Settings.Set("screen-width", GraphicsDevice.PresentationParameters.BackBufferWidth);
-            Settings.Set("screen-height", GraphicsDevice.PresentationParameters.BackBufferHeight);
-            UpdateRenderDestination(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
         }
         protected override void LoadContent()
         {
@@ -89,6 +88,10 @@ namespace Vestige
         protected override void BeginRun()
         {
             LoadMainMenu();
+            //need to call this here because starting the application in fullscreen mode will disable window resizing when set back to windowed.
+            if ((bool)Settings.Get("fullscreen")) {
+                SetFullScreen(true);
+            }
         }
         protected override void Update(GameTime gameTime)
         {
@@ -117,19 +120,43 @@ namespace Vestige
 
             base.Draw(gameTime);
         }
-        public void SetWindowProperties(int width, int height, bool fullScreen)
+        //TODO: make fullscreen size be max native screen resolution. fix going out of full screen mode
+        public void SetResolution(int width, int height)
         {
+            SetWindowProperties(width, height, _graphics.IsFullScreen);
+        }
+        public void SetFullScreen(bool fullscreen)
+        {
+            SetWindowProperties(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight, fullscreen);
+        }
+        private void SetWindowProperties(int width, int height, bool fullscreen)
+        {
+            if (fullscreen != IsFullScreen)
+            {
+                if (!IsFullScreen)
+                {
+                    //going into fullscreen will clamp width and height to the supposed max monitor resolution. There are no other APIs to get cross platform resolutions unless I use SDL2
+                    width = Math.Min(width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width);
+                    height = Math.Min(height, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+                    _graphics.PreferredBackBufferWidth = width;
+                    _graphics.PreferredBackBufferHeight = height;
+                    _graphics.ApplyChanges();
+                }
+                else
+                {
+                    //if toggling out of fullscreen, clamp width to bottom bar bounds
+                }                
+            }
+            IsFullScreen = fullscreen;
             _graphics.PreferredBackBufferWidth = width;
             _graphics.PreferredBackBufferHeight = height;
-            _graphics.IsFullScreen = fullScreen;
-            Settings.Set("screen-width", width);
-            Settings.Set("screen-height", height);
-            //_graphics.SynchronizeWithVerticalRetrace = false;
+            _graphics.IsFullScreen = fullscreen;
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
         }
         public void StartGame(WorldGen world, WorldFile worldFile)
         {
+            _mainMenu.Dereference();
             _gameManager = new Main(this, world, worldFile, GraphicsDevice);
         }
         private void UpdateRenderDestination(int width, int height)
@@ -137,8 +164,8 @@ namespace Vestige
             ScreenResolution = new Point(width, height);
             int xScale = (int)Math.Ceiling(width / (float)NativeResolution.X);
             int yScale = (int)Math.Ceiling(height / (float)NativeResolution.Y);
-            DefaultUIScale = width / (float)NativeResolution.X;
-            SetUIScaleMatrix(DefaultUIScale);
+            _defaultUIScale = width / (float)NativeResolution.X;
+            SetUIScale(_userUIScale);
             float scale = Math.Max(xScale, yScale);
             RenderDestination = new Rectangle(
                 width / 2 - (int)(NativeResolution.X * scale) / 2,
@@ -147,20 +174,53 @@ namespace Vestige
                 (int)(NativeResolution.Y * scale)
                 );
         }
-        public void SetUIScaleMatrix(float scale)
+        public void SetUIScale(float scale)
         {
-            UIScaleMatrix = Matrix.CreateScale(scale);
+            UIScaleMatrix = Matrix.CreateScale(_defaultUIScale * scale);
+            _userUIScale = scale;
             UIManager.OnUIScaleChanged(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
         }
         public void LoadMainMenu()
         {
             _gameManager = null;
-            MainMenu mainMenu = new MainMenu(this, GraphicsDevice);
+            _mainMenu = new MainMenu(this, GraphicsDevice);
+            UIManager.RegisterContainer(_mainMenu);
+            InputManager.RegisterHandler(_mainMenu);
         }
         public void QuitGame()
         {
+            Settings.Set("screen-width", GraphicsDevice.PresentationParameters.BackBufferWidth);
+            Settings.Set("screen-height", GraphicsDevice.PresentationParameters.BackBufferHeight);
+            Settings.Set("fullscreen", _graphics.IsFullScreen);
             Settings.Save();
             this.Exit();
+        }
+        private void GetSupportedDisplayModes()
+        {
+            _supportedResolutions = new List<Point>();
+            _maxScreenResolution = new Point(0, 0);
+            foreach (var displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
+            {
+                if (displayMode.Width < NativeResolution.X ||  displayMode.Height < NativeResolution.Y)
+                    continue;
+                _supportedResolutions.Add(new Point(displayMode.Width, displayMode.Height));
+                if (displayMode.Width > _maxScreenResolution.X)
+                {
+                    _maxScreenResolution.X = displayMode.Width;
+                }
+                if (displayMode.Height > _maxScreenResolution.Y)
+                {
+                    _maxScreenResolution.Y = displayMode.Height;
+                }
+            }
+        }
+        public Point GetNextSupportedResolution()
+        {
+            int currentResolutionIndex = _supportedResolutions.IndexOf(ScreenResolution);
+            if (currentResolutionIndex != -1) {
+                return _supportedResolutions[(currentResolutionIndex + 1) % _supportedResolutions.Count];
+            }
+            return _supportedResolutions[0];
         }
     }
 }

@@ -19,10 +19,11 @@ namespace Vestige.Game.Entities
         public bool ForcePlayerFlip = false;
         private bool _canUseItem = false;
         private bool _altUse;
-        public ItemCollider(InventoryManager inventory) : base(null, default, default, drawLayer: 2)
+        private Player _player;
+        public ItemCollider(Player player, InventoryManager inventory) : base(null, default, default)
         {
-            this._inventory = inventory;
-            this.Layer = CollisionLayer.ItemCollider;
+            _player = player;
+            _inventory = inventory;
         }
         public void HandleInput(InputEvent @event)
         {
@@ -59,15 +60,15 @@ namespace Vestige.Game.Entities
             if (!ItemActive)
                 return;
 
-            FlipSprite = Main.EntityManager.GetPlayer().FlipSprite;
-            Position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2 - new Vector2(0, Item.Image.Height - Item.Origin.Y + 4) + (FlipSprite ? new Vector2(-Item.Image.Width - 3, 0) : new Vector2(3, 0));
+            FlipSprite = _player.FlipSprite;
+            Position = _player.Position + _player.Size / 2 - new Vector2(0, Item.Image.Height - Item.Origin.Y + 4) + (FlipSprite ? new Vector2(-Item.Image.Width - 3, 0) : new Vector2(3, 0));
             Origin = new Vector2(0, Item.Image.Height) + (FlipSprite ? new Vector2(Item.Image.Width - Item.Origin.X + 9, -Item.Origin.Y) : new Vector2(Item.Origin.X - 9, -Item.Origin.Y));
             switch (Item.UseStyle)
             {
                 case UseStyle.Point:
                     if (_holdTime == 0.0f)
                     {
-                        Vector2 playerPosition = Main.EntityManager.GetPlayer().Position;
+                        Vector2 playerPosition = _player.Position;
                         Point mousePosition = Main.GetMouseWorldPosition();
                         if (mousePosition.X < playerPosition.X)
                         {
@@ -86,6 +87,10 @@ namespace Vestige.Game.Entities
                     Rotation = -MathHelper.PiOver4 + (float)(_holdTime / Item.UseSpeed * MaxRotation);
                     Rotation = FlipSprite ? -Rotation : Rotation;
                     break;
+                case UseStyle.Throw:
+                    Rotation = -MathHelper.PiOver4 + (float)(_holdTime / Item.UseSpeed * MaxRotation);
+                    Rotation = FlipSprite ? -Rotation : Rotation;
+                    break;
                 default:
                     Rotation = 0.0f;
                     break;
@@ -99,9 +104,6 @@ namespace Vestige.Game.Entities
                     ItemActive = false;
                 }
             }
-        }
-        public override void PostCollisionUpdate(double delta)
-        {
             if (ItemActive)
             {
                 if (_holdTime == 0.0f || (_canUseItem && !_leftReleased))
@@ -110,14 +112,9 @@ namespace Vestige.Game.Entities
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
-            
-        }
-
-        public void DrawItem(SpriteBatch spriteBatch)
-        {
             if (!ItemActive || Item.UseStyle == UseStyle.Throw)
                 return;
-            Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
+            Point centerTilePosition = ((Position + Origin) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(Item.Image,
                         Vector2.Round(Position + Origin),
                         null,
@@ -129,7 +126,6 @@ namespace Vestige.Game.Entities
                         0.0f
                     );
         }
-
         public override CollisionRectangle GetBounds()
         {
             if (ItemActive && Item is WeaponItem weaponItem && weaponItem.SpriteDoesDamage)

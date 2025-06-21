@@ -42,8 +42,7 @@ namespace Vestige.Game.WorldGeneration
         private LiquidUpdater _liquidUpdater;
         private OverlayTileUpdater _overlayTileUpdater;
         private Dictionary<Point, Item[]> _tileInventories;
-        public delegate bool WorldUpdate();
-        public WorldUpdate OnWorldUpdate;
+        public event Func<bool> OnWorldUpdate;
         private List<Structure> _structures;
 
         public WorldGen(int sizeX, int sizeY)
@@ -260,7 +259,7 @@ namespace Vestige.Game.WorldGeneration
             }
             if (OnWorldUpdate != null)
             {
-                foreach (WorldUpdate tileUpdate in OnWorldUpdate.GetInvocationList())
+                foreach (Func<bool> tileUpdate in OnWorldUpdate.GetInvocationList())
                 {
                     if (tileUpdate.Invoke())
                     {
@@ -573,7 +572,21 @@ namespace Vestige.Game.WorldGeneration
             }
             else
             {
-                PlaceTile(x, y, TileDatabase.GetTileData(tileID) is OverlayTileData overlayTile ? overlayTile.BaseTileID : (ushort)0);
+                SetTile(x, y, TileDatabase.GetTileData(tileID) is OverlayTileData overlayTile ? overlayTile.BaseTileID : (ushort)0);
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        SetTileState(x + i, y + j, TileDatabase.GetTileData(GetTileID(x + i, y + j)).GetUpdatedTileState(this, x + i, y + j));
+                    }
+                }
+                for (int i = -1; i <= 1; i++)
+                {
+                    for (int j = -1; j <= 1; j++)
+                    {
+                        UpdateTile(x + i, y + j);
+                    }
+                }
             }
             int itemID = TileDatabase.GetTileData(tileID).ItemID;
             if (itemID == -1)

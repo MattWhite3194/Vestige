@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Vestige.Game.Input;
 
 namespace Vestige.Game.UI.Components
@@ -17,8 +18,7 @@ namespace Vestige.Game.UI.Components
         private Vector2 _sliderPositionOnGrab;
         private Vector2 _minPosition;
         private Vector2 _maxPosition;
-        public delegate void ValueChanged(float value);
-        public ValueChanged OnValueChanged;
+        public event Action<float> OnValueChanged;
         private Vector2 _grabPosition;
         private string _valueModifiers;
         private string _valueString;
@@ -39,7 +39,7 @@ namespace Vestige.Game.UI.Components
             _valueString = (int)_value + _valueModifiers; 
             Size.Y += _labelSize.Y + 2;
         }
-        protected override void HandleMouseInput(MouseInputEvent mouseEvent, Vector2 mouseCoordinates)
+        public override void HandleMouseInput(MouseInputEvent mouseEvent, Vector2 mouseCoordinates)
         {
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {

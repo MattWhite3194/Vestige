@@ -1,19 +1,16 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Vestige.Game.Input;
 
 namespace Vestige.Game.UI.Components
 {
     public abstract class UIComponent
     {
-        public delegate void GuiInput(InputEvent @event);
-        public GuiInput OnGuiInput;
-        public delegate void MouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates);
-        public MouseInput OnMouseInput;
-        public delegate void MouseEntered();
-        public delegate void MouseExited();
-        public MouseEntered OnMouseEntered;
-        public MouseExited OnMouseExited;
+        public event Action<InputEvent> OnGuiInput;
+        public event Action<MouseInputEvent, Vector2> OnMouseInput;
+        public event Action OnMouseEntered;
+        public event Action OnMouseExited;
         protected bool hidden = false;
         protected Texture2D image;
         public Color Color;
@@ -43,10 +40,6 @@ namespace Vestige.Game.UI.Components
                 Size = new Vector2(image.Width, image.Height);
             else
                 Size = Vector2.Zero;
-            OnGuiInput += HandleGuiInput;
-            OnMouseInput += HandleMouseInput;
-            OnMouseEntered += () => HandleMouseEntered();
-            OnMouseExited += () => HandleMouseExited();
         }
 
         public virtual void Update(double delta) { }
@@ -66,14 +59,6 @@ namespace Vestige.Game.UI.Components
             focused = isFocused;
         }
 
-        /// <summary>
-        /// Called when the UIComponents position is changed.
-        /// </summary>
-        protected virtual void HandlePositionUpdate()
-        {
-
-        }
-
         public virtual void Hide()
         {
             hidden = true;
@@ -90,24 +75,24 @@ namespace Vestige.Game.UI.Components
             return !hidden;
         }
 
-        protected virtual void HandleGuiInput(InputEvent @event)
+        public virtual void HandleGuiInput(InputEvent @event)
         {
-
+            OnGuiInput?.Invoke(@event);
         }
 
-        protected virtual void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
+        public virtual void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
         {
-
+            OnMouseInput?.Invoke(@mouseEvent, mouseCoordinates);
         }
 
-        protected virtual void HandleMouseEntered()
+        public virtual void HandleMouseEntered()
         {
-
+            OnMouseEntered?.Invoke();
         }
 
-        protected virtual void HandleMouseExited()
+        public virtual void HandleMouseExited()
         {
-
+            OnMouseExited?.Invoke();
         }
 
         public virtual Rectangle GetBounds()

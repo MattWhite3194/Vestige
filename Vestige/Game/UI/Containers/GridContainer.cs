@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Vestige.Game.UI.Components;
 
 namespace Vestige.Game.UI.Containers
@@ -12,7 +11,7 @@ namespace Vestige.Game.UI.Containers
         private float[] _columnPositions;
         private float _currentContainerHeight;
         private List<object> _gridElements;
-
+        //TODO: fix issue where adding or removing an element does not update the anchor, may require refactoring
         public GridContainer(int cols, int margin = 5, Vector2 position = default, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle) : base(position, size, anchor: anchor)
         {
             _cols = cols;
@@ -21,7 +20,6 @@ namespace Vestige.Game.UI.Containers
             _currentContainerHeight = 0;
             _gridElements = new List<object>();
         }
-        //TODO: fix issue where removing components does not update the size of the container
         public override void AddComponentChild(UIComponent component)
         {
             int i = (ComponentCount + ContainerCount) % _cols;
@@ -70,6 +68,7 @@ namespace Vestige.Game.UI.Containers
         }
         private void RepositionAllElements()
         {
+            Vector2 newSize = Vector2.Zero;
             Size = Vector2.Zero;
             _currentContainerHeight = 0;
             for (int i = 0; i < _columnPositions.Length; i++)
@@ -103,8 +102,9 @@ namespace Vestige.Game.UI.Containers
                 {
                     _currentContainerHeight += childSize.Y + _margin;
                 }
-                Size = Vector2.Max(Size, childPosition + childSize);
+                newSize = Vector2.Max(newSize, childPosition + childSize);
             }
+            Size = newSize;
         }
     }
 }

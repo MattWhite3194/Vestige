@@ -44,7 +44,7 @@ namespace Vestige.Game.Renderers
                 }
             }
         }
-
+        private int _tileLiquidTextureAmount = 4;
         public void DrawTiles(SpriteBatch spriteBatch)
         {
             for (int i = _drawBoxMin.X; i < _drawBoxMax.X; i++)
@@ -54,6 +54,31 @@ namespace Vestige.Game.Renderers
                     ushort tileID = Main.World.GetTileID(i, j);
                     if (!TileDatabase.TileHasProperties(tileID, TileProperty.Solid))
                         continue;
+                    //Draw water behind tile
+                    bool top = Main.World.GetLiquid(i, j - 1) != 0;
+                    bool bottom = Main.World.GetLiquid(i, j + 1) == WorldGen.MaxLiquid;
+                    int left = (int)(Main.World.GetLiquid(i - 1, j) / (float)WorldGen.MaxLiquid * (Vestige.TILESIZE - 2));
+                    int right = (int)(Main.World.GetLiquid(i + 1, j) / (float)WorldGen.MaxLiquid * (Vestige.TILESIZE - 2));
+
+                    if (top)
+                    {
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Rectangle(i * Vestige.TILESIZE, j * Vestige.TILESIZE, Vestige.TILESIZE, _tileLiquidTextureAmount), new Rectangle(0, 2, Vestige.TILESIZE, _tileLiquidTextureAmount + 2), Main.LightEngine.GetLight(i, j));
+                    }
+                    if (bottom)
+                    {
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Rectangle(i * Vestige.TILESIZE, j * Vestige.TILESIZE + _tileLiquidTextureAmount, Vestige.TILESIZE, _tileLiquidTextureAmount), new Rectangle(0, 2, Vestige.TILESIZE, _tileLiquidTextureAmount + 2), Main.LightEngine.GetLight(i, j));
+                    }
+                    if (left != 0)
+                    {
+                        left = left + 2;
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Rectangle(i * Vestige.TILESIZE, j * Vestige.TILESIZE + Vestige.TILESIZE - left, _tileLiquidTextureAmount, left), new Rectangle(0, 0, _tileLiquidTextureAmount, left), Main.LightEngine.GetLight(i, j));
+                    }
+                    if (right != 0)
+                    {
+                        right = right + 2;
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Rectangle(i * Vestige.TILESIZE + Vestige.TILESIZE - _tileLiquidTextureAmount, j * Vestige.TILESIZE + Vestige.TILESIZE - right, _tileLiquidTextureAmount, right), new Rectangle(0, 0, _tileLiquidTextureAmount, right), Main.LightEngine.GetLight(i, j));
+                    }
+                    //Draw Tile
                     TileDatabase.GetTileData(tileID).Draw(spriteBatch, i, j, Main.World.GetTileState(i, j), Main.LightEngine.GetLight(i, j));
                 }
             }
@@ -74,7 +99,7 @@ namespace Vestige.Game.Renderers
                 {
                     if (Main.World.GetLiquid(i, j) != 0)
                     {
-                        if (Main.World.GetLiquid(i, j) == WorldGen.MaxLiquid && Main.World.GetLiquid(i, j - 1) != 0)
+                        if (Main.World.GetLiquid(i, j) == WorldGen.MaxLiquid && (Main.World.GetLiquid(i, j - 1) != 0 || TileDatabase.TileHasProperties(Main.World.GetTileID(i, j-1), TileProperty.Solid)))
                         {
                             spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i, j) * Vestige.TILESIZE, new Rectangle(Vestige.TILESIZE, 0, Vestige.TILESIZE, Vestige.TILESIZE), Main.LightEngine.GetLight(i, j));
                         }
@@ -84,21 +109,6 @@ namespace Vestige.Game.Renderers
                             spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE, j * Vestige.TILESIZE + Vestige.TILESIZE - textureOffset), new Rectangle(0, 0, Vestige.TILESIZE, textureOffset), Main.LightEngine.GetLight(i, j));
                         }
                     }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Debugging purposes only, use for showing tile values displayed over tiles
-        /// </summary>
-        /// <param name="spriteBatch"></param>
-        public void DrawDebug(SpriteBatch spriteBatch)
-        {
-            for (int i = _drawBoxMin.X; i < _drawBoxMax.X; i++)
-            {
-                for (int j = _drawBoxMin.Y; j < _drawBoxMax.Y; j++)
-                { 
-                    spriteBatch.DrawString(ContentLoader.GameFont, Main.World.GetLiquid(i, j) + "", new Vector2(i, j) * Vestige.TILESIZE, Color.White, 0.0f, Vector2.Zero, 0.5f, SpriteEffects.None, 0.0f);
                 }
             }
         }

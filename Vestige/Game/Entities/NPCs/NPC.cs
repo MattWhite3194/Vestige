@@ -31,10 +31,8 @@ namespace Vestige.Game.Entities.NPCs
             INPCBehavior behavior,
             bool drawBehindTiles = false,
             bool friendly = false,
-            List<(int, int)> animationFrames = null, 
-            CollisionLayer layer = default, 
-            CollisionLayer collidedWith = default) 
-            : base(image, default, size: size, animationFrames: animationFrames, drawLayer: 3, name: name)
+            List<(int, int)> animationFrames = null) 
+            : base(image, default, size: size, animationFrames: animationFrames, name: name)
         {
             ID = id;
             Damage = damage;
@@ -45,16 +43,6 @@ namespace Vestige.Game.Entities.NPCs
             Friendly = friendly;
             _behavior = behavior;
             _animationFrames = animationFrames;
-            Layer = layer;
-            CollidesWith = collidedWith;
-            if (Layer == default)
-            {
-                Layer = friendly ? CollisionLayer.Player : CollisionLayer.Enemy;
-            }
-            if (CollidesWith == default)
-            {
-                CollidesWith = friendly ? CollisionLayer.Enemy | CollisionLayer.HostileProjectile : CollisionLayer.Player | CollisionLayer.ItemCollider | CollisionLayer.FriendlyProjectile;
-            }
         }
         public override void Update(double delta)
         {
@@ -72,27 +60,20 @@ namespace Vestige.Game.Entities.NPCs
         {
             if (_invincible)
                 return;
-            switch (entity.Layer)
+            if (entity is ItemCollider itemCollider)
             {
-                case CollisionLayer.ItemCollider:
-                    ItemCollider itemCollider = (ItemCollider)entity;
-                    ApplyDamage(((WeaponItem)itemCollider.Item).Damage);
-                    ApplyKnockback(((WeaponItem)itemCollider.Item).Knockback, entity.Position + entity.Origin);
-                    break;
-                case CollisionLayer.Enemy:
-                    ApplyDamage(((NPC)entity).Damage);
-                    ApplyKnockback(((NPC)entity).Knockback, entity.Position + entity.Origin);
-                    break;
-                case CollisionLayer.FriendlyProjectile:
-                    if (Friendly) return;
-                    ApplyDamage(((Projectile)entity).Damage);
-                    ApplyKnockback(((Projectile)entity).Knockback, entity.Position + entity.Origin);
-                    break;
-                case CollisionLayer.HostileProjectile:
-                    if (Friendly) return;
-                    ApplyDamage(((Projectile)entity).Damage);
-                    ApplyKnockback(((Projectile)entity).Knockback, entity.Position + entity.Origin);
-                    break;
+                ApplyDamage(((WeaponItem)itemCollider.Item).Damage);
+                ApplyKnockback(((WeaponItem)itemCollider.Item).Knockback, entity.Position + entity.Origin);
+            }
+            else if (entity is NPC npc)
+            {
+                ApplyDamage(((NPC)entity).Damage);
+                ApplyKnockback(((NPC)entity).Knockback, entity.Position + entity.Origin);
+            }
+            else if (entity is Projectile projectile)
+            {
+                ApplyDamage(((Projectile)entity).Damage);
+                ApplyKnockback(((Projectile)entity).Knockback, entity.Position + entity.Origin);
             }
         }
         private void ApplyDamage(int damage)
@@ -108,7 +89,7 @@ namespace Vestige.Game.Entities.NPCs
         }
         private void ApplyKnockback(int knockback, Vector2 knockbackSource)
         {
-            this.Velocity = new Vector2(1.0f, 0.5f) * new Vector2(Math.Sign(Position.X + Origin.X - knockbackSource.X) * knockback);
+            this.Velocity = new Vector2(1.0f, 0.5f) * new Vector2(Math.Sign(Position.X + Origin.X - knockbackSource.X) * knockback, 1) * 100.0f;
         }
         /// <summary>
         /// 
@@ -121,7 +102,7 @@ namespace Vestige.Game.Entities.NPCs
         }
         private static NPC CloneNPC(NPC npc)
         {
-            return new NPC(npc.ID, npc.Name, npc.Image, npc.Size, npc._health, npc.Damage, npc.CollidesWithTiles, npc._behavior.Clone(), npc.DrawBehindTiles, npc.Friendly, npc._animationFrames, npc.Layer, npc.CollidesWith);
+            return new NPC(npc.ID, npc.Name, npc.Image, npc.Size, npc._health, npc.Damage, npc.CollidesWithTiles, npc._behavior.Clone(), npc.DrawBehindTiles, npc.Friendly, npc._animationFrames);
         }
         private static Dictionary<int, NPC> _npcs = new Dictionary<int, NPC>
         {

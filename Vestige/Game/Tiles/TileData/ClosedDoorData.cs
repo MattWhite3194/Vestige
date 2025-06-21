@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Diagnostics;
 using Vestige.Game.Entities;
 using Vestige.Game.WorldGeneration;
 
@@ -24,17 +23,17 @@ namespace Vestige.Game.Tiles.TileData
 
         public void OnCollision(WorldGen world, int x, int y, Entity entity)
         {
-            if (entity.Layer != CollisionLayer.Player) return;
+            if (entity is not Player) return;
             Vector2 topLeft = GetTopLeft(world, x, y).ToVector2() * Vestige.TILESIZE;
 
             int forceDirection = Math.Sign(topLeft.X - entity.Position.X);
             OpenDoor(world, x, y, forceDirection, true);
         }
 
-        public void OnRightClick(WorldGen world, int x, int y)
+        public void OnRightClick(WorldGen world, Player player, int x, int y)
         {
             Point topLeft = GetTopLeft(world, x, y);
-            Point playerPosition = (Main.EntityManager.GetPlayer().Position / Vestige.TILESIZE).ToPoint();
+            Point playerPosition = (player.Position / Vestige.TILESIZE).ToPoint();
 
             int playerDirection = Math.Sign(topLeft.X - playerPosition.X);
             OpenDoor(world, x, y, playerDirection);

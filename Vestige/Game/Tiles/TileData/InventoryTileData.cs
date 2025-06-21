@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Vestige.Game.Entities;
 using Vestige.Game.Items;
 using Vestige.Game.WorldGeneration;
 
@@ -46,7 +47,7 @@ namespace Vestige.Game.Tiles.TileData
             }
         }
 
-        public void OnRightClick(WorldGen world, int x, int y)
+        public void OnRightClick(WorldGen world, Player player, int x, int y)
         {
             //Inventory Tiles should only have 2 frames, one for closed and one for open, maybe in the future I'll do animations
             Point worldOrigin = GetTopLeft(world, x, y);
@@ -63,7 +64,7 @@ namespace Vestige.Game.Tiles.TileData
                 items = new Item[Rows * Cols];
                 world.AddTileInventory(worldOrigin, items);
             }
-            Main.EntityManager.GetPlayer().Inventory.DisplayTileInventory(this, new Point(worldOrigin.X, worldOrigin.Y), items);
+            player.Inventory.DisplayTileInventory(this, new Point(worldOrigin.X, worldOrigin.Y), items);
         }
     }
 }

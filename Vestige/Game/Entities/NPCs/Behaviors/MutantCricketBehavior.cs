@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
-using System.Diagnostics;
 
 namespace Vestige.Game.Entities.NPCs.Behaviors
 {
@@ -14,19 +13,30 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
         private double _nextJumpTime = 2.0;
         private float _maxSpeed = 50;
         private float _acceleration = 500;
-        private Player _player;
         private bool _jumping = false;
         private int _lockedDirection;
         public void AI(double delta, NPC enemy)
         {
-            _player = Main.EntityManager.GetPlayer();
             Vector2 newVelocity = enemy.Velocity;
             newVelocity.Y += Vestige.GRAVITY * (float)delta;
             _elapsedTime += delta;
-            _directionX = -MathF.Sign((enemy.Position.X + enemy.Origin.X) - (_player.Position.X + _player.Origin.X));
-            if (_player.Position.Y + _player.Origin.Y > enemy.Position.Y + enemy.Origin.Y)
+
+            Player target = Main.EntityManager.GetPlayerTarget();
+            if (target != null)
             {
-                enemy.CollidesWithPlatforms = false;
+                if (Vector2.Distance(target.Position, enemy.Position) > 1600)
+                {
+                    enemy.Active = false;
+                    return;
+                }
+                else
+                {
+                    _directionX = -MathF.Sign((enemy.Position.X + enemy.Origin.X) - (target.Position.X + target.Origin.X));
+                    if (target.Position.Y + target.Origin.Y > enemy.Position.Y + enemy.Origin.Y)
+                    {
+                        enemy.CollidesWithPlatforms = false;
+                    }
+                }
             }
 
             enemy.Animation.SetCurrentAnimation(0);

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
-using Vestige.Game.Input;
+using Vestige.Game.Entities;
 using Vestige.Game.Tiles;
-using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Items.Weapons
 {
@@ -12,10 +11,10 @@ namespace Vestige.Game.Items.Weapons
         {
             this._minePower = minePower;
         }
-        public bool UseItem(bool altUse)
+        public bool UseItem(Player player, bool altUse)
         {
             Point mouseTilePosition = Main.GetMouseWorldPosition() / new Point(Vestige.TILESIZE, Vestige.TILESIZE);
-            if (Vector2.Distance(mouseTilePosition.ToVector2() * Vestige.TILESIZE, Main.EntityManager.GetPlayer().Position) > Main.EntityManager.GetPlayer().MaxBreakDistance)
+            if (Vector2.Distance(mouseTilePosition.ToVector2() * Vestige.TILESIZE, player.Position) > player.MaxBreakDistance)
                 return false;
             if (altUse)
             {

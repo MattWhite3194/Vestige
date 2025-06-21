@@ -12,13 +12,13 @@
         /// The tile emits light.
         /// </summary>
         LightEmitting = 1 << 2,
-        PickaxeMineable = 1 << 5,
-        AxeMineable = 1 << 6,
-        LargeTile = 1 << 7,
+        PickaxeMineable = 1 << 3,
+        AxeMineable = 1 << 4,
+        LargeTile = 1 << 5,
         /// <summary>
         /// The tile performs an action when an entity collides with it
         /// </summary>
-        TileCollider = 1 << 8,
-        Platform = 1 << 9,
+        TileCollider = 1 << 6,
+        Platform = 1 << 7,
     }
 }

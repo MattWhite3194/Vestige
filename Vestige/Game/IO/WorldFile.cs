@@ -29,6 +29,8 @@ namespace Vestige.Game.IO
 
         public void SetPath(string name)
         {
+            if (string.IsNullOrEmpty(name))
+                name = "New World";
             _name = name;
             string validWorldName = GetValidWorldName(name);
             string directory = Path.Combine(Vestige.SavePath, "Worlds", validWorldName);

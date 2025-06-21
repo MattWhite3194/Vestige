@@ -16,8 +16,8 @@ namespace Vestige.Game.UI.Components
         private int _maxTextLength;
         private double _elapsedTime = 0.0;
         private double _cursorHideTime = 0.3;
-        public EventHandler OnEnterPressed;
-        public EventHandler OnEscapePressed;
+        public event Action OnEnterPressed;
+        public event Action OnEscapePressed;
         public TextBox(Vector2 position, string defaultText, Vector2 padding, int maxTextLength = -1, string placeHolder = null, int maxWidth = 0, TextAlign textAlign = TextAlign.Center) : base(position, defaultText, padding, maxWidth: maxWidth, textAlign: textAlign)
         {
             _maxTextLength = maxTextLength;
@@ -32,7 +32,7 @@ namespace Vestige.Game.UI.Components
             OnMouseExited += () => Mouse.SetCursor(MouseCursor.Arrow);
         }
 
-        protected override void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
+        public override void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
         {
             if (@mouseEvent.EventType == InputEventType.MouseButtonDown && @mouseEvent.InputButton == InputButton.LeftMouse)
             {
@@ -122,11 +122,11 @@ namespace Vestige.Game.UI.Components
                     }
                     return;
                 case Keys.Enter:
-                    OnEnterPressed?.Invoke(this, EventArgs.Empty);
+                    OnEnterPressed?.Invoke();
                     SetFocused(false);
                     return;
                 case Keys.Escape:
-                    OnEscapePressed?.Invoke(this, EventArgs.Empty);
+                    OnEscapePressed?.Invoke();
                     SetFocused(false);
                     return;
                 case Keys.Tab:

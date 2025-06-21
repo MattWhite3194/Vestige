@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Vestige.Game.Entities.NPCs;
 using Vestige.Game.Entities.Projectiles;
 using Vestige.Game.Items;
@@ -16,14 +15,16 @@ namespace Vestige.Game.Entities
     /// </summary>
     public class EntityManager
     {
-        private Player _player;
-        private List<Entity> _entities = new List<Entity>();
+        //TODO: possibly split screen, leaving this here
+        private Player[] _players = new Player[12];
         /// <summary>
         /// The Entity the mouse is currently on. Ensure this is accessed post collision updates.
         /// </summary>
         public Entity MouseEntity;
         private List<IRespawnable> _respawnList = new List<IRespawnable>();
-        private List<Entity> _queuedEntities = new List<Entity>();
+        private ItemDrop[] _itemDrops = new ItemDrop[500];
+        private NPC[] _npcs = new NPC[500];
+        private Projectile[] _projectiles = new Projectile[1000];
 
         public void Update(double delta)
         {
@@ -38,103 +39,180 @@ namespace Vestige.Game.Entities
                     _respawnList.Remove(respawn);
                 }
             }
-            for (int i = _queuedEntities.Count - 1; i >= 0; i--)
+            
+            //Update Entities
+            for (int i = 0; i < _players.Length; i++)
             {
-                InsertEntity(_queuedEntities[i]);
-                _queuedEntities.RemoveAt(i);
+                if (_players[i] != null)
+                {
+                    if (!_players[i].Active)
+                    {
+                        _players[i] = null;
+                        continue;
+                    }
+                    UpdateEntity(_players[i], delta);
+                    UpdateEntity(_players[i].ItemCollider, delta);
+                }
             }
-            //Handle tile collisions
-            for (int i = _entities.Count - 1; i >= 0; i--)
+            for (int i = 0; i < _itemDrops.Length; i++)
             {
-                Entity entity = _entities[i];
-                if (!entity.Active)
+                if (_itemDrops[i] == null) continue;
+                if (!_itemDrops[i].Active)
                 {
-                    _entities.Remove(entity);
+                    _itemDrops[i] = null;
                     continue;
                 }
-                //Update Entities
-                entity.Update(delta);
-
-                Vector2 minPos = Vector2.Zero;
-                Vector2 maxPos = new(Main.World.WorldSize.X * Vestige.TILESIZE - entity.Size.X, Main.World.WorldSize.Y * Vestige.TILESIZE - entity.Size.Y);
-                //update enemies positions that don't collide with tiles
-                if (!entity.CollidesWithTiles)
+                UpdateEntity(_itemDrops[i], delta);
+            }
+            for (int i = 0; i < _npcs.Length;i++)
+            {
+                if (_npcs[i] == null) continue;
+                if (!_npcs[i].Active)
                 {
-                    entity.Position += entity.Velocity * (float)delta;
-                    entity.Position = Vector2.Clamp(entity.Position, minPos, maxPos);
+                    _npcs[i] = null;
                     continue;
                 }
-
-                //horizontal tile collisions
-                int distanceFactor = (int)Math.Min(entity.Size.X, Vestige.TILESIZE);
-                int tileWidth = (int)entity.Size.X / Vestige.TILESIZE;
-                int tileHeight = (int)entity.Size.Y / Vestige.TILESIZE;
-                float distanceX = entity.Velocity.X * (float)delta;
-                int horizontalCollisionDirection = 0;
-                List<float> horizontalDistances = new List<float>();
-                for (int _ = 0; _ < Math.Floor(distanceX / (distanceFactor - 1)); _++)
+                UpdateEntity(_npcs[i], delta);
+            }
+            for (int i = 0; i < _projectiles.Length;i++)
+            {
+                if (_projectiles[i] == null) continue;
+                if (!_projectiles[i].Active)
                 {
-                    horizontalDistances.Add(distanceFactor - 1);
+                    _projectiles[i] = null;
+                    continue;
                 }
-                horizontalDistances.Add(distanceX % (distanceFactor - 1));
-                foreach (float distance in horizontalDistances)
+                UpdateEntity(_projectiles[i], delta);
+            }
+            //Collisions between Player and ItemDrops
+            for (int i = 0; i < _itemDrops.Length; i++)
+            {
+                if (_itemDrops[i] == null) continue;
+                for (int j = 0; j < _players.Length; j++)
                 {
-                    horizontalCollisionDirection = HorizontalCollisionPass(entity, distance, minPos, maxPos);
-                    if (horizontalCollisionDirection != 0)
+                    if (_players[j] == null) continue;
+                    if (_itemDrops[i].GetBounds().Intersects(_players[j].GetBounds()))
+                        _players[j].OnCollision(_itemDrops[i]);
+                }
+            }
+            //Collisions between npcs and player/friendly npcs
+            for (int i = 0; i < _npcs.Length; i++)
+            {
+                if (_npcs[i] == null) continue;
+                //TODO: collide with other npcs
+                if (_npcs[i].Friendly) continue;
+                CollisionRectangle npcBounds = _npcs[i].GetBounds();
+                for (int j = 0; j < _players.Length; j++)
+                {
+                    if (_players[j] == null) continue;
+                    if (npcBounds.Intersects(_players[j].GetBounds()))
                     {
-                        break;
+                        _players[j].OnCollision(_npcs[i]);
+                    }
+                    if (npcBounds.Intersects(_players[j].ItemCollider.GetBounds()))
+                        _npcs[i].OnCollision(_players[j].ItemCollider);
+                }
+            }
+            for (int i = 0; i < _projectiles.Length; i++)
+            {
+                if (_projectiles[i] == null) continue;
+                if (_projectiles[i].Friendly)
+                {
+                    for (int j = 0; j < _npcs.Length; j++)
+                    {
+                        if (_npcs[j] == null) continue;
+                        if (_npcs[j].Friendly) continue;
+                        if (_npcs[j].GetBounds().Intersects(_projectiles[i].GetBounds()))
+                        {
+                            _npcs[j].OnCollision(_projectiles[i]);
+                            _projectiles[i].OnCollision(_npcs[j]);
+                        }
                     }
                 }
-
-                //vertical tile collisions
-                distanceFactor = (int)Math.Min(entity.Size.Y, Vestige.TILESIZE);
-                float distanceY = entity.Velocity.Y * (float)delta;
-                List<float> verticalDistances = new List<float>();
-                for (int _ = 0; _ < Math.Floor(distanceY / distanceFactor); _++)
+                else
                 {
-                    verticalDistances.Add(distanceFactor);
-                }
-                verticalDistances.Add(distanceY % distanceFactor);
-                foreach (float distance in verticalDistances)
-                {
-                    if (VerticalCollisionPass(entity, distance, minPos, maxPos))
+                    for (int j = 0; j < _players.Length; j++)
                     {
-                        break;
+                        if (_players[j] == null) continue;
+                        if (_projectiles[i].GetBounds().Intersects(_players[j].GetBounds()))
+                        {
+                            _players[j].OnCollision(_projectiles[i]);
+                            _projectiles[i].OnCollision(_players[j]);
+                        }
                     }
                 }
+            }
+        }
+        /// <summary>
+        /// Moves the entity, performs tile collisions, and updates the mouse entity
+        /// </summary>
+        /// <param name="entity"></param>
+        public void UpdateEntity(Entity entity, double delta)
+        {
+            if (entity.GetBounds().Contains(Main.GetMouseWorldPosition()))
+                MouseEntity = entity;
+            //Update Entities
+            entity.Update(delta);
+            Vector2 minPos = Vector2.Zero;
+            Vector2 maxPos = new(Main.World.WorldSize.X * Vestige.TILESIZE - entity.Size.X, Main.World.WorldSize.Y * Vestige.TILESIZE - entity.Size.Y);
+            //update enemies positions that don't collide with tiles
+            if (!entity.CollidesWithTiles)
+            {
+                entity.Position += entity.Velocity * (float)delta;
+                entity.Position = Vector2.Clamp(entity.Position, minPos, maxPos);
+                return;
+            }
 
-                //Determine if an entity who has horizontally collided with a tile can hop up
+            //horizontal tile collisions
+            int distanceFactor = (int)Math.Min(entity.Size.X, Vestige.TILESIZE);
+            int tileWidth = (int)entity.Size.X / Vestige.TILESIZE;
+            int tileHeight = (int)entity.Size.Y / Vestige.TILESIZE;
+            float distanceX = entity.Velocity.X * (float)delta;
+            int horizontalCollisionDirection = 0;
+            List<float> horizontalDistances = new List<float>();
+            for (int _ = 0; _ < Math.Floor(distanceX / (distanceFactor - 1)); _++)
+            {
+                horizontalDistances.Add(distanceFactor - 1);
+            }
+            horizontalDistances.Add(distanceX % (distanceFactor - 1));
+            foreach (float distance in horizontalDistances)
+            {
+                horizontalCollisionDirection = HorizontalCollisionPass(entity, distance, minPos, maxPos);
                 if (horizontalCollisionDirection != 0)
                 {
-                    if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.GetBounds().Position / Vestige.TILESIZE).ToPoint(), entity.GetBounds().Width / Vestige.TILESIZE, entity.GetBounds().Height / Vestige.TILESIZE, horizontalCollisionDirection))
-                    {
-                        entity.Position.Y -= Vestige.TILESIZE;
-                        entity.Position.X += 2 * Math.Sign(entity.Velocity.X);
-                    }
-                    else
-                    {
-                        entity.Velocity.X = 0.0f;
-                    }
+                    break;
                 }
-                if (_entities[i].GetBounds().Contains(Main.GetMouseWorldPosition()))
-                    MouseEntity = _entities[i];
             }
-            //check collisions between entities
-            for (int i = _entities.Count - 1; i >= 0; i--)
+
+            //vertical tile collisions
+            distanceFactor = (int)Math.Min(entity.Size.Y, Vestige.TILESIZE);
+            float distanceY = entity.Velocity.Y * (float)delta;
+            List<float> verticalDistances = new List<float>();
+            for (int _ = 0; _ < Math.Floor(distanceY / distanceFactor); _++)
             {
-                CollisionRectangle entityBounds = _entities[i].GetBounds();
-                for (int j = i - 1; j >= 0; j--)
+                verticalDistances.Add(distanceFactor);
+            }
+            verticalDistances.Add(distanceY % distanceFactor);
+            foreach (float distance in verticalDistances)
+            {
+                if (VerticalCollisionPass(entity, distance, minPos, maxPos))
                 {
-                    if ((_entities[i].CollidesWith & _entities[j].Layer) == 0 && (_entities[j].CollidesWith & _entities[i].Layer) == 0)
-                        continue;
-                    if (!entityBounds.Intersects(_entities[j].GetBounds()))
-                        continue;
-                    if ((_entities[j].CollidesWith & _entities[i].Layer) != 0)
-                        _entities[j].OnCollision(_entities[i]);
-                    if ((_entities[i].CollidesWith & _entities[j].Layer) != 0)
-                        _entities[i].OnCollision(_entities[j]);
+                    break;
                 }
-                _entities[i].PostCollisionUpdate(delta);
+            }
+
+            //Determine if an entity who has horizontally collided with a tile can hop up
+            if (horizontalCollisionDirection != 0)
+            {
+                if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.GetBounds().Position / Vestige.TILESIZE).ToPoint(), entity.GetBounds().Width / Vestige.TILESIZE, entity.GetBounds().Height / Vestige.TILESIZE, horizontalCollisionDirection))
+                {
+                    entity.Position.Y -= Vestige.TILESIZE;
+                    entity.Position.X += 2 * Math.Sign(entity.Velocity.X);
+                }
+                else
+                {
+                    entity.Velocity.X = 0.0f;
+                }
             }
         }
 
@@ -142,13 +220,16 @@ namespace Vestige.Game.Entities
         public bool TileOccupied(int x, int y)
         {
             CollisionRectangle tile = new CollisionRectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
-            for (int i = _entities.Count - 1; i >= 0; i--)
+            for (int i = 0; i < _npcs.Length; i++)
             {
-                if (_entities[i].CollidesWithTiles && (_entities[i].Layer == CollisionLayer.Enemy || _entities[i].Layer == CollisionLayer.Player))
-                {
-                    if (_entities[i].GetBounds().Intersects(tile))
-                        return true;
-                }
+                if (_npcs[i] == null || !_npcs[i].CollidesWithTiles) continue;
+                if (_npcs[i].GetBounds().Intersects(tile))
+                    return true;
+            }
+            for (int i = 0; i < _players.Length; i++)
+            {
+                if (_players[i] != null && _players[i].GetBounds().Intersects(tile))
+                    return true;
             }
             return false;
         }
@@ -271,16 +352,6 @@ namespace Vestige.Game.Entities
             entity.IsOnCeiling = ceilingCollision;
             return collisionDetected;
         }
-
-        public void Draw(SpriteBatch spriteBatch)
-        {
-            //TODO: add drawing order using SpriteSortMode based on collision layer
-            for (int i = _entities.Count - 1; i >= 0; i--)
-            {
-                _entities[i].Draw(spriteBatch);
-            }
-        }
-
         float GetPenetrationX(CollisionRectangle a, CollisionRectangle b)
         {
             float distanceX = (a.Center.X - b.Center.X);
@@ -297,33 +368,73 @@ namespace Vestige.Game.Entities
                 return 0.0f;
             return distanceY < 0 ? -penetrationY : penetrationY;
         }
-
         /// <summary>
-        /// Sets the player for the game world, called only once
+        /// Adds a player to the game.
         /// </summary>
         /// <param name="player"></param>
-        public void SetPlayer(Player player)
+        public void AddPlayer(Player player)
         {
-            _player = player;
+            for (int i = 0; i < _players.Length; i++)
+            {
+                if (_players[i] == null)
+                {
+                    _players[i] = player;
+                    break;
+                }
+            }
         }
-
-        public Player GetPlayer()
+        /// <summary>
+        /// Gets the next available player target
+        /// </summary>
+        /// <returns>A Player object if one is available, otherwise null</returns>
+        public Player GetPlayerTarget()
         {
-            return _player;
+            for (int i = 0; i < _players.Length; i++)
+            {
+                if ( _players[i] != null)
+                {
+                    return _players[i];
+                }
+            }
+            return null;
         }
-
-        //Change this to spawn by enemy ID
+        public Player GetPlayerByName(string name)
+        {
+            for (int i = 0; i < _players.Length; i++)
+            {
+                if (_players[i] != null && _players[i].Name == name)
+                {
+                    return _players[i];
+                }
+            }
+            return null;
+        }
         public void CreateEnemy(int enemyID, Vector2 Position)
         {
             NPC enemy = NPC.InstantiateNPCByID(enemyID);
             enemy.Position = Position;
-            AddEntity(enemy);
+            for (int i = 0; i < _npcs.Length; i++)
+            {
+                if (_npcs[i] == null)
+                {
+                    _npcs[i] = enemy;
+                    break;
+                }
+            }
         }
         public void CreateItemDrop(Item item, Vector2 position, Vector2 velocity = default, bool canBePickedUp = true)
         {
-            ItemDrop itemDrop = new ItemDrop(item, position - new Vector2(ItemDrop.ColliderSize.X / 2, ItemDrop.ColliderSize.Y / 2), canBePickedUp);
+            ItemDrop itemDrop = new ItemDrop(item, default, canBePickedUp);
+            itemDrop.Position = position - itemDrop.Origin;
             itemDrop.Velocity = velocity;
-            AddEntity(itemDrop);
+            for (int i = 0; i < _itemDrops.Length; i++)
+            {
+                if (_itemDrops[i] == null)
+                {
+                    _itemDrops[i] = itemDrop;
+                    break;
+                }
+            }
         }
         /// <summary>
         /// Creates a new projectile in the world with the specified ID
@@ -337,27 +448,13 @@ namespace Vestige.Game.Entities
             Projectile projectile = Projectile.InstantiateProjectileByID(projectileID);
             projectile.Position = position;
             projectile.Velocity = direction * speed;
-            AddEntity(projectile);
-        }
-        public void AddEntity(Entity entity)
-        {
-            _queuedEntities.Add(entity);
-        }
-        private void InsertEntity(Entity entity)
-        {
-            if (_entities.Count == 0)
-                _entities.Add(entity);
-            else
+            for (int i = 0; i < _projectiles.Length;i++)
             {
-                for (int i = _entities.Count - 1; i >= 0; i--)
+                if (_projectiles[i] == null)
                 {
-                    if (_entities[i].DrawLayer == entity.DrawLayer || _entities[i].DrawLayer < entity.DrawLayer)
-                    {
-                        _entities.Insert(i + 1, entity);
-                        return;
-                    }
+                    _projectiles[i] = projectile;
+                    break;
                 }
-                _entities.Insert(0, entity);
             }
         }
         private bool CanEntityHop(Entity entity, Point tilePoint, int tileWidth, int tileHeight, int direction)
@@ -380,6 +477,37 @@ namespace Vestige.Game.Entities
         internal void QueueRespawn(IRespawnable respawnable)
         {
             _respawnList.Add(respawnable);
+        }
+        public void Draw(SpriteBatch spriteBatch)
+        {
+            for (int i = 0; i < _npcs.Length; i++)
+            {
+                if (_npcs[i] != null)
+                {
+                    _npcs[i].Draw(spriteBatch);
+                }
+            }
+            for (int i = 0; i < _players.Length; i++)
+            {
+                if (_players[i] != null)
+                {
+                    _players[i].Draw(spriteBatch);
+                }
+            }
+            for (int i = 0; i < _itemDrops.Length; i++)
+            {
+                if (_itemDrops[i] != null)
+                {
+                    _itemDrops[i].Draw(spriteBatch);
+                }
+            }
+            for (int i = 0; i < _projectiles.Length; i++)
+            {
+                if (_projectiles[i] != null)
+                {
+                    _projectiles[i].Draw(spriteBatch);
+                }
+            }
         }
     }
 }

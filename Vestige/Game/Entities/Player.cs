@@ -51,19 +51,16 @@ namespace Vestige.Game.Entities
         public int MaxBreakDistance = Vestige.TILESIZE * 7;
         public bool Dead { get { return _dead; } }
 
-        public Player(InventoryManager inventory) : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) }, drawLayer: 2, name: "Player")
+        public Player() : base(null, default, size: new Vector2(20, 42), animationFrames: new List<(int, int)> { (0, 0), (1, 8), (9, 9), (10, 10) }, name: "Steve")
         {
             _headTexture = ContentLoader.PlayerHead;
             _torsoTexture = ContentLoader.PlayerTorso;
             _legsTexture = ContentLoader.PlayerLegs;
             _armTexture = ContentLoader.PlayerArm;
-            this.Inventory = inventory;
             CollidesWithTiles = true;
             CollidesWithPlatforms = true;
             _health = 100;
             _maxHealth = 100;
-            this.Layer = CollisionLayer.Player;
-            this.CollidesWith = CollisionLayer.Enemy | CollisionLayer.ItemDrop | CollisionLayer.HostileProjectile;
         }
 
         /// <summary>
@@ -71,16 +68,14 @@ namespace Vestige.Game.Entities
         /// </summary>
         public void InitializeGameUpdates(Point tilePosition)
         {
-            ItemCollider = new ItemCollider(Inventory);
+            ItemCollider = new ItemCollider(this, Inventory);
             Position = tilePosition.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y);
-            Main.EntityManager.AddEntity(this);
-            Main.EntityManager.AddEntity(ItemCollider);
+            Main.EntityManager.AddPlayer(this);
         }
 
         public void HandleInput(InputEvent @event)
         {
             if (!Active) return;
-
             if (@event.InputButton == InputButton.Left)
             {
                 if (@event.EventType == InputEventType.KeyDown)
@@ -114,7 +109,7 @@ namespace Vestige.Game.Entities
                     return;
                 if (TileDatabase.GetTileData(Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y)) is IInteractableTile interactableTile)
                 {
-                    interactableTile.OnRightClick(Main.World, mouseTilePosition.X, mouseTilePosition.Y);
+                    interactableTile.OnRightClick(Main.World, this, mouseTilePosition.X, mouseTilePosition.Y);
                 }
             }
             else
@@ -212,14 +207,14 @@ namespace Vestige.Game.Entities
             DrawBodyPart(spriteBatch, _torsoTexture, Animation.AnimationRectangle);
             DrawBodyPart(spriteBatch, _headTexture, Animation.AnimationRectangle);
             DrawBodyPart(spriteBatch, _legsTexture, Animation.AnimationRectangle);
-            ItemCollider.DrawItem(spriteBatch);
+            ItemCollider.Draw(spriteBatch);
             float armRotation = Math.Min(ItemCollider.MaxRotation, Math.Max(0, Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver2 : MathHelper.PiOver2)) - MathHelper.PiOver4 / 2));
             int textureOffset = (int)Math.Floor(armRotation / MathHelper.PiOver4) * (int)Size.Y;
             DrawBodyPart(spriteBatch, _armTexture, ItemCollider.ItemActive ? new Rectangle(0, 11 * (int)Size.Y + textureOffset, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
         }
         private void DrawBodyPart(SpriteBatch spriteBatch, Texture2D bodyPart, Rectangle animationRect)
         {
-            Point centerTilePosition = ((Position + Size / 2) / Vestige.TILESIZE).ToPoint();
+            Point centerTilePosition = ((Position + Origin) / Vestige.TILESIZE).ToPoint();
             spriteBatch.Draw(bodyPart,
                 Vector2.Round(Position + Origin),
                 animationRect,
@@ -234,27 +229,24 @@ namespace Vestige.Game.Entities
 
         public override void OnCollision(Entity entity)
         {
-            switch (entity.Layer)
+            if (entity is ItemDrop itemDrop)
             {
-                case CollisionLayer.ItemDrop:
-                    ItemDrop itemDrop = (ItemDrop)entity;
-                    if (itemDrop.CanBePickedUp && Inventory.AddItemToPlayerInventory(itemDrop.GetItem()) == null)
-                    {
-                        itemDrop.Active = false;
-                    }
-                    break;
-                case CollisionLayer.Enemy:
-                    if (_invincible) return;
-                    NPC enemy = (NPC)entity;
-                    ApplyDamage(enemy.Damage);
-                    ApplyKnockback(enemy.Position + enemy.Origin);
-                    break;
-                case CollisionLayer.HostileProjectile:
-                    if (_invincible) return;
-                    Projectile projectile = (Projectile)entity;
-                    ApplyDamage(projectile.Damage);
-                    ApplyKnockback(projectile.Position + projectile.Origin);
-                    break;
+                if (itemDrop.CanBePickedUp && Inventory.AddItemToPlayerInventory(itemDrop.GetItem()) == null)
+                {
+                    itemDrop.Active = false;
+                }
+            }
+            else if (entity is NPC npc)
+            {
+                if (_invincible) return;
+                ApplyDamage(npc.Damage);
+                ApplyKnockback(npc.Position + npc.Origin);
+            }
+            else if (entity is Projectile projectile)
+            {
+                if (_invincible) return;
+                ApplyDamage(projectile.Damage);
+                ApplyKnockback(projectile.Position + projectile.Origin);
             }
         }
         public void ApplyDamage(int damage)
@@ -290,8 +282,7 @@ namespace Vestige.Game.Entities
             ClearInputs();
             ItemCollider.ItemActive = false;
             _queueJump = false;
-            Main.EntityManager.AddEntity(this);
-            Main.EntityManager.AddEntity(ItemCollider);
+            Main.EntityManager.AddPlayer(this);
             _health = 100;
         }
         public void ClearInputs()

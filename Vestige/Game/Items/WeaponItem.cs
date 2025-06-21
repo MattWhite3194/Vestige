@@ -33,7 +33,7 @@ namespace Vestige.Game.Items
                 Vector2 direction = Vector2.Normalize(Main.GetMouseWorldPosition().ToVector2() - player.Position);
                 Main.EntityManager.CreateProjectile(_projectileID, player.Position, _projectileSpeed, direction);
             }
-            return _weaponBehavior?.UseItem(altUse) ?? true;
+            return _weaponBehavior?.UseItem(player, altUse) ?? true;
         }
         protected override Item CloneItem()
         {

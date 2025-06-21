@@ -37,17 +37,17 @@ namespace Vestige.Game.Tiles.TileData
         /// <param name="tileID"></param>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        /// <returns>An integer representing the tiles verifcation state. -1: tile should be removed, 0: tile is not verified for placing, 1: tile is verified</returns>
+        /// <returns>An integer representing the tiles verification state. -1: tile should be removed, 0: tile is not verified for placing, 1: tile is verified</returns>
         public virtual int VerifyTile(WorldGen world, int x, int y)
         {
             bool top = TileDatabase.TileHasProperties(world.GetTileID(x, y - 1), TileProperty.Solid | TileProperty.Platform);
             bool right = TileDatabase.TileHasProperties(world.GetTileID(x + 1, y), TileProperty.Solid | TileProperty.Platform);
             bool bottom = TileDatabase.TileHasProperties(world.GetTileID(x, y + 1), TileProperty.Solid | TileProperty.Platform);
             bool left = TileDatabase.TileHasProperties(world.GetTileID(x - 1, y), TileProperty.Solid | TileProperty.Platform);
-            bool wall = TileDatabase.TileHasProperties(world.GetWallID(x, y), TileProperty.Solid | TileProperty.Platform);
+            bool wall = world.GetWallID(x, y) != 0;
 
 
-            return top || right || bottom || left ? 1 : 0;
+            return top || right || bottom || left || wall ? 1 : 0;
         }
         /// <summary>
         /// Used by any damage inflictors like pickaxes or bombs.
@@ -147,6 +147,14 @@ namespace Vestige.Game.Tiles.TileData
         public virtual void Draw(SpriteBatch spriteBatch, int x, int y, byte state, Color light)
         {
             spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Vestige.TILESIZE, TileDatabase.GetTileTextureAtlas(state), light);
+        }
+        public virtual void Place(WorldGen world, int x, int y)
+        {
+            //TODO: implement these in tiledata classes to remove redundant if else blocks
+        }
+        public virtual void Break(WorldGen world, int x, int y)
+        {
+            //TODO: same thing here
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using Vestige.Game.Entities;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
 using Vestige.Game.Tiles.TileData;
@@ -21,8 +22,10 @@ namespace Vestige.Game.Inventory
         private CraftingGrid _craftingMenu;
         private Item[] _inventoryItems;
         private ToolTip _toolTip;
-        public InventoryManager(Item[] playerItems, int cols) : base(anchor: Anchor.TopLeft)
+        private Player _player;
+        public InventoryManager(Player player, Item[] playerItems, int cols) : base(anchor: Anchor.TopLeft)
         {
+            _player = player;
             _inventoryItems = playerItems;
             if (_inventoryItems == null)
             {
@@ -41,7 +44,7 @@ namespace Vestige.Game.Inventory
         }
         public override void HandleInput(InputEvent @event)
         {
-            if (Main.EntityManager.GetPlayer().ItemCollider.ItemActive) return;
+            if (_player.ItemCollider.ItemActive) return;
             else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Inventory)
             {
                 SetInventoryOpen(!InventoryVisible());
@@ -51,8 +54,8 @@ namespace Vestige.Game.Inventory
                     _dragItem.Item = null;
                     if (itemDrop != null)
                     {
-                        Vector2 velocity = new Vector2(Main.EntityManager.GetPlayer().FlipSprite ? -50 : 50, 0);
-                        Vector2 position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2;
+                        Vector2 velocity = new Vector2(_player.FlipSprite ? -50 : 50, 0);
+                        Vector2 position = _player.Position + _player.Size / 2;
                         Main.EntityManager.CreateItemDrop(itemDrop, position, velocity, false);
                     }
                 }
@@ -69,7 +72,7 @@ namespace Vestige.Game.Inventory
             {
                 if (_dragItem.Item == null)
                     return;
-                Vector2 position = Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Size / 2;
+                Vector2 position = _player.Position + _player.Size / 2;
                 int direction = Math.Sign(Main.GetMouseWorldPosition().X - position.X);
                 Vector2 itemVelocity = new Vector2(direction * 50, 0);
                 Main.EntityManager.CreateItemDrop(_dragItem.Item, position, itemVelocity, false);
@@ -94,7 +97,7 @@ namespace Vestige.Game.Inventory
                     _toolTip.SetText("");
                 }
             }
-            if (_tileInventory != null && Vector2.DistanceSquared(Main.EntityManager.GetPlayer().Position + Main.EntityManager.GetPlayer().Origin, _inventoryTileLocation.ToVector2() * Vestige.TILESIZE) > 16384)
+            if (_tileInventory != null && Vector2.DistanceSquared(_player.Position + _player.Origin, _inventoryTileLocation.ToVector2() * Vestige.TILESIZE) > 16384)
             {
                 _inventoryTileData.CloseInventory(Main.World, _inventoryTileLocation.X, _inventoryTileLocation.Y);
                 RemoveContainerChild(_tileInventory);
@@ -181,7 +184,7 @@ namespace Vestige.Game.Inventory
             Item item = GetSelected();
             if (item == null)
                 return false;
-            bool itemUsed = item.UseItem(Main.EntityManager.GetPlayer(), altUse);
+            bool itemUsed = item.UseItem(_player, altUse);
             if (!item.Stackable || !itemUsed)
                 return itemUsed;
             item.Quantity -= 1;

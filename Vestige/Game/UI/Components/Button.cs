@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using Vestige.Game.Input;
 
 namespace Vestige.Game.UI.Components
@@ -8,8 +9,7 @@ namespace Vestige.Game.UI.Components
     //TODO: implement rounded corners and border color
     internal class Button : Label
     {
-        public delegate void ButtonPress();
-        public ButtonPress OnButtonPress;
+        public event Action OnButtonPress;
         private Color _clickedColor;
         private Color _hoveredColor;
         private Color _defaultColor;
@@ -24,12 +24,12 @@ namespace Vestige.Game.UI.Components
             OnMouseExited += ResetButton;
         }
 
-        protected override void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
+        public override void HandleMouseInput(MouseInputEvent @mouseEvent, Vector2 mouseCoordinates)
         {
             if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonDown)
             {
                 Color = _clickedColor;
-                OnButtonPress();
+                OnButtonPress?.Invoke();
                 InputManager.MarkInputAsHandled(@mouseEvent);
             }
             else if (@mouseEvent.InputButton == InputButton.LeftMouse && @mouseEvent.EventType == InputEventType.MouseButtonUp)

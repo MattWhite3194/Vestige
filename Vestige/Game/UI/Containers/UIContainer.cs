@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Vestige.Game.Input;
 using Vestige.Game.UI.Components;
 
@@ -18,7 +17,21 @@ namespace Vestige.Game.UI.Containers
         public int ComponentCount;
         public int ContainerCount;
         public Vector2 Position;
-        public Vector2 Size;
+        private Vector2 _size;
+        private Vector2 _parentSize;
+        private Matrix _parentMatrix;
+        public Vector2 Size 
+        { 
+            get 
+            { 
+                return _size; 
+            }
+            set
+            {
+                _size = value;
+                UpdateAnchorMatrix((int)_parentSize.X, (int)_parentSize.Y, _parentMatrix);
+            }
+        }
         private List<UIComponent> _componentChildren = new List<UIComponent>();
         private List<UIContainer> _containerChildren = new List<UIContainer>();
         private Anchor _anchor;
@@ -35,10 +48,12 @@ namespace Vestige.Game.UI.Containers
         public UIContainer(Vector2 position = default, Vector2 size = default, Anchor anchor = Anchor.MiddleMiddle)
         {
             Position = position;
-            Size = size;
+            _size = size;
             ComponentCount = 0;
             ContainerCount = 0;
             _anchor = anchor;
+            _parentSize = Vector2.Zero;
+            _parentMatrix = default;
         }
         public virtual void HandleInput(InputEvent @event)
         {
@@ -52,13 +67,13 @@ namespace Vestige.Game.UI.Containers
                 if (component.IsFocused())
                 {
                     if (@event is MouseInputEvent @mouseEvent)
-                        component.OnMouseInput(@mouseEvent, GetLocalMouseCoordinates());
+                        component.HandleMouseInput(mouseEvent, GetLocalMouseCoordinates());
                     else
-                        component.OnGuiInput(@event);
+                        component.HandleGuiInput(@event);
                 }
                 else if (@event is MouseInputEvent @mouseEvent && component.MouseInside)
                 {
-                    component.OnMouseInput(@mouseEvent, GetLocalMouseCoordinates());
+                    component.HandleMouseInput(mouseEvent, GetLocalMouseCoordinates());
                 }
             }
             for (int i = _containerChildren.Count - 1; i >= 0; i--)
@@ -77,13 +92,13 @@ namespace Vestige.Game.UI.Containers
                 {
                     if (!component.MouseInside)
                     {
-                        component.OnMouseEntered.Invoke();
+                        component.HandleMouseEntered();
                         component.MouseInside = true;
                     }
                 }
                 else if (component.MouseInside)
                 {
-                    component.OnMouseExited.Invoke();
+                    component.HandleMouseExited();
                     component.MouseInside = false;
                 }
                 component.Update(delta);
@@ -162,8 +177,10 @@ namespace Vestige.Game.UI.Containers
             InputManager.UnregisterHandler(this);
             UIManager.UnregisterContainer(this);
         }
-        public virtual void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
+        public void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
+            _parentSize = new Vector2(parentWidth, parentHeight);
+            _parentMatrix = parentMatrix;
             _anchorMatrix = GetAnchorMatrix(parentWidth, parentHeight, parentMatrix);
             invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);
             foreach (UIContainer uiComponentContainer in _containerChildren)
@@ -175,6 +192,7 @@ namespace Vestige.Game.UI.Containers
         {
             if (_anchor == Anchor.None)
             {
+                _size = new Vector2(parentWidth, parentHeight);
                 return default;
             }
             Vector2 transformedPosition = Vector2.Transform(Position, Vestige.UIScaleMatrix);
