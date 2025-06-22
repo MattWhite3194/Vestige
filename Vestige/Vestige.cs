@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Vestige.Game;
 using Vestige.Game.Input;
@@ -33,12 +32,12 @@ namespace Vestige
         public static readonly Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
         public static readonly float GRAVITY = 1300.0f;
         public static readonly Point ScreenCenter = new Point(960 / 2, 640 / 2);
-        public static Point ScreenResolution;
         public static Settings Settings;
         public static readonly Color UIPanelColor = new Color(42, 45, 48, 196);
         public static readonly Color UIPanelColorOpaque = new Color(42, 45, 48, 255);
         public static readonly Color HighlightedTextColor = new Color(163, 213, 255, 255);
         public static readonly Color SelectedTextColor = new Color(120, 180, 230, 255);
+        private Point _screenResolution;
         private List<Point> _supportedResolutions;
         private Point _maxScreenResolution;
         public bool IsFullScreen;
@@ -161,7 +160,7 @@ namespace Vestige
         }
         private void UpdateRenderDestination(int width, int height)
         {
-            ScreenResolution = new Point(width, height);
+            _screenResolution = new Point(width, height);
             int xScale = (int)Math.Ceiling(width / (float)NativeResolution.X);
             int yScale = (int)Math.Ceiling(height / (float)NativeResolution.Y);
             _defaultUIScale = width / (float)NativeResolution.X;
@@ -182,8 +181,8 @@ namespace Vestige
         }
         public void LoadMainMenu()
         {
-            _gameManager = null;
             _mainMenu = new MainMenu(this, GraphicsDevice);
+            _gameManager = null;
             UIManager.RegisterContainer(_mainMenu);
             InputManager.RegisterHandler(_mainMenu);
         }
@@ -216,7 +215,7 @@ namespace Vestige
         }
         public Point GetNextSupportedResolution()
         {
-            int currentResolutionIndex = _supportedResolutions.IndexOf(ScreenResolution);
+            int currentResolutionIndex = _supportedResolutions.IndexOf(_screenResolution);
             if (currentResolutionIndex != -1) {
                 return _supportedResolutions[(currentResolutionIndex + 1) % _supportedResolutions.Count];
             }

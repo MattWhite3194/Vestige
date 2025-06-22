@@ -43,8 +43,11 @@ namespace Vestige.Game.Menus
         }
         private void FindCommand(string input)
         {
-            if (string.IsNullOrEmpty(input)) return;
-            if (input[0] != '/')
+            if (string.IsNullOrEmpty(input)) 
+            {
+                //Do Nothing, Stinky
+            }
+            else if (input[0] != '/')
             {
                 outputMessage?.Invoke(input);
             } 

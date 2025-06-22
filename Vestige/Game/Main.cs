@@ -37,6 +37,7 @@ namespace Vestige.Game
         private Player _localPlayer;
         private SunAndMoon _sunMoon;
         private bool _gamePaused;
+        private Map _map;
 
         public Main(Vestige gameHandle, WorldGen world, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
@@ -60,7 +61,10 @@ namespace Vestige.Game
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 4, Vestige.NativeResolution.Y * 4);
             _sunMoon = new SunAndMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
 
-            InGameMenu inGameUIHandler = new InGameMenu(gameHandle, this, _localPlayer, inventory, graphicsDevice);
+            _map = new Map(World, graphicsDevice);
+            //TEMPORARY: This reveals all tiles in the world at the start.
+            _map.RevealAllMapTiles();
+            InGameMenu inGameUIHandler = new InGameMenu(gameHandle, this, _localPlayer, _map, inventory, graphicsDevice);
             inGameUIHandler.AssignSaveAndQuitAction(() =>
             {
                 inGameUIHandler.Dereference();
@@ -112,7 +116,7 @@ namespace Vestige.Game
 
             _graphicsDevice.SetRenderTarget(_gameTarget);
             _graphicsDevice.Clear(Color.Transparent);
-            spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f));
             _tileRenderer.DrawWalls(spriteBatch);
             _tileRenderer.DrawBackgroundTiles(spriteBatch);
             _tileRenderer.DrawTiles(spriteBatch);
@@ -163,6 +167,7 @@ namespace Vestige.Game
             _bgTarget.Dispose();
             _gameTarget.Dispose();
             _liquidRenderTarget.Dispose();
+            _map.MapRenderTarget.Dispose();
             _gameHandle.LoadMainMenu();
         }
         public void SetGameState(bool paused)

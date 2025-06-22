@@ -7,6 +7,7 @@ using Vestige.Game.Input;
 using Vestige.Game.Inventory;
 using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
+using Vestige.Game.WorldMap;
 
 namespace Vestige.Game.Menus
 {
@@ -22,7 +23,8 @@ namespace Vestige.Game.Menus
         private Button _backButton;
         private Stack<UIContainer> _subMenus;
         private UIContainer _optionsPanel;
-        public InGameMenu(Vestige gameHandle, Main gameManager, Player owner, InventoryManager inventoryManager, GraphicsDevice graphicsDevice) : base(anchor: UI.Anchor.None)
+        private MapMenu _mapMenu;
+        public InGameMenu(Vestige gameHandle, Main gameManager, Player owner, Map map, InventoryManager inventoryManager, GraphicsDevice graphicsDevice) : base(anchor: UI.Anchor.None)
         {
             _gameManager = gameManager;
             _owner = owner;
@@ -30,6 +32,7 @@ namespace Vestige.Game.Menus
             _commandTerminal = new CommandTerminal(AddMessageToChat);
             _chatDisplay = new ChatDisplay(position: new Vector2(0, -_commandTerminal.Size.Y), anchor: UI.Anchor.BottomLeft);
             _activeMenu = inventoryManager;
+            _mapMenu = new MapMenu(map);
             _commandTerminal.OnExitTerminal += () =>
             {
                 RemoveContainerChild(_activeMenu);
@@ -67,7 +70,7 @@ namespace Vestige.Game.Menus
             settingsGrid.AddComponentChild(uiScaleSlider);
 
             //TODO: add an apply button
-            Button resolutionSelector = new Button(Vector2.Zero, $"{Vestige.ScreenResolution.X} x {Vestige.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            Button resolutionSelector = new Button(Vector2.Zero, $"{Size.X} x {Size.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             resolutionSelector.OnButtonPress += () =>
             {
                 (int width, int height) = gameHandle.GetNextSupportedResolution();
@@ -97,6 +100,7 @@ namespace Vestige.Game.Menus
         }
         public override void HandleInput(InputEvent @event)
         {
+            //There has to be a cleaner way to do this
             base.HandleInput(@event);
             if (InputManager.IsEventHandled(@event))
                 return;
@@ -104,10 +108,7 @@ namespace Vestige.Game.Menus
             {
                 if (_activeMenu == _inventoryManager)
                 {
-                    if (_inventoryManager.InventoryVisible())
-                    {
-                        _inventoryManager.SetInventoryOpen(false);
-                    }
+                    _inventoryManager.SetInventoryOpen(false);
                     RemoveContainerChild(_inventoryManager);
                     RemoveContainerChild(_chatDisplay);
                     ClearSubMenus();
@@ -123,22 +124,49 @@ namespace Vestige.Game.Menus
                     _activeMenu = _inventoryManager;
                     _gameManager.SetGameState(false);
                 }
+                else if (_activeMenu == _mapMenu)
+                {
+                    RemoveContainerChild(_mapMenu);
+                    AddContainerChild(_chatDisplay);
+                    AddContainerChild(_inventoryManager);
+                    _activeMenu = _inventoryManager;
+                }
                 _owner.ClearInputs();
                 InputManager.MarkInputAsHandled(@event);
                 return;
             }
-            else if (_activeMenu == _commandTerminal || _activeMenu == _optionsPanel)
+            else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Map && _activeMenu == _mapMenu)
+            {
+                RemoveContainerChild(_mapMenu);
+                AddContainerChild(_chatDisplay);
+                AddContainerChild(_inventoryManager);
+                _activeMenu = _inventoryManager;
+                InputManager.MarkInputAsHandled(@event);
+                return;
+            }
+            else if (_activeMenu != _inventoryManager)
             {
                 InputManager.MarkInputAsHandled(@event);
                 return;
             }
-            //open command prompt only when the inventory is visible
-            else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Terminal && _activeMenu == _inventoryManager)
+
+            //open command prompt and map only when the inventory is visible
+            if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Terminal)
             {
                 RemoveContainerChild(_activeMenu);
                 AddContainerChild(_commandTerminal);
                 _commandTerminal.SetFocused(true);
                 _activeMenu = _commandTerminal;
+                _owner.ClearInputs();
+                InputManager.MarkInputAsHandled(@event);
+                return;
+            }
+            else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Map)
+            {
+                RemoveContainerChild(_activeMenu);
+                RemoveContainerChild(_chatDisplay);
+                AddContainerChild(_mapMenu);
+                _activeMenu = _mapMenu;
                 _owner.ClearInputs();
                 InputManager.MarkInputAsHandled(@event);
                 return;

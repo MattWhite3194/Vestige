@@ -79,16 +79,12 @@ namespace Vestige.Game.Menus
             _settingsMenu.AddComponentChild(uiScaleSlider);
 
             //TODO: add an apply button
-            Button resolutionSelector = new Button(Vector2.Zero, $"{Vestige.ScreenResolution.X} x {Vestige.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            Button resolutionSelector = new Button(Vector2.Zero, $"{Size.X} x {Size.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             resolutionSelector.OnButtonPress += () =>
             {
                 (int width, int height) = _game.GetNextSupportedResolution();
                 gameHandle.SetResolution(width, height);
                 resolutionSelector.SetText($"{width} x {height}");
-            };
-            Vestige.GameWindow.ClientSizeChanged += (sender, e) =>
-            {
-                resolutionSelector.SetText($"{Vestige.ScreenResolution.X} x {Vestige.ScreenResolution.Y}");
             };
 
             _settingsMenu.AddComponentChild(resolutionSelector);
@@ -108,7 +104,7 @@ namespace Vestige.Game.Menus
             _worldNameTextBox = new TextBox(new Vector2(0, 0), "", Vector2.Zero, maxTextLength: 24, placeHolder: "Enter World Name:", maxWidth: 288, textAlign: TextAlign.Center);
             _createWorldMenu.AddComponentChild(_worldNameTextBox);
 
-            _worldSizeSelector = new SelectionContainer(4, [(new Point(500, 500), "Tiny"), (new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.Gray, Color.White, Vestige.HighlightedTextColor, buttonWidth: 60, margin: 2, anchor: Anchor.MiddleMiddle);
+            _worldSizeSelector = new SelectionContainer(4, [(new Point(1050, 300), "Tiny"), (new Point(4200, 1200), "Small"), (new Point(6400, 1800), "Medium"), (new Point(8400, 2400), "Large")], Color.Gray, Color.White, Vestige.HighlightedTextColor, buttonWidth: 60, margin: 2, anchor: Anchor.MiddleMiddle);
             PanelContainer selectorPanel = new PanelContainer(new Vector2(0, 30), new Vector2(288, 30), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 0, 1, 5, _graphicsDevice, anchor: Anchor.TopMiddle);
             selectorPanel.AddContainerChild(_worldSizeSelector);
             _createWorldMenu.AddContainerChild(selectorPanel);
@@ -138,7 +134,7 @@ namespace Vestige.Game.Menus
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(Vestige.ScreenResolution.X / (float)Vestige.NativeResolution.X));
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(Size.X / (float)Vestige.NativeResolution.X));
             parallaxManager.Draw(spriteBatch, Color.White);
             spriteBatch.End();
             base.Draw(spriteBatch, rasterizerState);

@@ -22,6 +22,7 @@ namespace Vestige.Game.Input
             {InputButton.Options, Keys.Escape },
             {InputButton.Terminal, Keys.OemTilde },
             {InputButton.AltUse, Keys.LeftShift },
+            {InputButton.Map, Keys.M }
         };
         private static List<IInputHandler> _inputHandlers = new();
         private static KeyboardState _previousKeyboardState = Keyboard.GetState();

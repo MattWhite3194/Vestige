@@ -18,7 +18,7 @@ namespace Vestige.Game.UI.Containers
         public int ContainerCount;
         public Vector2 Position;
         private Vector2 _size;
-        private Vector2 _parentSize;
+        protected Vector2 parentSize;
         private Matrix _parentMatrix;
         public Vector2 Size 
         { 
@@ -29,7 +29,7 @@ namespace Vestige.Game.UI.Containers
             set
             {
                 _size = value;
-                UpdateAnchorMatrix((int)_parentSize.X, (int)_parentSize.Y, _parentMatrix);
+                UpdateAnchorMatrix((int)parentSize.X, (int)parentSize.Y, _parentMatrix);
             }
         }
         private List<UIComponent> _componentChildren = new List<UIComponent>();
@@ -52,7 +52,7 @@ namespace Vestige.Game.UI.Containers
             ComponentCount = 0;
             ContainerCount = 0;
             _anchor = anchor;
-            _parentSize = Vector2.Zero;
+            parentSize = Vector2.Zero;
             _parentMatrix = default;
         }
         public virtual void HandleInput(InputEvent @event)
@@ -108,7 +108,10 @@ namespace Vestige.Game.UI.Containers
                 _containerChildren[i].Update(delta);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns>The mouse coordinates scaled to this UIContainers anchor matrix</returns>
         protected Vector2 GetLocalMouseCoordinates()
         {
             return Vector2.Transform(InputManager.GetMouseWindowPosition(), invertedAnchorMatrix);
@@ -179,7 +182,7 @@ namespace Vestige.Game.UI.Containers
         }
         public void UpdateAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
-            _parentSize = new Vector2(parentWidth, parentHeight);
+            parentSize = new Vector2(parentWidth, parentHeight);
             _parentMatrix = parentMatrix;
             _anchorMatrix = GetAnchorMatrix(parentWidth, parentHeight, parentMatrix);
             invertedAnchorMatrix = Matrix.Invert(_anchorMatrix);

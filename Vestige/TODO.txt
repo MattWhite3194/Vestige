@@ -1,11 +1,8 @@
 ﻿TODO:
-Walls: -50 on brightness photo editor (future reference)
+Walls: -75 on brightness photo editor (future reference)
 
-Make UseItem containe a reference to Player to avoid GetPlayer() function
-Assign Player to UI instance
 Get rid of treetop tile, move texture into tree and edit the draw function, Vector2 TreeTopOffset
 Stairs
-Generate a building/city
 
 Make Entity/NPC scope knockback function. Fix when it's applied
 
@@ -20,10 +17,8 @@ Add different biomes (either as part of one map, or dedicate an entire map to on
 Add stars and clouds, fix the ugly mountains texture
 
 SpawnTile
-Add an entity that tracks if a player placed a tile in it, and if so, set the spawn point to the players current position
 
 Fixes:
-Probably change the collision logic to sort through player->enemy, player->enemyprojectile, player->itemdrops enemy->hostileprojectile. Faster that O(n^2) checking every entity with every entity. Completely unnecessary.
 design better damage system
 Implement tile culling
 
@@ -36,5 +31,3 @@ UI:
 if inventory was open on death, reopen it when you respawn
 draw map to a render target2D the size of the map. 
 Only draw to this render target when the map is updated, and draw the pixels at the corresponding positions.
-
-player inventory and world are tied together

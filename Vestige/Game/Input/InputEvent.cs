@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vestige.Game.Input
+﻿namespace Vestige.Game.Input
 {
     public class InputEvent
     {
@@ -48,6 +42,7 @@ namespace Vestige.Game.Input
         MiddleMouse,
         Options,
         Terminal,
-        AltUse
+        AltUse,
+        Map
     }
 }
