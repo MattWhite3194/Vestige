@@ -78,6 +78,15 @@ namespace Vestige.Game.Menus
             {
                 _mapPosition = Vector2.Clamp(_mapPosition, new Vector2((-parentSize.X + mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y), new Vector2((parentSize.X - mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y));
             }
+            float mapHeight = _map.MapRenderTarget.Height * (_userZoom * _defaultZoom) * (parentSize.X / Vestige.NativeResolution.X);
+            if (mapHeight > parentSize.Y)
+            {
+                _mapPosition = Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, -(mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)));
+            }
+            else
+            {
+                _mapPosition = Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, (-parentSize.Y + mapHeight) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (parentSize.Y - mapHeight) / 2.0f / (_userZoom * _defaultZoom)));
+            }
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {

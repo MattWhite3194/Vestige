@@ -24,6 +24,9 @@ namespace Vestige
         /// The default scale of the UI in relation to the current screen resolution
         /// </summary>
         private float _defaultUIScale;
+        /// <summary>
+        /// The users selected UI scale, this will multiply with _defaultUIScale for the final scale
+        /// </summary>
         private float _userUIScale = 1.0f;
         public static Rectangle RenderDestination;
         public static GameWindow GameWindow;
@@ -37,10 +40,11 @@ namespace Vestige
         public static readonly Color UIPanelColorOpaque = new Color(42, 45, 48, 255);
         public static readonly Color HighlightedTextColor = new Color(163, 213, 255, 255);
         public static readonly Color SelectedTextColor = new Color(120, 180, 230, 255);
-        private Point _screenResolution;
+        public Point ScreenResolution;
+        //TODO: add resolution index to retrieve next resolution, so it doesn't get stuck on a resolution in fullscreen
         private List<Point> _supportedResolutions;
         private Point _maxScreenResolution;
-        public bool IsFullScreen;
+        public bool IsFullScreen = false;
         /*
          Charcoal Gray - Color(42, 45, 48, 196)
          Steel Blue - Color(58, 74, 89, 196)
@@ -135,8 +139,9 @@ namespace Vestige
                 if (!IsFullScreen)
                 {
                     //going into fullscreen will clamp width and height to the supposed max monitor resolution. There are no other APIs to get cross platform resolutions unless I use SDL2
-                    width = Math.Min(width, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width);
-                    height = Math.Min(height, GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height);
+                    width = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width;
+                    height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
+                    _maxScreenResolution = new Point(width, height);
                     _graphics.PreferredBackBufferWidth = width;
                     _graphics.PreferredBackBufferHeight = height;
                     _graphics.ApplyChanges();
@@ -144,7 +149,20 @@ namespace Vestige
                 else
                 {
                     //if toggling out of fullscreen, clamp width to bottom bar bounds
+                    _graphics.IsFullScreen = fullscreen;
+                    _graphics.ApplyChanges();
+                    if (height >= GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height)
+                    {
+                        height = (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 0.97f);
+                        width = Math.Min(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, width);
+                    }
                 }                
+            }
+            //not allowed to set resolution to larger than the screens
+            if (fullscreen)
+            {
+                width = Math.Min(_maxScreenResolution.X, width);
+                height = Math.Min(_maxScreenResolution.Y, height);
             }
             IsFullScreen = fullscreen;
             _graphics.PreferredBackBufferWidth = width;
@@ -160,7 +178,7 @@ namespace Vestige
         }
         private void UpdateRenderDestination(int width, int height)
         {
-            _screenResolution = new Point(width, height);
+            ScreenResolution = new Point(width, height);
             int xScale = (int)Math.Ceiling(width / (float)NativeResolution.X);
             int yScale = (int)Math.Ceiling(height / (float)NativeResolution.Y);
             _defaultUIScale = width / (float)NativeResolution.X;
@@ -197,25 +215,16 @@ namespace Vestige
         private void GetSupportedDisplayModes()
         {
             _supportedResolutions = new List<Point>();
-            _maxScreenResolution = new Point(0, 0);
             foreach (var displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
             {
                 if (displayMode.Width < NativeResolution.X ||  displayMode.Height < NativeResolution.Y)
                     continue;
                 _supportedResolutions.Add(new Point(displayMode.Width, displayMode.Height));
-                if (displayMode.Width > _maxScreenResolution.X)
-                {
-                    _maxScreenResolution.X = displayMode.Width;
-                }
-                if (displayMode.Height > _maxScreenResolution.Y)
-                {
-                    _maxScreenResolution.Y = displayMode.Height;
-                }
             }
         }
         public Point GetNextSupportedResolution()
         {
-            int currentResolutionIndex = _supportedResolutions.IndexOf(_screenResolution);
+            int currentResolutionIndex = _supportedResolutions.IndexOf(ScreenResolution);
             if (currentResolutionIndex != -1) {
                 return _supportedResolutions[(currentResolutionIndex + 1) % _supportedResolutions.Count];
             }

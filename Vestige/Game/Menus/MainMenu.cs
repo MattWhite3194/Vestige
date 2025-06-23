@@ -79,7 +79,7 @@ namespace Vestige.Game.Menus
             _settingsMenu.AddComponentChild(uiScaleSlider);
 
             //TODO: add an apply button
-            Button resolutionSelector = new Button(Vector2.Zero, $"{Size.X} x {Size.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            Button resolutionSelector = new Button(Vector2.Zero, $"{gameHandle.ScreenResolution.X} x {gameHandle.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             resolutionSelector.OnButtonPress += () =>
             {
                 (int width, int height) = _game.GetNextSupportedResolution();
@@ -171,6 +171,9 @@ namespace Vestige.Game.Menus
         private void ListWorlds()
         {
             _loadGameMenu = new PanelContainer(Vector2.Zero, new Vector2(320, 330), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
+            //TODO: Attach sort method function as object to dropdown container, resort the world list on OnSelectionChanged.
+            DropdownContainer sortMethodContainer = new DropdownContainer([(1, "Date Ascending"), (2, "Date Descending"), (3, "Name")], Color.White, Vestige.SelectedTextColor, Vestige.HighlightedTextColor, position: new Vector2(-20, 0), buttonWidth: 150, anchor: Anchor.BottomLeft);
+            _loadGameMenu.AddContainerChild(sortMethodContainer);
             ScrollContainer worldList = new ScrollContainer(Vector2.Zero, size: new Vector2(320, 320), anchor: Anchor.TopMiddle);
             string savePath = Path.Combine(Vestige.SavePath, "Worlds");
             if (!Path.Exists(savePath))

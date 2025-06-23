@@ -70,7 +70,7 @@ namespace Vestige.Game.Menus
             settingsGrid.AddComponentChild(uiScaleSlider);
 
             //TODO: add an apply button
-            Button resolutionSelector = new Button(Vector2.Zero, $"{Size.X} x {Size.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            Button resolutionSelector = new Button(Vector2.Zero, $"{gameHandle.ScreenResolution.X} x {gameHandle.ScreenResolution.Y}", Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
             resolutionSelector.OnButtonPress += () =>
             {
                 (int width, int height) = gameHandle.GetNextSupportedResolution();
