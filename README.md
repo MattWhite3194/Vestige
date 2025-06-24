@@ -5,19 +5,15 @@
 Vestige is a 2D sanbox game inspired by the popular 2D indie game, Terraria.  
 Players can build, fight, and explore a fully destructable, procedurally generated tile world.  
 
-## Game Showcase
-
-![alt text](Vestige/VestigeProgressPhotos/GameShowcaseEnemies.gif?raw=true)
-
-![alt text](Vestige/VestigeProgressPhotos/GameShowcaseTiles.gif?raw=true)
-
-![alt text](Vestige/VestigeProgressPhotos/GameShowcaseChests.gif?raw=true)
-
-![alt text](Vestige/VestigeProgressPhotos/GameShowcaseWater.gif?raw=true)
-
 ## Technical
 Vestige was built using the opensource Monogame framework, which is a reimplementation of Microsoft's XNA game framework.  
 C# is the language of choice for this project, as it is Object-Oriented, and allows for a cleaner development environment.  
+
+### Modules built while developing this project
+Comprehensive, modular UI system.  
+Random and procedural generation algorithms.  
+Collision system with floating point collisions.  
+File management and saving system.  
 
 ## Progress
 
@@ -102,3 +98,5 @@ The item drawn has a hitbox that will always contain the item based on its rotat
 Collisions now have layers. Layers include Player, Enemy, ItemDrop, ItemCollider, and Friendly/Hostile Projectile.  
 Collisions are filtered by layers.  
 Example: An entity that collides with collision layer player will recieve collision events oly from entities with a layer value of Player.  
+
+### UI System

@@ -24,6 +24,9 @@ namespace Vestige.Game.Menus
         private Stack<UIContainer> _subMenus;
         private UIContainer _optionsPanel;
         private MapMenu _mapMenu;
+        private Dictionary<(UIMenuType from, InputButton trigger), UIMenuType> _menuTransitions = new();
+        private UIMenuType _activeMenuType;
+        private EventHandler _updateResolutionText;
         public InGameMenu(Vestige gameHandle, Main gameManager, Player owner, Map map, InventoryManager inventoryManager, GraphicsDevice graphicsDevice) : base(anchor: UI.Anchor.None)
         {
             _gameManager = gameManager;
@@ -33,12 +36,14 @@ namespace Vestige.Game.Menus
             _chatDisplay = new ChatDisplay(position: new Vector2(0, -_commandTerminal.Size.Y), anchor: UI.Anchor.BottomLeft);
             _activeMenu = inventoryManager;
             _mapMenu = new MapMenu(map);
+            InitializeMenuTransitions();
             _commandTerminal.OnExitTerminal += () =>
             {
                 RemoveContainerChild(_activeMenu);
                 _commandTerminal.SetFocused(false);
                 AddContainerChild(_inventoryManager);
                 _activeMenu = _inventoryManager;
+                _activeMenuType = UIMenuType.Inventory;
             };
             _subMenus = new Stack<UIContainer>();
             _optionsPanel = new PanelContainer(Vector2.Zero, new Vector2(288, 150), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 20, 1, 10, graphicsDevice);
@@ -61,6 +66,13 @@ namespace Vestige.Game.Menus
             _optionsPanel.AddContainerChild(optionsGrid);
 
             //settings menu
+            Button LightingSelection = new Button(Vector2.Zero, "Lighting: " + (gameManager.SmoothLighting ? "Smooth" : "Blocky"), Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            LightingSelection.OnButtonPress += () =>
+            {
+                gameManager.SmoothLighting = !gameManager.SmoothLighting;
+                LightingSelection.SetText("Lighting: " + (gameManager.SmoothLighting ? "Smooth" : "Blocky"));
+            };
+            settingsGrid.AddComponentChild(LightingSelection);
             Slider uiScaleSlider = new Slider(Vector2.Zero, new Vector2(288, 10), "UI Scale:", 50, 200, 100, "%");
             uiScaleSlider.OnValueChanged += (value) =>
             {
@@ -77,7 +89,16 @@ namespace Vestige.Game.Menus
                 gameHandle.SetResolution(width, height);
                 resolutionSelector.SetText($"{width} x {height}");
             };
+            _updateResolutionText = (sender, e) =>
+            {
+                resolutionSelector.SetText($"{gameHandle.ScreenResolution.X} x {gameHandle.ScreenResolution.Y}");
+            };
+            Vestige.GameWindow.ClientSizeChanged += (sender, e) => _updateResolutionText(sender, e);
             settingsGrid.AddComponentChild(resolutionSelector);
+            AssignSaveAndQuitAction(() =>
+            {
+                Vestige.GameWindow.ClientSizeChanged -= (sender, e) => _updateResolutionText(sender, e);
+            });
 
             string fullScreenSelectorText = gameHandle.IsFullScreen ? "Toggle Windowed" : "Toggle Fullscreen";
             Button fullScreenSelector = new Button(Vector2.Zero, fullScreenSelectorText, Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
@@ -92,6 +113,7 @@ namespace Vestige.Game.Menus
 
             AddContainerChild(inventoryManager);
             AddContainerChild(_chatDisplay);
+            _activeMenuType = UIMenuType.Inventory;
         }
         public void AddMessageToChat(string message)
         {
@@ -100,77 +122,56 @@ namespace Vestige.Game.Menus
         }
         public override void HandleInput(InputEvent @event)
         {
-            //There has to be a cleaner way to do this
             base.HandleInput(@event);
             if (InputManager.IsEventHandled(@event))
                 return;
-            if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Options)
+
+            if (@event.EventType == InputEventType.KeyDown)
             {
-                if (_activeMenu == _inventoryManager)
+                var input = @event.InputButton;
+                if (_menuTransitions.TryGetValue((_activeMenuType, input), out var newMenu))
                 {
-                    _inventoryManager.SetInventoryOpen(false);
-                    RemoveContainerChild(_inventoryManager);
-                    RemoveContainerChild(_chatDisplay);
-                    ClearSubMenus();
-                    AddSubMenu(_optionsPanel);
-                    _activeMenu = _optionsPanel;
-                    _gameManager.SetGameState(true);
+                    TransitionTo(newMenu);
+                    InputManager.MarkInputAsHandled(@event);
                 }
-                else if (_activeMenu == _optionsPanel)
-                {
-                    RemoveContainerChild(_subMenus.Peek());
-                    AddContainerChild(_chatDisplay);
+            }
+            if (_activeMenu != _inventoryManager)
+            {
+                InputManager.MarkInputAsHandled(@event);
+            }
+        }
+        private void TransitionTo(UIMenuType target)
+        {
+            RemoveContainerChild(_activeMenu);
+            ClearSubMenus();
+
+            switch (target)
+            {
+                case UIMenuType.Inventory:
                     AddContainerChild(_inventoryManager);
-                    _activeMenu = _inventoryManager;
+                    AddContainerChild(_chatDisplay);
                     _gameManager.SetGameState(false);
-                }
-                else if (_activeMenu == _mapMenu)
-                {
-                    RemoveContainerChild(_mapMenu);
-                    AddContainerChild(_chatDisplay);
-                    AddContainerChild(_inventoryManager);
                     _activeMenu = _inventoryManager;
-                }
-                _owner.ClearInputs();
-                InputManager.MarkInputAsHandled(@event);
-                return;
-            }
-            else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Map && _activeMenu == _mapMenu)
-            {
-                RemoveContainerChild(_mapMenu);
-                AddContainerChild(_chatDisplay);
-                AddContainerChild(_inventoryManager);
-                _activeMenu = _inventoryManager;
-                InputManager.MarkInputAsHandled(@event);
-                return;
-            }
-            else if (_activeMenu != _inventoryManager)
-            {
-                InputManager.MarkInputAsHandled(@event);
-                return;
+                    break;
+                case UIMenuType.Options:
+                    AddSubMenu(_optionsPanel);
+                    _gameManager.SetGameState(true);
+                    _activeMenu = _optionsPanel;
+                    break;
+                case UIMenuType.Map:
+                    RemoveContainerChild(_chatDisplay);
+                    AddContainerChild(_mapMenu);
+                    _activeMenu = _mapMenu;
+                    break;
+                case UIMenuType.Terminal:
+                    AddContainerChild(_commandTerminal);
+                    _commandTerminal.SetFocused(true);
+                    _activeMenu = _commandTerminal;
+                    break;
             }
 
-            //open command prompt and map only when the inventory is visible
-            if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Terminal)
-            {
-                RemoveContainerChild(_activeMenu);
-                AddContainerChild(_commandTerminal);
-                _commandTerminal.SetFocused(true);
-                _activeMenu = _commandTerminal;
-                _owner.ClearInputs();
-                InputManager.MarkInputAsHandled(@event);
-                return;
-            }
-            else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Map)
-            {
-                RemoveContainerChild(_activeMenu);
-                RemoveContainerChild(_chatDisplay);
-                AddContainerChild(_mapMenu);
-                _activeMenu = _mapMenu;
-                _owner.ClearInputs();
-                InputManager.MarkInputAsHandled(@event);
-                return;
-            }
+            _activeMenuType = target;
+            _owner.ClearInputs();
         }
         public void AssignSaveAndQuitAction(Action saveAndQuitAction)
         {
@@ -193,6 +194,7 @@ namespace Vestige.Game.Menus
                 menu.AddComponentChild(_backButton);
             }
             AddContainerChild(menu);
+            _activeMenu = menu;
             _subMenus.Push(menu);
         }
         private void RemoveSubMenu()
@@ -201,6 +203,23 @@ namespace Vestige.Game.Menus
             menu.RemoveComponentChild(_backButton);
             RemoveContainerChild(menu);
             AddContainerChild(_subMenus.Peek());
+            _activeMenu = _subMenus.Peek();
         }
+        private void InitializeMenuTransitions()
+        {
+            _menuTransitions[(UIMenuType.Inventory, InputButton.Options)] = UIMenuType.Options;
+            _menuTransitions[(UIMenuType.Inventory, InputButton.Map)] = UIMenuType.Map;
+            _menuTransitions[(UIMenuType.Inventory, InputButton.Terminal)] = UIMenuType.Terminal;
+            _menuTransitions[(UIMenuType.Options, InputButton.Options)] = UIMenuType.Inventory;
+            _menuTransitions[(UIMenuType.Map, InputButton.Options)] = UIMenuType.Inventory;
+            _menuTransitions[(UIMenuType.Map, InputButton.Map)] = UIMenuType.Inventory;
+        }
+    }
+    public enum UIMenuType
+    {
+        Inventory,
+        Options,
+        Map,
+        Terminal
     }
 }

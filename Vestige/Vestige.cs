@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Vestige.Game;
 using Vestige.Game.Input;
@@ -75,7 +76,7 @@ namespace Vestige
             Settings.Load();
             SetWindowProperties((int)Settings.Get("screen-width"), (int)Settings.Get("screen-height"), false);
             Window.AllowUserResizing = true;
-            Window.ClientSizeChanged += (sender, e) => UpdateRenderDestination(GraphicsDevice.PresentationParameters.BackBufferWidth, GraphicsDevice.PresentationParameters.BackBufferHeight);
+            Window.ClientSizeChanged += (sender, e) => UpdateRenderDestination(Window.ClientBounds.Width, Window.ClientBounds.Height);
             //For unlimited fps:
             //IsFixedTimeStep = false;
             Utilities.Initialize(GraphicsDevice);
@@ -123,7 +124,6 @@ namespace Vestige
 
             base.Draw(gameTime);
         }
-        //TODO: make fullscreen size be max native screen resolution. fix going out of full screen mode
         public void SetResolution(int width, int height)
         {
             SetWindowProperties(width, height, _graphics.IsFullScreen);
@@ -171,11 +171,6 @@ namespace Vestige
             _graphics.ApplyChanges();
             UpdateRenderDestination(width, height);
         }
-        public void StartGame(WorldGen world, WorldFile worldFile)
-        {
-            _mainMenu.Dereference();
-            _gameManager = new Main(this, world, worldFile, GraphicsDevice);
-        }
         private void UpdateRenderDestination(int width, int height)
         {
             ScreenResolution = new Point(width, height);
@@ -190,6 +185,26 @@ namespace Vestige
                 (int)(NativeResolution.X * scale),
                 (int)(NativeResolution.Y * scale)
                 );
+            Debug.WriteLine(ScreenResolution);
+        }
+        private void GetSupportedDisplayModes()
+        {
+            _supportedResolutions = new List<Point>();
+            foreach (var displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
+            {
+                if (displayMode.Width < NativeResolution.X || displayMode.Height < NativeResolution.Y)
+                    continue;
+                _supportedResolutions.Add(new Point(displayMode.Width, displayMode.Height));
+            }
+        }
+        public Point GetNextSupportedResolution()
+        {
+            int currentResolutionIndex = _supportedResolutions.IndexOf(ScreenResolution);
+            if (currentResolutionIndex != -1)
+            {
+                return _supportedResolutions[(currentResolutionIndex + 1) % _supportedResolutions.Count];
+            }
+            return _supportedResolutions[0];
         }
         public void SetUIScale(float scale)
         {
@@ -204,6 +219,11 @@ namespace Vestige
             UIManager.RegisterContainer(_mainMenu);
             InputManager.RegisterHandler(_mainMenu);
         }
+        public void StartGame(WorldGen world, WorldFile worldFile)
+        {
+            _mainMenu.Dereference();
+            _gameManager = new Main(this, world, worldFile, GraphicsDevice);
+        }
         public void QuitGame()
         {
             Settings.Set("screen-width", GraphicsDevice.PresentationParameters.BackBufferWidth);
@@ -211,24 +231,6 @@ namespace Vestige
             Settings.Set("fullscreen", _graphics.IsFullScreen);
             Settings.Save();
             this.Exit();
-        }
-        private void GetSupportedDisplayModes()
-        {
-            _supportedResolutions = new List<Point>();
-            foreach (var displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
-            {
-                if (displayMode.Width < NativeResolution.X ||  displayMode.Height < NativeResolution.Y)
-                    continue;
-                _supportedResolutions.Add(new Point(displayMode.Width, displayMode.Height));
-            }
-        }
-        public Point GetNextSupportedResolution()
-        {
-            int currentResolutionIndex = _supportedResolutions.IndexOf(ScreenResolution);
-            if (currentResolutionIndex != -1) {
-                return _supportedResolutions[(currentResolutionIndex + 1) % _supportedResolutions.Count];
-            }
-            return _supportedResolutions[0];
         }
     }
 }

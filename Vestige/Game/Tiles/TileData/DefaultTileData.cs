@@ -148,13 +148,41 @@ namespace Vestige.Game.Tiles.TileData
         {
             spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Vestige.TILESIZE, TileDatabase.GetTileTextureAtlas(state), light);
         }
-        public virtual void Place(WorldGen world, int x, int y)
+        public virtual void DrawPrimitive(GraphicsDevice graphicsDevice, BasicEffect tileDrawEffect, int x, int y, byte state, Color tl, Color tr, Color bl, Color br)
         {
-            //TODO: implement these in tiledata classes to remove redundant if else blocks
+            Vector2 position = new Vector2(x * Vestige.TILESIZE, y * Vestige.TILESIZE);
+            Rectangle sourceRect = TileDatabase.GetTileTextureAtlas(state);
+            DrawPrimitive(graphicsDevice, tileDrawEffect, position, sourceRect, tl, tr, bl, br);
         }
-        public virtual void Break(WorldGen world, int x, int y)
+        protected void DrawPrimitive(GraphicsDevice graphicsDevice, BasicEffect tileDrawEffect, Vector2 position, Rectangle sourceRect, Color tl, Color tr, Color bl, Color br)
         {
-            //TODO: same thing here
+            Texture2D tileTexture = ContentLoader.TileTextures[TileID];
+            Vector2 uvTopLeft = new Vector2(
+                sourceRect.X / (float)tileTexture.Width,
+                sourceRect.Y / (float)tileTexture.Height
+            );
+
+            Vector2 uvBottomRight = new Vector2(
+                (sourceRect.X + sourceRect.Width) / (float)tileTexture.Width,
+                (sourceRect.Y + sourceRect.Height) / (float)tileTexture.Height
+            );
+            var vertices = new VertexPositionColorTexture[6]
+            {
+                        new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f), tl, uvTopLeft),
+                        new VertexPositionColorTexture(new Vector3(position.X + sourceRect.Width, position.Y + sourceRect.Height, 0f), br, uvBottomRight),
+                        new VertexPositionColorTexture(new Vector3(position.X + sourceRect.Width, position.Y, 0f),    tr,    new Vector2(uvBottomRight.X, uvTopLeft.Y)),
+
+                        new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f), tl, uvTopLeft),
+                        new VertexPositionColorTexture(new Vector3(position.X, position.Y + sourceRect.Height, 0f), bl, new Vector2(uvTopLeft.X, uvBottomRight.Y)),
+                        new VertexPositionColorTexture(new Vector3(position.X + sourceRect.Width, position.Y + sourceRect.Height, 0f), br, uvBottomRight),
+            };
+            if (tileDrawEffect.Texture != tileTexture)
+                tileDrawEffect.Texture = tileTexture;
+            foreach (var pass in tileDrawEffect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);
+            }
         }
     }
 }

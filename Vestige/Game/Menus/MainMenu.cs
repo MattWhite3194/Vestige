@@ -32,6 +32,7 @@ namespace Vestige.Game.Menus
         private GraphicsDevice _graphicsDevice;
         private SelectionContainer _worldSizeSelector;
         private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _worldSortMethod;
+        private EventHandler _updateResolutionText;
 
         public MainMenu(Vestige gameHandle, GraphicsDevice graphicsDevice) : base(anchor: Anchor.None)
         {
@@ -86,7 +87,11 @@ namespace Vestige.Game.Menus
                 gameHandle.SetResolution(width, height);
                 resolutionSelector.SetText($"{width} x {height}");
             };
-
+            _updateResolutionText = (sender, e) =>
+            {
+                resolutionSelector.SetText($"{gameHandle.ScreenResolution.X} x {gameHandle.ScreenResolution.Y}");
+            };
+            Vestige.GameWindow.ClientSizeChanged += (sender, e) => _updateResolutionText(sender, e);
             _settingsMenu.AddComponentChild(resolutionSelector);
 
             string fullScreenSelectorText = _game.IsFullScreen ? "Toggle Windowed" : "Toggle Fullscreen";
@@ -166,6 +171,7 @@ namespace Vestige.Game.Menus
                 AddContainerChild(_createWorldMenu);
                 return;
             }
+            Vestige.GameWindow.ClientSizeChanged -= (sender, e) => _updateResolutionText(sender, e);
             _game.StartGame(world, newWorldFile);
         }
         private void ListWorlds()
@@ -225,6 +231,7 @@ namespace Vestige.Game.Menus
                     Debug.WriteLine(ex.Message);
                     return;
                 }
+                Vestige.GameWindow.ClientSizeChanged -= (sender, e) => _updateResolutionText(sender, e);
                 _game.StartGame(world, worldFile);
             };
             deleteButton.OnButtonPress += () =>

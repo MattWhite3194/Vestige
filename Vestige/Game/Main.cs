@@ -30,6 +30,7 @@ namespace Vestige.Game
         public static Map map;
         private WorldFile _worldFile;
         private RenderTarget2D _bgTarget;
+        private RenderTarget2D _wallTarget;
         private RenderTarget2D _gameTarget;
         private RenderTarget2D _liquidRenderTarget;
         private Texture2D _daytimeSkyGradient;
@@ -38,13 +39,14 @@ namespace Vestige.Game
         private SunAndMoon _sunMoon;
         private bool _gamePaused;
         private Map _map;
+        public bool SmoothLighting = true;
 
         public Main(Vestige gameHandle, WorldGen world, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
             _gameHandle = gameHandle;
             World = world;
             _graphicsDevice = graphicsDevice;
-            _tileRenderer = new TileRenderer();
+            _tileRenderer = new TileRenderer(graphicsDevice);
             _daytimeSkyGradient = Utilities.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], Vestige.NativeResolution.Y);
             LightEngine = new LightEngine(_graphicsDevice);
             EntityManager = new EntityManager();
@@ -56,6 +58,7 @@ namespace Vestige.Game
             _localPlayer.Inventory = inventory;
 
             //2x supersampling on all render targets
+            _wallTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 4, Vestige.NativeResolution.Y * 4);
@@ -80,6 +83,7 @@ namespace Vestige.Game
 
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
+            ContentLoader.WaterShader.Parameters["Projection"].SetValue(Matrix.CreateOrthographicOffCenter(0, 1920, 1280, 0, 0, 1));
             
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), _localPlayer.Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), _localPlayer.Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
@@ -102,10 +106,12 @@ namespace Vestige.Game
             Point drawBoxMin = (GetCameraPosition() / Vestige.TILESIZE).ToPoint();
             Point drawBoxMax = (GetCameraPosition() / Vestige.TILESIZE).ToPoint() + Vestige.DrawDistance;
             _tileRenderer.SetDrawBox(drawBoxMin, drawBoxMax);
+            _tileRenderer.SetTranslation(_translation * Matrix.CreateScale(2.0f));
             LightEngine.SetDrawBox(drawBoxMin, drawBoxMax);
             LightEngine.CalculateLightMap();
             float normalizedGlobalLight = (GameClock.GlobalLight - 50) / 205.0f;
 
+            //Draw background elements
             _graphicsDevice.SetRenderTarget(_bgTarget);
             _graphicsDevice.Clear(new Color((int)(50 * normalizedGlobalLight), (int)(109 * normalizedGlobalLight), (int)(255 * normalizedGlobalLight)));
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(4.0f));
@@ -114,23 +120,70 @@ namespace Vestige.Game
             _parallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             spriteBatch.End();
 
-            _graphicsDevice.SetRenderTarget(_gameTarget);
+            _graphicsDevice.SetRenderTarget(_wallTarget);
             _graphicsDevice.Clear(Color.Transparent);
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f));
-            _tileRenderer.DrawWalls(spriteBatch);
-            _tileRenderer.DrawBackgroundTiles(spriteBatch);
-            _tileRenderer.DrawTiles(spriteBatch);
-            EntityManager.Draw(spriteBatch);
-            spriteBatch.End();
+            if (SmoothLighting)
+            {
+                _graphicsDevice.SamplerStates[0] = SamplerState.PointClamp;
+                _tileRenderer.DrawWalls_SmoothLighting(spriteBatch, _graphicsDevice);
+                _tileRenderer.DrawTiles_SmoothLighting(spriteBatch, _graphicsDevice, true);
+            }
+            else
+            {
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f));
+                _tileRenderer.DrawWalls_DefaultLighting(spriteBatch);
+                _tileRenderer.DrawTiles_DefaultLighting(spriteBatch, true);
+                spriteBatch.End();
+            }
 
             _graphicsDevice.SetRenderTarget(_liquidRenderTarget);
             _graphicsDevice.Clear(Color.Transparent);
+            ContentLoader.WaterShader.Parameters["BackgroundTexture"].SetValue(_wallTarget);
+            ContentLoader.WaterShader.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
+            ContentLoader.WaterShader.Parameters["ModelMatrix"].SetValue(Matrix.Invert(_translation * Matrix.CreateScale(2.0f)));
+            ContentLoader.WaterShader.CurrentTechnique = ContentLoader.WaterShader.Techniques["SpriteDrawing"];
             spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend, effect: ContentLoader.WaterShader);
+            _tileRenderer.DrawLiquidInTiles(spriteBatch);
+            spriteBatch.End();
+
+            _graphicsDevice.SetRenderTarget(_gameTarget);
+            _graphicsDevice.Clear(Color.Transparent);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
+            spriteBatch.Draw(_wallTarget, Vector2.Zero, Color.White);
+            spriteBatch.Draw(_liquidRenderTarget, Vector2.Zero, Color.White);
+            spriteBatch.End();
+            if (SmoothLighting)
+            {
+                _tileRenderer.DrawTiles_SmoothLighting(spriteBatch, _graphicsDevice);
+            }
+            else
+            {
+                spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f));
+                _tileRenderer.DrawTiles_DefaultLighting(spriteBatch);
+                spriteBatch.End();
+            }
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f));
+            EntityManager.Draw(spriteBatch);
+            spriteBatch.End();
+
+            //Draw Liquids
+            _graphicsDevice.SetRenderTarget(_liquidRenderTarget);
+            _graphicsDevice.Clear(Color.Transparent);
             ContentLoader.WaterShader.Parameters["BackgroundTexture"].SetValue(_gameTarget);
             ContentLoader.WaterShader.Parameters["Time"].SetValue((float)gameTime.TotalGameTime.TotalSeconds);
             ContentLoader.WaterShader.Parameters["ModelMatrix"].SetValue(Matrix.Invert(_translation * Matrix.CreateScale(2.0f)));
-            _tileRenderer.DrawLiquids(spriteBatch);
-            spriteBatch.End();
+            if (SmoothLighting)
+            {
+                ContentLoader.WaterShader.CurrentTechnique = ContentLoader.WaterShader.Techniques["PrimitiveDrawing"];
+                ContentLoader.WaterShader.Parameters["View"].SetValue(_translation * Matrix.CreateScale(2.0f));
+                _tileRenderer.DrawLiquids_SmoothLighting(_graphicsDevice);
+            }
+            else
+            {
+                spriteBatch.Begin(SpriteSortMode.Deferred, samplerState: SamplerState.PointClamp, transformMatrix: _translation * Matrix.CreateScale(2.0f), blendState: BlendState.AlphaBlend, effect: ContentLoader.WaterShader);
+                _tileRenderer.DrawLiquids(spriteBatch);
+                spriteBatch.End();
+            }
 
             _graphicsDevice.SetRenderTarget(null);
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
@@ -165,6 +218,7 @@ namespace Vestige.Game
             EntityManager = null;
             World = null;
             _bgTarget.Dispose();
+            _wallTarget.Dispose();
             _gameTarget.Dispose();
             _liquidRenderTarget.Dispose();
             _map.MapRenderTarget.Dispose();

@@ -1,4 +1,5 @@
 ﻿TODO:
+
 Walls: -75 on brightness photo editor (future reference)
 
 Get rid of treetop tile, move texture into tree and edit the draw function, Vector2 TreeTopOffset
@@ -8,8 +9,6 @@ Make Entity/NPC scope knockback function. Fix when it's applied
 
 Refactor Items
 split properties into interfaces and create new Item classes from those. default Item class will be bare bones - Texture, image, description, stackable, maxStack.
-
-Add Map
 
 Up Next:
 Make WorldGen cooler
@@ -29,5 +28,3 @@ Split Screen
 
 UI: 
 if inventory was open on death, reopen it when you respawn
-draw map to a render target2D the size of the map. 
-Only draw to this render target when the map is updated, and draw the pixels at the corresponding positions.

@@ -1,8 +1,8 @@
 ﻿#if OPENGL
-	#define VS_SHADERMODEL vs_4_0
+	#define VS_SHADERMODEL vs_3_0
 	#define PS_SHADERMODEL ps_3_0
 #else
-	#define VS_SHADERMODEL vs_4_0_level_9_1
+	#define VS_SHADERMODEL vs_3_0_level_9_1
 	#define PS_SHADERMODEL ps_3_0_level_9_1
 #endif
 
@@ -10,6 +10,8 @@ Texture2D SpriteTexture;
 Texture2D BackgroundTexture;
 float Time;
 matrix ModelMatrix;
+matrix View;
+matrix Projection;
 
 static const float speed = 2.0;
 static const float waves = 1000.0;
@@ -94,10 +96,28 @@ float4 MainPS(VertexShaderOutput input) : COLOR
     return lerp(bgColor, fgColor, 0.5);
 }
 
+VertexShaderOutput MainVS(float4 position : POSITION0, float4 color : COLOR0, float2 texcoord : TEXCOORD0)
+{
+    VertexShaderOutput output;
+    float4 viewPosition = mul(position, View);
+    output.Position = mul(viewPosition, Projection);
+    output.Color = color;
+    output.TextureCoordinates = texcoord;
+    return output;
+}
+
 technique SpriteDrawing
 {
 	pass P0
 	{
 		PixelShader = compile PS_SHADERMODEL MainPS();
 	}
+};
+technique PrimitiveDrawing
+{
+    pass P0
+    {
+        VertexShader = compile VS_SHADERMODEL MainVS();
+        PixelShader = compile PS_SHADERMODEL MainPS();
+    }
 };

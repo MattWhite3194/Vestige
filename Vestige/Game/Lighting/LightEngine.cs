@@ -11,7 +11,8 @@ namespace Vestige.Game.Lighting
 {
     public class LightEngine
     {
-        private (Vector3 light, Vector3 mask)[] _lightMap;
+        private Vector3[] _lightMap;
+        private Vector3[] _maskMap;
         private Point _paddedDrawBoxMin;
         private Point _paddedDrawBoxMax;
         private int _lightRange;
@@ -23,7 +24,8 @@ namespace Vestige.Game.Lighting
         public LightEngine(GraphicsDevice graphicsDevice)
         {
             _lightRange = 38;
-            _lightMap = new (Vector3, Vector3)[(Vestige.DrawDistance.X + 2 * _lightRange) * (Vestige.DrawDistance.Y + 2 * _lightRange)];
+            _lightMap = new Vector3[(Vestige.DrawDistance.X + 2 * _lightRange) * (Vestige.DrawDistance.Y + 2 * _lightRange)];
+            _maskMap = new Vector3[(Vestige.DrawDistance.X + 2 * _lightRange) * (Vestige.DrawDistance.Y + 2 * _lightRange)];
             _dynamicLights = new Queue<(int, int, Vector3)>();
         }
         /// <summary>
@@ -37,24 +39,24 @@ namespace Vestige.Game.Lighting
                 for (int y = _paddedDrawBoxMin.Y; y < _paddedDrawBoxMax.Y; y++)
                 {
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
-                    _lightMap[mapIndex].light = Vector3.Zero;
-                    _lightMap[mapIndex].mask = _wallAbsorption;
+                    _lightMap[mapIndex] = Vector3.Zero;
+                    _maskMap[mapIndex] = _wallAbsorption;
                     if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid))
                     {
-                        _lightMap[mapIndex].mask = _tileAbsorption;
+                        _maskMap[mapIndex] = _tileAbsorption;
                     }
                     else if (Main.World.GetWallID(x, y) == 0)
                     {
-                        _lightMap[mapIndex].light = skyLight;
+                        _lightMap[mapIndex] = skyLight;
                     }
                     if (Main.World.GetLiquid(x, y) != 0)
                     {
-                        _lightMap[mapIndex].mask = _liquidLightAbsorption;
+                        _maskMap[mapIndex] = _liquidLightAbsorption;
                     }
                     if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.LightEmitting))
                     {
-                        _lightMap[mapIndex].light = Vector3.Max(TileDatabase.GetTileData(Main.World.GetTileID(x, y)).MapColor.ToVector3(), _lightMap[mapIndex].light);
-                        _lightMap[mapIndex].mask = new Vector3(1f, 1f, 1f);
+                        _lightMap[mapIndex] = Vector3.Max(TileDatabase.GetTileData(Main.World.GetTileID(x, y)).MapColor.ToVector3(), _lightMap[mapIndex]);
+                        _maskMap[mapIndex] = new Vector3(1f, 1f, 1f);
                     }
                 }
             });
@@ -67,7 +69,7 @@ namespace Vestige.Game.Lighting
                 if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
                 {
                     int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
-                    _lightMap[mapIndex].light = Vector3.Max(light, _lightMap[mapIndex].light);
+                    _lightMap[mapIndex] = Vector3.Max(light, _lightMap[mapIndex]);
                 }
             }
         }
@@ -100,21 +102,21 @@ namespace Vestige.Game.Lighting
             Vector3 light = Vector3.Zero;
             for (int i = startIndex; i != endIndex + stride; i += stride)
             {
-                light = Vector3.Max(light, _lightMap[i].light);
+                light = Vector3.Max(light, _lightMap[i]);
                 if (light.X >= 0.0185f)
                 {
-                    _lightMap[i].light.X = light.X;
-                    light.X *= _lightMap[i].mask.X;
+                    _lightMap[i].X = light.X;
+                    light.X *= _maskMap[i].X;
                 }
                 if (light.Y >= 0.0185f)
                 {
-                    _lightMap[i].light.Y = light.Y;
-                    light.Y *= _lightMap[i].mask.Y;
+                    _lightMap[i].Y = light.Y;
+                    light.Y *= _maskMap[i].Y;
                 }
                 if (light.Z >= 0.0185f)
                 {
-                    _lightMap[i].light.Z = light.Z;
-                    light.Z *= _lightMap[i].mask.Z;
+                    _lightMap[i].Z = light.Z;
+                    light.Z *= _maskMap[i].Z;
                 }
             }
         }
@@ -128,7 +130,16 @@ namespace Vestige.Game.Lighting
             if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
             {
                 int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
-                return new Color(_lightMap[mapIndex].light.X, _lightMap[mapIndex].light.Y, _lightMap[mapIndex].light.Z);
+                return new Color(_lightMap[mapIndex]);
+            }
+            return default;
+        }
+        public Vector3 GetLightAsVector(int x, int y)
+        {
+            if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
+            {
+                int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                return _lightMap[mapIndex];
             }
             return default;
         }

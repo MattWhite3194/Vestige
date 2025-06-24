@@ -139,6 +139,8 @@ namespace Vestige.Game.UI.Containers
         }
         public virtual void AddComponentChild(UIComponent component)
         {
+            if (_componentChildren.Contains(component))
+                return;
             _componentChildren.Add(component);
             ComponentCount++;
         }
@@ -153,6 +155,8 @@ namespace Vestige.Game.UI.Containers
         }
         public virtual void AddContainerChild(UIContainer container)
         {
+            if (_containerChildren.Contains(container))
+                return;
             _containerChildren.Add(container);
             container.UpdateAnchorMatrix((int)Size.X, (int)Size.Y, AnchorMatrix);
             ContainerCount++;

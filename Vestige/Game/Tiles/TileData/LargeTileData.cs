@@ -60,5 +60,11 @@ namespace Vestige.Game.Tiles.TileData
             Rectangle textureAtlas = new Rectangle(state % 10 * Vestige.TILESIZE, state / 10 * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
             spriteBatch.Draw(ContentLoader.TileTextures[TileID], new Vector2(x, y) * Vestige.TILESIZE, textureAtlas, light);
         }
+        public override void DrawPrimitive(GraphicsDevice graphicsDevice, BasicEffect tileDrawEffect, int x, int y, byte state, Color tl, Color tr, Color bl, Color br)
+        {
+            Vector2 position = new Vector2(x * Vestige.TILESIZE, y * Vestige.TILESIZE);
+            Rectangle sourceRect = new Rectangle(state % 10 * Vestige.TILESIZE, state / 10 * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE);
+            base.DrawPrimitive(graphicsDevice, tileDrawEffect, position, sourceRect, tl, tr, bl, br);
+        }
     }
 }
