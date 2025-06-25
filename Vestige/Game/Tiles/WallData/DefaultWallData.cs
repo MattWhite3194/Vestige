@@ -12,12 +12,12 @@ namespace Vestige.Game.Tiles.WallData
         public readonly string Name;
         public readonly int ItemID;
         public readonly Color MapColor;
-        public DefaultWallData(ushort wallID, string name, int itemID = -1, int health = 100) 
-        { 
-            this.WallID = wallID;
-            this.Name = name;
-            this.Health = health;
-            this.ItemID = itemID;
+        public DefaultWallData(ushort wallID, string name, int itemID = -1, int health = 100)
+        {
+            WallID = wallID;
+            Name = name;
+            Health = health;
+            ItemID = itemID;
         }
         public virtual int VerifyWall(WorldGen world, int x, int y)
         {
@@ -46,7 +46,7 @@ namespace Vestige.Game.Tiles.WallData
 
         public virtual void Draw(SpriteBatch spriteBatch, int x, int y, byte state, Color light)
         {
-            spriteBatch.Draw(ContentLoader.WallTextures[WallID], new Vector2(x * Vestige.TILESIZE - 2, y * Vestige.TILESIZE - 2), TileDatabase.GetWallTextureAtlas(state), light);
+            spriteBatch.Draw(ContentLoader.WallTextures[WallID], new Vector2((x * Vestige.TILESIZE) - 2, (y * Vestige.TILESIZE) - 2), TileDatabase.GetWallTextureAtlas(state), light);
         }
 
         public virtual void DrawPrimitive(GraphicsDevice graphicsDevice, BasicEffect tileDrawEffect, int x, int y, byte state, Color tl, Color tr, Color bl, Color br)
@@ -63,7 +63,7 @@ namespace Vestige.Game.Tiles.WallData
                 (sourceRect.X + sourceRect.Width) / (float)wallTexture.Width,
                 (sourceRect.Y + sourceRect.Height) / (float)wallTexture.Height
             );
-            var vertices = new VertexPositionColorTexture[6]
+            VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[6]
             {
                         new VertexPositionColorTexture(new Vector3(position.X - 2, position.Y - 2, 0f), tl, uvTopLeft),
                         new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE + 2, position.Y + Vestige.TILESIZE + 2, 0f), br, uvBottomRight),
@@ -75,7 +75,7 @@ namespace Vestige.Game.Tiles.WallData
             };
             if (tileDrawEffect.Texture != wallTexture)
                 tileDrawEffect.Texture = wallTexture;
-            foreach (var pass in tileDrawEffect.CurrentTechnique.Passes)
+            foreach (EffectPass pass in tileDrawEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);

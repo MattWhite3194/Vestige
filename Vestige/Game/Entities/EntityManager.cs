@@ -39,7 +39,7 @@ namespace Vestige.Game.Entities
                     _respawnList.Remove(respawn);
                 }
             }
-            
+
             //Update Entities
             for (int i = 0; i < _players.Length; i++)
             {
@@ -64,7 +64,7 @@ namespace Vestige.Game.Entities
                 }
                 UpdateEntity(_itemDrops[i], delta);
             }
-            for (int i = 0; i < _npcs.Length;i++)
+            for (int i = 0; i < _npcs.Length; i++)
             {
                 if (_npcs[i] == null) continue;
                 if (!_npcs[i].Active)
@@ -74,7 +74,7 @@ namespace Vestige.Game.Entities
                 }
                 UpdateEntity(_npcs[i], delta);
             }
-            for (int i = 0; i < _projectiles.Length;i++)
+            for (int i = 0; i < _projectiles.Length; i++)
             {
                 if (_projectiles[i] == null) continue;
                 if (!_projectiles[i].Active)
@@ -154,7 +154,7 @@ namespace Vestige.Game.Entities
             //Update Entities
             entity.Update(delta);
             Vector2 minPos = Vector2.Zero;
-            Vector2 maxPos = new(Main.World.WorldSize.X * Vestige.TILESIZE - entity.Size.X, Main.World.WorldSize.Y * Vestige.TILESIZE - entity.Size.Y);
+            Vector2 maxPos = new((Main.World.WorldSize.X * Vestige.TILESIZE) - entity.Size.X, (Main.World.WorldSize.Y * Vestige.TILESIZE) - entity.Size.Y);
             //update enemies positions that don't collide with tiles
             if (!entity.CollidesWithTiles)
             {
@@ -274,12 +274,12 @@ namespace Vestige.Game.Entities
                         float penetrationDistance = GetPenetrationX(entity.GetBounds(), tileCollider);
                         if (penetrationDistance < 0)
                         {
-                            entity.Position.X = tileCollider.Left - entity.Origin.X - entityBounds.Width / 2.0f;
+                            entity.Position.X = tileCollider.Left - entity.Origin.X - (entityBounds.Width / 2.0f);
                             horizontalCollisionDirection = 1;
                         }
                         else if (penetrationDistance > 0)
                         {
-                            entity.Position.X = tileCollider.Right - entity.Origin.X + entityBounds.Width / 2.0f;
+                            entity.Position.X = tileCollider.Right - entity.Origin.X + (entityBounds.Width / 2.0f);
                             horizontalCollisionDirection = -1;
                         }
                     }
@@ -354,19 +354,15 @@ namespace Vestige.Game.Entities
         }
         float GetPenetrationX(CollisionRectangle a, CollisionRectangle b)
         {
-            float distanceX = (a.Center.X - b.Center.X);
-            float penetrationX = (a.Width / 2f + b.Width / 2f) - Math.Abs(distanceX);
-            if (penetrationX <= 0)
-                return 0.0f;
-            return distanceX < 0 ? -penetrationX : penetrationX;
+            float distanceX = a.Center.X - b.Center.X;
+            float penetrationX = (a.Width / 2f) + (b.Width / 2f) - Math.Abs(distanceX);
+            return penetrationX <= 0 ? 0.0f : distanceX < 0 ? -penetrationX : penetrationX;
         }
         float GetPenetrationY(CollisionRectangle a, CollisionRectangle b)
         {
-            float distanceY = (a.Center.Y - b.Center.Y);
-            float penetrationY = (a.Height / 2f + b.Height / 2f) - Math.Abs(distanceY);
-            if (penetrationY <= 0)
-                return 0.0f;
-            return distanceY < 0 ? -penetrationY : penetrationY;
+            float distanceY = a.Center.Y - b.Center.Y;
+            float penetrationY = (a.Height / 2f) + (b.Height / 2f) - Math.Abs(distanceY);
+            return penetrationY <= 0 ? 0.0f : distanceY < 0 ? -penetrationY : penetrationY;
         }
         /// <summary>
         /// Adds a player to the game.
@@ -391,7 +387,7 @@ namespace Vestige.Game.Entities
         {
             for (int i = 0; i < _players.Length; i++)
             {
-                if ( _players[i] != null)
+                if (_players[i] != null)
                 {
                     return _players[i];
                 }
@@ -448,7 +444,7 @@ namespace Vestige.Game.Entities
             Projectile projectile = Projectile.InstantiateProjectileByID(projectileID);
             projectile.Position = position;
             projectile.Velocity = direction * speed;
-            for (int i = 0; i < _projectiles.Length;i++)
+            for (int i = 0; i < _projectiles.Length; i++)
             {
                 if (_projectiles[i] == null)
                 {
@@ -482,31 +478,19 @@ namespace Vestige.Game.Entities
         {
             for (int i = 0; i < _npcs.Length; i++)
             {
-                if (_npcs[i] != null)
-                {
-                    _npcs[i].Draw(spriteBatch);
-                }
+                _npcs[i]?.Draw(spriteBatch);
             }
             for (int i = 0; i < _players.Length; i++)
             {
-                if (_players[i] != null)
-                {
-                    _players[i].Draw(spriteBatch);
-                }
+                _players[i]?.Draw(spriteBatch);
             }
             for (int i = 0; i < _itemDrops.Length; i++)
             {
-                if (_itemDrops[i] != null)
-                {
-                    _itemDrops[i].Draw(spriteBatch);
-                }
+                _itemDrops[i]?.Draw(spriteBatch);
             }
             for (int i = 0; i < _projectiles.Length; i++)
             {
-                if (_projectiles[i] != null)
-                {
-                    _projectiles[i].Draw(spriteBatch);
-                }
+                _projectiles[i]?.Draw(spriteBatch);
             }
         }
     }

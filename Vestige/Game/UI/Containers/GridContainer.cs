@@ -26,7 +26,7 @@ namespace Vestige.Game.UI.Containers
             component.Position = new Vector2(_columnPositions[i], _currentContainerHeight);
             if (i != _cols - 1)
             {
-                _columnPositions[i + 1] = Math.Max(_columnPositions[i + 1], _columnPositions[i] + component.Size.X + _margin); 
+                _columnPositions[i + 1] = Math.Max(_columnPositions[i + 1], _columnPositions[i] + component.Size.X + _margin);
             }
             else
             {

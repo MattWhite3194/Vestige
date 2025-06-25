@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using Vestige.Game.UI.Components;
 using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Tiles.TileData
@@ -31,7 +30,7 @@ namespace Vestige.Game.Tiles.TileData
             byte state = world.GetTileState(x, y);
             if (TileDatabase.GetTileData(top) is not TreeData && state <= 34)
                 return 131;
-            if (state == 128 || state == 139 || state == 142)
+            if (state is 128 or 139 or 142)
             {
                 ushort left = world.GetTileID(x - 1, y);
                 ushort right = world.GetTileID(x + 1, y);

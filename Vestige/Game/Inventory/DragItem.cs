@@ -12,7 +12,7 @@ namespace Vestige.Game.Inventory
 
         public DragItem(Vector2 position) : base(position)
         {
-            this.Position = position;
+            Position = position;
         }
 
         public override void Draw(SpriteBatch spriteBatch)

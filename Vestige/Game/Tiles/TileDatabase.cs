@@ -9,7 +9,8 @@ namespace Vestige.Game.Tiles
     /// Holds tile information that would be considered redundant and memory inefficient in the Tile struct. 
     /// Reference this to retrieve properties of a tile type, and methods for drawing and updating a specific tile type
     /// </summary>
-    public static class TileDatabase {
+    public static class TileDatabase
+    {
 
 
         /// <summary>
@@ -82,8 +83,9 @@ namespace Vestige.Game.Tiles
         /// <returns>True if the tile type contains any of the properties specified.</returns>
         public static bool TileHasProperties(ushort tileID, TileProperty properties)
         {
-            if (properties == TileProperty.None) return _tileData[tileID].Properties == TileProperty.None;
-            return (_tileData[tileID].Properties & properties) != 0;
+            return properties == TileProperty.None
+                ? _tileData[tileID].Properties == TileProperty.None
+                : (_tileData[tileID].Properties & properties) != 0;
         }
 
         public static DefaultTileData GetTileData(ushort tileID)

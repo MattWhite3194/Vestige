@@ -1,5 +1,9 @@
 ﻿TODO:
 
+Change lighting algorithm to calculate corner lights for smooth lighting
+Do the exact same thing except add 1 coloum and 1 row to the grid, and when adding a light, add it to the four corners
+Some form of smart cursor
+
 Walls: -75 on brightness photo editor (future reference)
 
 Get rid of treetop tile, move texture into tree and edit the draw function, Vector2 TreeTopOffset

@@ -12,13 +12,13 @@ namespace Vestige.Game.Entities
         public float Right => X + Width;
         public float Top => Y;
         public float Bottom => Y + Height;
-        public Vector2 Center => new Vector2(X + Width / 2.0f, Y + Height / 2.0f);
+        public Vector2 Center => new Vector2(X + (Width / 2.0f), Y + (Height / 2.0f));
         public Vector2 Position => new Vector2(X, Y);
         public CollisionRectangle(float x, float y, int width, int height)
         {
             X = x;
             Y = y;
-            Width = width; 
+            Width = width;
             Height = height;
         }
         public CollisionRectangle(Vector2 location, Point size)
@@ -30,37 +30,19 @@ namespace Vestige.Game.Entities
         }
         public bool Intersects(CollisionRectangle value)
         {
-            if (value.Left < Right && Left < value.Right && value.Top < Bottom)
-            {
-                return Top < value.Bottom;
-            }
-            return false;
+            return value.Left < Right && Left < value.Right && value.Top < Bottom && Top < value.Bottom;
         }
         public bool Intersects(Rectangle value)
         {
-            if (value.Left < Right && Left < value.Right && value.Top < Bottom)
-            {
-                return Top < value.Bottom;
-            }
-            return false;
+            return value.Left < Right && Left < value.Right && value.Top < Bottom && Top < value.Bottom;
         }
         public bool Contains(Vector2 value)
         {
-            if (X <= value.X && value.X < (Right) && Y <= value.Y)
-            {
-                return value.Y < (Y + Height);
-            }
-
-            return false;
+            return X <= value.X && value.X < Right && Y <= value.Y && value.Y < (Y + Height);
         }
         public bool Contains(Point value)
         {
-            if (X <= value.X && value.X < (X + Width) && Y <= value.Y)
-            {
-                return value.Y < (Y + Height);
-            }
-
-            return false;
+            return X <= value.X && value.X < (X + Width) && Y <= value.Y && value.Y < (Y + Height);
         }
         public override string ToString()
         {

@@ -22,7 +22,7 @@ namespace Vestige.Game.Tiles.TileData
             if (!leftSolid && !rightSolid)
             {
                 return (byte)((leftPlatform ? 8 : 0) + (rightPlatform ? 2 : 0));
-            } 
+            }
             if (leftSolid && rightSolid)
             {
                 return 42;
@@ -31,19 +31,7 @@ namespace Vestige.Game.Tiles.TileData
             {
                 return 40;
             }
-            if (rightPlatform && leftSolid)
-            {
-                return 32;
-            }
-            if (rightSolid)
-            {
-                return 34;
-            }
-            if (leftSolid)
-            {
-                return 14;
-            }
-            return 0;
+            return rightPlatform && leftSolid ? (byte)32 : rightSolid ? (byte)34 : leftSolid ? (byte)14 : (byte)0;
         }
     }
 }

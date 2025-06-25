@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Vestige.Game.Input
 {
@@ -64,9 +62,9 @@ namespace Vestige.Game.Input
             @event.handled = true;
         }
 
-        public static bool IsEventHandled(InputEvent @event) 
-        { 
-            return @event.handled; 
+        public static bool IsEventHandled(InputEvent @event)
+        {
+            return @event.handled;
         }
 
         public static void Update()
@@ -114,7 +112,7 @@ namespace Vestige.Game.Input
             }
 
 
-            foreach (var inputType in KeyMappings.Keys)
+            foreach (InputButton inputType in KeyMappings.Keys)
             {
                 //if the key is down
                 if (_currentKeyboardState.IsKeyDown(KeyMappings[inputType]))

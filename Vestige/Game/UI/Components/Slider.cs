@@ -36,7 +36,7 @@ namespace Vestige.Game.UI.Components
             _label = label;
             _labelSize = ContentLoader.GameFont.MeasureString(_label);
             _valueModifiers = valueModifiers;
-            _valueString = (int)_value + _valueModifiers; 
+            _valueString = (int)_value + _valueModifiers;
             Size.Y += _labelSize.Y + 2;
         }
         public override void HandleMouseInput(MouseInputEvent mouseEvent, Vector2 mouseCoordinates)
@@ -68,7 +68,7 @@ namespace Vestige.Game.UI.Components
                 Vector2 offset = currentMousePos - _grabPosition;
                 _sliderPosition = Vector2.Clamp(_sliderPositionOnGrab + offset, _minPosition, _maxPosition);
                 float range = _maxValue - _minValue;
-                _value = (_sliderPosition.X - Position.X) / Size.X * range + _minValue;
+                _value = ((_sliderPosition.X - Position.X) / Size.X * range) + _minValue;
                 _valueString = (int)_value + _valueModifiers;
             }
         }

@@ -61,7 +61,7 @@ namespace Vestige.Game.Entities
                 return;
 
             FlipSprite = _player.FlipSprite;
-            Position = _player.Position + _player.Size / 2 - new Vector2(0, Item.Image.Height - Item.Origin.Y + 4) + (FlipSprite ? new Vector2(-Item.Image.Width - 3, 0) : new Vector2(3, 0));
+            Position = _player.Position + (_player.Size / 2) - new Vector2(0, Item.Image.Height - Item.Origin.Y + 4) + (FlipSprite ? new Vector2(-Item.Image.Width - 3, 0) : new Vector2(3, 0));
             Origin = new Vector2(0, Item.Image.Height) + (FlipSprite ? new Vector2(Item.Image.Width - Item.Origin.X + 9, -Item.Origin.Y) : new Vector2(Item.Origin.X - 9, -Item.Origin.Y));
             switch (Item.UseStyle)
             {
@@ -99,7 +99,7 @@ namespace Vestige.Game.Entities
             if (_holdTime >= Item.UseSpeed)
             {
                 _holdTime = 0.0f;
-                if (!Item.AutoUse || _leftReleased || _inventory.GetSelected() == null) 
+                if (!Item.AutoUse || _leftReleased || _inventory.GetSelected() == null)
                 {
                     ItemActive = false;
                 }
@@ -146,14 +146,14 @@ namespace Vestige.Game.Entities
                 float maxY = corners.Max(c => c.Y);
                 return new CollisionRectangle(minX, minY, (int)(maxX - minX), (int)(maxY - minY));
             }
-            
+
             return default;
         }
         private Vector2 RotateVector2(Vector2 vector)
         {
             return new Vector2(
-                (float)(vector.X * Math.Cos(Rotation) - vector.Y * Math.Sin(Rotation)), 
-                (float)(vector.X * Math.Sin(Rotation) + vector.Y * Math.Cos(Rotation)));
+                (float)((vector.X * Math.Cos(Rotation)) - (vector.Y * Math.Sin(Rotation))),
+                (float)((vector.X * Math.Sin(Rotation)) + (vector.Y * Math.Cos(Rotation))));
         }
     }
 }

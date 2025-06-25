@@ -1,11 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
-using Vestige.Game.UI.Containers;
 using Vestige.Game.UI;
-using System.Collections.Generic;
+using Vestige.Game.UI.Containers;
 
 namespace Vestige.Game.Inventory
 {
@@ -62,10 +62,10 @@ namespace Vestige.Game.Inventory
             }
             AddContainerChild(_grid);
             itemSlotColor.A = 100;
-            _craftingOutputSlot = new ItemSlot(_grid.Position + new Vector2(_grid.Size.X + margin * 10, _grid.Size.Y / 2 - ContentLoader.ItemSlotTexture.Height / 2), ContentLoader.ItemSlotTexture, itemSlotColor);
+            _craftingOutputSlot = new ItemSlot(_grid.Position + new Vector2(_grid.Size.X + (margin * 10), (_grid.Size.Y / 2) - (ContentLoader.ItemSlotTexture.Height / 2)), ContentLoader.ItemSlotTexture, itemSlotColor);
             _craftingOutputSlot.OnMouseInput += (@mouseEvent, mouseCoordinates) => OnCraftingOutputSlotGUIInput(@mouseEvent);
             _craftingOutputSlot.OnMouseEntered += () =>
-            { 
+            {
                 if (_dragItem.Item == null)
                 {
                     toolTip.ShowItemStats(_craftingOutputItem);
@@ -131,7 +131,7 @@ namespace Vestige.Game.Inventory
                 }
                 for (int i = 0; i < _currentRecipe.Count; i++)
                 {
-                    int index = (_recipeLocation.Y + _currentRecipe[i].Item2) * _gridSize + _recipeLocation.X + _currentRecipe[i].Item1;
+                    int index = ((_recipeLocation.Y + _currentRecipe[i].Item2) * _gridSize) + _recipeLocation.X + _currentRecipe[i].Item1;
                     _craftingInputItems[index].Quantity -= 1;
                     if (_craftingInputItems[index].Quantity <= 0)
                     {
@@ -144,7 +144,7 @@ namespace Vestige.Game.Inventory
         private void FindRecipe()
         {
             _craftingOutputItem = null;
-            
+
             int startX = -1, startY = -1;
             int endX = -1, endY = -1;
             List<(byte, byte, int)> recipeInputs = new List<(byte, byte, int)>();
@@ -156,10 +156,10 @@ namespace Vestige.Game.Inventory
                     startY = startY == -1 ? i / _gridSize : Math.Min(startY, i / _gridSize);
                     endX = endX == -1 ? i % _gridSize : Math.Max(endX, i % _gridSize);
                     endY = endY == -1 ? i / _gridSize : Math.Max(endY, i / _gridSize);
-                    recipeInputs.Add(((byte)(i % _gridSize), (byte)(i/_gridSize), _craftingInputItems[i].ID));
+                    recipeInputs.Add(((byte)(i % _gridSize), (byte)(i / _gridSize), _craftingInputItems[i].ID));
                 }
             }
-            Point recipeSize = new Point(endX -  startX + 1, endY - startY + 1);
+            Point recipeSize = new Point(endX - startX + 1, endY - startY + 1);
             for (int i = 0; i < recipeInputs.Count; i++)
             {
                 recipeInputs[i] = ((byte)(recipeInputs[i].Item1 - startX), (byte)(recipeInputs[i].Item2 - startY), recipeInputs[i].Item3);
@@ -167,14 +167,7 @@ namespace Vestige.Game.Inventory
             _currentRecipe = recipeInputs;
             _recipeLocation = new Point(startX, startY);
             _craftingOutputItem = CraftingRecipes.GetItemFromRecipe(recipeSize, recipeInputs);
-            if (_craftingOutputItem != null)
-            {
-                _craftingOutputSlot.Color.A = 200;
-            }
-            else
-            {
-                _craftingOutputSlot.Color.A = 100;
-            }
+            _craftingOutputSlot.Color.A = _craftingOutputItem != null ? (byte)200 : (byte)100;
         }
         private void PlaceItem(int index)
         {

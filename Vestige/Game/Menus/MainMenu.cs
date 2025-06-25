@@ -2,17 +2,17 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Vestige.Game.Drawables;
+using Vestige.Game.IO;
+using Vestige.Game.UI;
 using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
-using Vestige.Game.UI;
 using Vestige.Game.WorldGeneration;
-using System.Diagnostics;
-using Vestige.Game.IO;
-using System.Globalization;
-using Vestige.Game.Drawables;
 
 namespace Vestige.Game.Menus
 {
@@ -20,7 +20,7 @@ namespace Vestige.Game.Menus
     public class MainMenu : UIContainer
     {
         private ParallaxManager parallaxManager;
-        private Vector2 parallaxOffset;
+        private Vector2 _parallaxOffset;
         private UIContainer _startMenu;
         private PanelContainer _createWorldMenu;
         private GridContainer _settingsMenu;
@@ -36,12 +36,12 @@ namespace Vestige.Game.Menus
 
         public MainMenu(Vestige gameHandle, GraphicsDevice graphicsDevice) : base(anchor: Anchor.None)
         {
-            parallaxOffset = new Vector2(0, Vestige.NativeResolution.Y);
+            _parallaxOffset = new Vector2(0, Vestige.NativeResolution.Y);
             parallaxManager = new ParallaxManager();
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(2f, 0), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(30f, 1), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(35f, 1), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(40f, 1), parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(2f, 0), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(30f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(35f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(40f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
             _worldSortMethod = SortWorldsByDateDescending;
             _game = gameHandle;
             _graphicsDevice = graphicsDevice;
@@ -71,7 +71,7 @@ namespace Vestige.Game.Menus
             _startMenu.AddComponentChild(exitButton);
 
             //settings menu
-            Slider uiScaleSlider = new Slider(Vector2.Zero, new Vector2(288, 10), "UI Scale:", 50, 200, 100, "%");
+            Slider uiScaleSlider = new Slider(Vector2.Zero, new Vector2(288, 10), "UI Scale:", 50, 200, gameHandle.UserUIScale * 100, "%");
             uiScaleSlider.OnValueChanged += (value) =>
             {
                 value = (int)value;
@@ -133,8 +133,8 @@ namespace Vestige.Game.Menus
         }
         public override void Update(double delta)
         {
-            parallaxOffset.X += (float)delta;
-            parallaxManager.Update(delta, parallaxOffset);
+            _parallaxOffset.X += (float)delta;
+            parallaxManager.Update(delta, _parallaxOffset);
             base.Update(delta);
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)

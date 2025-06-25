@@ -20,11 +20,11 @@ namespace Vestige.Game.UI.Containers
         private Vector2 _size;
         protected Vector2 parentSize;
         private Matrix _parentMatrix;
-        public Vector2 Size 
-        { 
-            get 
-            { 
-                return _size; 
+        public Vector2 Size
+        {
+            get
+            {
+                return _size;
             }
             set
             {
@@ -78,7 +78,7 @@ namespace Vestige.Game.UI.Containers
             }
             for (int i = _containerChildren.Count - 1; i >= 0; i--)
             {
-                _containerChildren[i].HandleInput( @event );
+                _containerChildren[i].HandleInput(@event);
             }
         }
         public virtual void Update(double delta)
@@ -193,7 +193,7 @@ namespace Vestige.Game.UI.Containers
             foreach (UIContainer uiComponentContainer in _containerChildren)
             {
                 uiComponentContainer.UpdateAnchorMatrix((int)Size.X, (int)Size.Y, AnchorMatrix);
-            } 
+            }
         }
         private Matrix GetAnchorMatrix(int parentWidth, int parentHeight, Matrix parentMatrix = default)
         {
@@ -213,20 +213,20 @@ namespace Vestige.Game.UI.Containers
                 parentWidth = (int)transformedSize.X;
                 parentHeight = (int)transformedSize.Y;
             }
-            
+
             Vector2 containerSize = Vector2.Transform(Size, Vestige.UIScaleMatrix);
             Vector2 anchorPos = _anchor switch
             {
                 Anchor.TopLeft => transformedPosition,
-                Anchor.TopMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, 0) + transformedPosition,
+                Anchor.TopMiddle => new Vector2((parentWidth / 2) - (containerSize.X / 2), 0) + transformedPosition,
                 Anchor.TopRight => new Vector2(parentWidth - containerSize.X, 0) + transformedPosition,
 
-                Anchor.MiddleLeft => new Vector2(0, parentHeight / 2 - containerSize.Y / 2) + transformedPosition,
-                Anchor.MiddleMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight / 2 - containerSize.Y / 2) + transformedPosition,
-                Anchor.MiddleRight => new Vector2(parentWidth - containerSize.X, parentHeight / 2 - containerSize.Y / 2) + transformedPosition,
+                Anchor.MiddleLeft => new Vector2(0, (parentHeight / 2) - (containerSize.Y / 2)) + transformedPosition,
+                Anchor.MiddleMiddle => new Vector2((parentWidth / 2) - (containerSize.X / 2), (parentHeight / 2) - (containerSize.Y / 2)) + transformedPosition,
+                Anchor.MiddleRight => new Vector2(parentWidth - containerSize.X, (parentHeight / 2) - (containerSize.Y / 2)) + transformedPosition,
 
                 Anchor.BottomLeft => new Vector2(0, parentHeight - containerSize.Y) + transformedPosition,
-                Anchor.BottomMiddle => new Vector2(parentWidth / 2 - containerSize.X / 2, parentHeight - containerSize.Y) + transformedPosition,
+                Anchor.BottomMiddle => new Vector2((parentWidth / 2) - (containerSize.X / 2), parentHeight - containerSize.Y) + transformedPosition,
                 Anchor.BottomRight => new Vector2(parentWidth - containerSize.X, parentHeight - containerSize.Y) + transformedPosition,
 
                 _ => Vector2.Zero

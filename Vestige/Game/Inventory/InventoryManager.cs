@@ -47,7 +47,7 @@ namespace Vestige.Game.Inventory
             if (_player.ItemCollider.ItemActive) return;
             else if (@event.EventType == InputEventType.KeyDown && @event.InputButton == InputButton.Inventory)
             {
-                SetInventoryOpen(!InventoryVisible());
+                SetInventoryOpen(!_inventoryOpen);
                 if (_dragItem.Item != null)
                 {
                     Item itemDrop = _inventoryMenu.AddItem(_dragItem.Item);
@@ -55,7 +55,7 @@ namespace Vestige.Game.Inventory
                     if (itemDrop != null)
                     {
                         Vector2 velocity = new Vector2(_player.FlipSprite ? -50 : 50, 0);
-                        Vector2 position = _player.Position + _player.Size / 2;
+                        Vector2 position = _player.Position + (_player.Size / 2);
                         Main.EntityManager.CreateItemDrop(itemDrop, position, velocity, false);
                     }
                 }
@@ -68,11 +68,11 @@ namespace Vestige.Game.Inventory
             if (InputManager.IsEventHandled(@event))
                 return;
             //accept input for right mouse down if the inventory is visible
-            else if (@event.InputButton == InputButton.RightMouse && @event.EventType == InputEventType.MouseButtonDown && InventoryVisible())
+            else if (@event.InputButton == InputButton.RightMouse && @event.EventType == InputEventType.MouseButtonDown && _inventoryOpen)
             {
                 if (_dragItem.Item == null)
                     return;
-                Vector2 position = _player.Position + _player.Size / 2;
+                Vector2 position = _player.Position + (_player.Size / 2);
                 int direction = Math.Sign(Main.GetMouseWorldPosition().X - position.X);
                 Vector2 itemVelocity = new Vector2(direction * 50, 0);
                 Main.EntityManager.CreateItemDrop(_dragItem.Item, position, itemVelocity, false);
@@ -117,16 +117,7 @@ namespace Vestige.Game.Inventory
 
         public Item GetSelected()
         {
-            if (InventoryVisible())
-            {
-                return _dragItem.Item;
-            }
-            return _hotbar.GetSelected();
-        }
-
-        public bool InventoryVisible()
-        {
-            return _inventoryOpen;
+            return _inventoryOpen ? _dragItem.Item : _hotbar.GetSelected();
         }
 
         public void DisplayTileInventory(InventoryTileData inventoryTileData, Point coordinates, Item[] items)
@@ -140,14 +131,14 @@ namespace Vestige.Game.Inventory
             {
                 _inventoryTileData.CloseInventory(Main.World, _inventoryTileLocation.X, _inventoryTileLocation.Y);
             }
-            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, _toolTip, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20 ), itemSlotColor: new Color(75, 70, 60, 220));
+            _tileInventory = new Inventory(inventoryTileData.Cols, _dragItem, _toolTip, items, margin: 2, position: new Vector2(_inventoryMenu.Size.X + 25, 20), itemSlotColor: new Color(75, 70, 60, 220));
             _inventoryTileLocation = coordinates;
             _inventoryTileData = inventoryTileData;
             AddContainerChild(_tileInventory);
         }
-        public void SetInventoryOpen(bool open)
+        private void SetInventoryOpen(bool open)
         {
-            if (open == InventoryVisible())
+            if (open == _inventoryOpen)
                 return;
             _inventoryOpen = open;
             if (open)
@@ -190,7 +181,7 @@ namespace Vestige.Game.Inventory
             item.Quantity -= 1;
             if (item.Quantity <= 0)
             {
-                if (InventoryVisible())
+                if (_inventoryOpen)
                 {
                     _dragItem.Item = null;
                 }

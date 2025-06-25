@@ -156,9 +156,7 @@ namespace Vestige.Game.UI.Components
         }
         public string GetText()
         {
-            if (_usingPlaceHolder)
-                return "";
-            return _text;
+            return _usingPlaceHolder ? "" : _text;
         }
     }
 }

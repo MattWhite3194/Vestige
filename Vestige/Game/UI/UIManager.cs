@@ -14,14 +14,14 @@ namespace Vestige.Game.UI
         private static Point _currentResolution;
         public static void Update(double delta)
         {
-            for (int i = _uiComponentContainers.Count - 1; i >= 0 ; i--)
+            for (int i = _uiComponentContainers.Count - 1; i >= 0; i--)
             {
                 _uiComponentContainers[i].Update(delta);
             }
         }
         public static void Draw(SpriteBatch spriteBatch)
         {
-            for (int i = 0; i < _uiComponentContainers.Count; i++) 
+            for (int i = 0; i < _uiComponentContainers.Count; i++)
             {
                 _uiComponentContainers[i].Draw(spriteBatch);
             }

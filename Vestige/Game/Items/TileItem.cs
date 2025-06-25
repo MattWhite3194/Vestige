@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
 using Vestige.Game.Entities;
 using Vestige.Game.Tiles;
 
@@ -10,8 +9,8 @@ namespace Vestige.Game.Items
     {
         public readonly ushort TileID;
         public TileItem(int id, string name, string description, Texture2D image, ushort tileID, int maxStack = 999) : base(id, name, description, image, default, true, true, 0.15f, true, maxStack, UseStyle.Swing)
-        { 
-            this.TileID = tileID;
+        {
+            TileID = tileID;
         }
         public override bool UseItem(Player player, bool altUse)
         {
@@ -22,21 +21,11 @@ namespace Vestige.Game.Items
             if (altUse)
             {
                 int wallID = TileDatabase.GetTileData(TileID).WallID;
-                if (wallID == -1)
-                    return false;
-                if (Main.World.GetWallID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceWall(mouseTilePosition.X, mouseTilePosition.Y, (byte)wallID))
-                {
-                    return true;
-                }
-                return false;
+                return wallID != -1
+&& Main.World.GetWallID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceWall(mouseTilePosition.X, mouseTilePosition.Y, (byte)wallID);
             }
-            if (Main.EntityManager.TileOccupied(mouseTilePosition.X, mouseTilePosition.Y) && TileDatabase.TileHasProperties(TileID, TileProperty.Solid))
-                return false;
-            if (Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID))
-            {
-                return true;
-            }
-            return false;
+            return (!Main.EntityManager.TileOccupied(mouseTilePosition.X, mouseTilePosition.Y) || !TileDatabase.TileHasProperties(TileID, TileProperty.Solid))
+&& Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID);
         }
         protected override Item CloneItem()
         {

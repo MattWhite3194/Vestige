@@ -58,11 +58,9 @@ namespace Vestige.Game.Tiles.TileData
         public virtual bool CanTileBeDamaged(WorldGen world, int x, int y)
         {
             ushort top = world.GetTileID(x, y - 1);
-            if (TileDatabase.TileHasProperties(top, TileProperty.LargeTile))
-                return (TileDatabase.GetTileData(top) as LargeTileData).CanTileBeDamaged(world, x, y - 1);
-            if (TileDatabase.TileHasProperties(top, TileProperty.AxeMineable))
-                return false;
-            return true;
+            return TileDatabase.TileHasProperties(top, TileProperty.LargeTile)
+                ? (TileDatabase.GetTileData(top) as LargeTileData).CanTileBeDamaged(world, x, y - 1)
+                : !TileDatabase.TileHasProperties(top, TileProperty.AxeMineable);
         }
         public virtual byte GetUpdatedTileState(WorldGen world, int x, int y)
         {
@@ -109,7 +107,7 @@ namespace Vestige.Game.Tiles.TileData
             if (!CanMerge(bl))
                 bl = 0;
 
-            return (byte)(Math.Sign(tl) + Math.Sign(top) * 2 + Math.Sign(tr) * 4 + Math.Sign(right) * 8 + Math.Sign(br) * 16 + Math.Sign(bottom) * 32 + Math.Sign(bl) * 64 + Math.Sign(left) * 128);
+            return (byte)(Math.Sign(tl) + (Math.Sign(top) * 2) + (Math.Sign(tr) * 4) + (Math.Sign(right) * 8) + (Math.Sign(br) * 16) + (Math.Sign(bottom) * 32) + (Math.Sign(bl) * 64) + (Math.Sign(left) * 128));
         }
         /// <summary>
         /// Used by GetUpdatesTileState to determine if the tile merges with the specified tileID
@@ -121,7 +119,7 @@ namespace Vestige.Game.Tiles.TileData
             //merge if they're equal
             if (tileID == TileID)
                 return true;
-            
+
             //Merge if the other tile contains this tile in its list of mergeable tiles, reduces redundancy
             if (TileDatabase.GetTileData(tileID).IsTileInMergeList((ushort)TileID))
                 return true;
@@ -166,7 +164,7 @@ namespace Vestige.Game.Tiles.TileData
                 (sourceRect.X + sourceRect.Width) / (float)tileTexture.Width,
                 (sourceRect.Y + sourceRect.Height) / (float)tileTexture.Height
             );
-            var vertices = new VertexPositionColorTexture[6]
+            VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[6]
             {
                         new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f), tl, uvTopLeft),
                         new VertexPositionColorTexture(new Vector3(position.X + sourceRect.Width, position.Y + sourceRect.Height, 0f), br, uvBottomRight),
@@ -178,7 +176,7 @@ namespace Vestige.Game.Tiles.TileData
             };
             if (tileDrawEffect.Texture != tileTexture)
                 tileDrawEffect.Texture = tileTexture;
-            foreach (var pass in tileDrawEffect.CurrentTechnique.Passes)
+            foreach (EffectPass pass in tileDrawEffect.CurrentTechnique.Passes)
             {
                 pass.Apply();
                 graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);

@@ -42,7 +42,7 @@ namespace Vestige.Game.Entities
         {
             Name = name != null ? name : "";
             _hitboxSize = hitboxSize != default ? hitboxSize : Size.ToPoint();
-            _hitboxCenter = Origin - _hitboxSize.ToVector2() / 2.0f;
+            _hitboxCenter = Origin - (_hitboxSize.ToVector2() / 2.0f);
         }
         public virtual void OnCollision(Entity entity)
         {
@@ -74,7 +74,7 @@ namespace Vestige.Game.Entities
                 0.0f
             );
         }
-        public virtual string GetTooltipDisplay() 
+        public virtual string GetTooltipDisplay()
         {
             return Name;
         }

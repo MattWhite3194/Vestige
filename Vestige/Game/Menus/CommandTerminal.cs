@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Vestige.Game.Entities;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
@@ -43,20 +42,20 @@ namespace Vestige.Game.Menus
         }
         private void FindCommand(string input)
         {
-            if (string.IsNullOrEmpty(input)) 
+            if (string.IsNullOrEmpty(input))
             {
                 //Do Nothing, Stinky
             }
             else if (input[0] != '/')
             {
                 outputMessage?.Invoke(input);
-            } 
+            }
             else
             {
                 string[] tokens = input.Trim().Split(' ');
                 string commandToken = tokens[0].ToLower().Replace("/", "");
                 string[] args = tokens.Length > 1 ? tokens[1..] : [];
-                if (_commands.TryGetValue(commandToken, out var command))
+                if (_commands.TryGetValue(commandToken, out Action<string[]> command))
                 {
                     command.Invoke(args);
                 }
@@ -116,10 +115,7 @@ namespace Vestige.Game.Menus
                             totalQuantity -= newItemQuantity;
                             item.Quantity = newItemQuantity;
                             Player player = Main.EntityManager.GetPlayerByName(args[1]);
-                            if (player != null)
-                            {
-                                player.Inventory.AddItemToPlayerInventory(item);
-                            }
+                            player?.Inventory.AddItemToPlayerInventory(item);
                         } while (totalQuantity > 0);
                     }
                     catch (Exception ex)

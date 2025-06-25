@@ -1,8 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Vestige.Game.Drawables
 {
@@ -29,7 +27,7 @@ namespace Vestige.Game.Drawables
 
         public void Draw(SpriteBatch spriteBatch, Color color)
         {
-            
+
             for (int i = 0; i < _parallaxBackgrounds.Count; i++)
             {
                 _parallaxBackgrounds[i].Draw(spriteBatch, color);

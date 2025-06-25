@@ -1,5 +1,4 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Tiles.TileData
@@ -15,11 +14,11 @@ namespace Vestige.Game.Tiles.TileData
             ushort bottom = world.GetTileID(x, y + 1);
             ushort left = world.GetTileID(x - 1, y);
             ushort wall = world.GetWallID(x, y);
-            if (world.GetLiquid(x, y) != 0)
-                return -1;
-            if (wall != 0 || TileDatabase.TileHasProperties(right, TileProperty.Solid) || TileDatabase.TileHasProperties(bottom, TileProperty.Solid) || TileDatabase.TileHasProperties(left, TileProperty.Solid))
-                return 1;
-            return -1;
+            return world.GetLiquid(x, y) != 0
+                ? -1
+                : wall != 0 || TileDatabase.TileHasProperties(right, TileProperty.Solid) || TileDatabase.TileHasProperties(bottom, TileProperty.Solid) || TileDatabase.TileHasProperties(left, TileProperty.Solid)
+                ? 1
+                : -1;
         }
         public override bool CanTileBeDamaged(WorldGen world, int x, int y)
         {
@@ -31,14 +30,11 @@ namespace Vestige.Game.Tiles.TileData
             ushort left = world.GetTileID(x - 1, y);
             ushort right = world.GetTileID(x + 1, y);
 
-            if (TileDatabase.TileHasProperties(bottom, TileProperty.Solid))
-                return 0;
-            else if (TileDatabase.TileHasProperties(left, TileProperty.Solid))
-                return 34;
-            else if (TileDatabase.TileHasProperties(right, TileProperty.Solid))
-                return 62;
-            else
-                return 0;
+            return TileDatabase.TileHasProperties(bottom, TileProperty.Solid)
+                ? (byte)0
+                : TileDatabase.TileHasProperties(left, TileProperty.Solid)
+                ? (byte)34
+                : TileDatabase.TileHasProperties(right, TileProperty.Solid) ? (byte)62 : (byte)0;
         }
     }
 }

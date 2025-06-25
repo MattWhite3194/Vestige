@@ -9,7 +9,7 @@ namespace Vestige.Game.Items.Weapons
         private int _axePower;
         public Axe(int axePower)
         {
-            this._axePower = axePower;
+            _axePower = axePower;
         }
         public bool UseItem(Player player, bool altUse)
         {

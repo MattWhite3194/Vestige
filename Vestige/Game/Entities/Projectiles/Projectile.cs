@@ -23,8 +23,8 @@ namespace Vestige.Game.Entities.Projectiles
         {
             ID = id;
             CollidesWithTiles = collidesWithTiles;
-            if (tilePenetration != -1) 
-                _tileCollisions = new HashSet<(int, int)> ();
+            if (tilePenetration != -1)
+                _tileCollisions = new HashSet<(int, int)>();
             Damage = damage;
             Knockback = knockback;
             _timeLeft = timeLeft;

@@ -87,7 +87,7 @@ namespace Vestige.Game.Renderers
                     bool bottom = Main.World.GetLiquid(i, j + 1) == WorldGen.MaxLiquid;
                     int left = (int)(Main.World.GetLiquid(i - 1, j) / (float)WorldGen.MaxLiquid * (Vestige.TILESIZE - 2));
                     int right = (int)(Main.World.GetLiquid(i + 1, j) / (float)WorldGen.MaxLiquid * (Vestige.TILESIZE - 2));
-                    
+
                     if (top)
                     {
                         spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE, j * Vestige.TILESIZE), new Rectangle(Vestige.TILESIZE, 0, Vestige.TILESIZE, (bottom || left != 0 || right != 0) ? Vestige.TILESIZE : _tileWaterOverlap), Main.LightEngine.GetLight(i, j - 1));
@@ -101,11 +101,11 @@ namespace Vestige.Game.Renderers
                             light = Main.LightEngine.GetLight(i + 1, j);
                         }
                         int width = (left != 0 && right != 0) || bottom ? Vestige.TILESIZE : Vestige.TILESIZE / 2;
-                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE + (left != 0 || bottom ? 0 : Vestige.TILESIZE / 2) , j * Vestige.TILESIZE + Vestige.TILESIZE - height), new Rectangle(Vestige.TILESIZE, 0, width, height), light);
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2((i * Vestige.TILESIZE) + (left != 0 || bottom ? 0 : Vestige.TILESIZE / 2), (j * Vestige.TILESIZE) + Vestige.TILESIZE - height), new Rectangle(Vestige.TILESIZE, 0, width, height), light);
                     }
                     else if (bottom)
                     {
-                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE, j * Vestige.TILESIZE + Vestige.TILESIZE - _tileWaterOverlap), new Rectangle(Vestige.TILESIZE, 0, Vestige.TILESIZE, _tileWaterOverlap), Main.LightEngine.GetLight(i, j + 1));
+                        spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE, (j * Vestige.TILESIZE) + Vestige.TILESIZE - _tileWaterOverlap), new Rectangle(Vestige.TILESIZE, 0, Vestige.TILESIZE, _tileWaterOverlap), Main.LightEngine.GetLight(i, j + 1));
                     }
                 }
             }
@@ -175,14 +175,14 @@ namespace Vestige.Game.Renderers
                 {
                     if (Main.World.GetLiquid(i, j) != 0)
                     {
-                        if (Main.World.GetLiquid(i, j) == WorldGen.MaxLiquid && (Main.World.GetLiquid(i, j - 1) != 0 || TileDatabase.TileHasProperties(Main.World.GetTileID(i, j-1), TileProperty.Solid)))
+                        if (Main.World.GetLiquid(i, j - 1) != 0 || (Main.World.GetLiquid(i, j) == WorldGen.MaxLiquid && TileDatabase.TileHasProperties(Main.World.GetTileID(i, j - 1), TileProperty.Solid)))
                         {
                             spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i, j) * Vestige.TILESIZE, new Rectangle(Vestige.TILESIZE, 0, Vestige.TILESIZE, Vestige.TILESIZE), Main.LightEngine.GetLight(i, j));
                         }
                         else
                         {
                             int textureOffset = 2 + (int)(Main.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * (Vestige.TILESIZE - 2));
-                            spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE, j * Vestige.TILESIZE + Vestige.TILESIZE - textureOffset), new Rectangle(0, 0, Vestige.TILESIZE, textureOffset), Main.LightEngine.GetLight(i, j));
+                            spriteBatch.Draw(ContentLoader.LiquidTexture, new Vector2(i * Vestige.TILESIZE, (j * Vestige.TILESIZE) + Vestige.TILESIZE - textureOffset), new Rectangle(0, 0, Vestige.TILESIZE, textureOffset), Main.LightEngine.GetLight(i, j));
                         }
                     }
                 }
@@ -199,20 +199,22 @@ namespace Vestige.Game.Renderers
                     if (Main.World.GetLiquid(i, j) != 0)
                     {
                         Rectangle sourceRect = default;
-                        if (Main.World.GetLiquid(i, j) == WorldGen.MaxLiquid && (Main.World.GetLiquid(i, j - 1) != 0 || TileDatabase.TileHasProperties(Main.World.GetTileID(i, j - 1), TileProperty.Solid)))
+                        Vector2 position = default;
+                        if (Main.World.GetLiquid(i, j - 1) != 0 || (Main.World.GetLiquid(i, j) == WorldGen.MaxLiquid && TileDatabase.TileHasProperties(Main.World.GetTileID(i, j - 1), TileProperty.Solid)))
                         {
                             sourceRect = new Rectangle(Vestige.TILESIZE, 0, Vestige.TILESIZE, Vestige.TILESIZE);
+                            position = new Vector2(i * Vestige.TILESIZE, j * Vestige.TILESIZE);
                         }
                         else
                         {
                             int textureOffset = 2 + (int)(Main.World.GetLiquid(i, j) / (float)WorldGen.MaxLiquid * (Vestige.TILESIZE - 2));
                             sourceRect = new Rectangle(0, 0, Vestige.TILESIZE, textureOffset);
+                            position = new Vector2(i * Vestige.TILESIZE, (j * Vestige.TILESIZE) + Vestige.TILESIZE - textureOffset);
                         }
                         Color topLeft = new Color((Main.LightEngine.GetLightAsVector(i, j) + Main.LightEngine.GetLightAsVector(i - 1, j - 1)) / 2.0f);
                         Color topRight = new Color((Main.LightEngine.GetLightAsVector(i + 1, j) + Main.LightEngine.GetLightAsVector(i, j - 1)) / 2.0f);
                         Color bottomLeft = new Color((Main.LightEngine.GetLightAsVector(i, j + 1) + Main.LightEngine.GetLightAsVector(i - 1, j)) / 2.0f);
                         Color bottomRight = new Color((Main.LightEngine.GetLightAsVector(i + 1, j + 1) + Main.LightEngine.GetLightAsVector(i, j)) / 2.0f);
-                        Vector2 position = new Vector2(i * Vestige.TILESIZE, j * Vestige.TILESIZE);
                         Texture2D liquidTexture = ContentLoader.LiquidTexture;
                         Vector2 uvTopLeft = new Vector2(
                             sourceRect.X / (float)liquidTexture.Width,
@@ -223,17 +225,17 @@ namespace Vestige.Game.Renderers
                             (sourceRect.X + sourceRect.Width) / (float)liquidTexture.Width,
                             (sourceRect.Y + sourceRect.Height) / (float)liquidTexture.Height
                         );
-                        var vertices = new VertexPositionColorTexture[6]
+                        VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[6]
                         {
                         new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f),               topLeft,     uvTopLeft),
-                        new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + Vestige.TILESIZE, 0f), bottomRight, uvBottomRight),
+                        new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + sourceRect.Height, 0f), bottomRight, uvBottomRight),
                         new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y, 0f),    topRight,    new Vector2(uvBottomRight.X, uvTopLeft.Y)),
 
                         new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f),               topLeft,     uvTopLeft),
-                        new VertexPositionColorTexture(new Vector3(position.X, position.Y + Vestige.TILESIZE, 0f),    bottomLeft,  new Vector2(uvTopLeft.X, uvBottomRight.Y)),
-                        new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + Vestige.TILESIZE, 0f), bottomRight, uvBottomRight),
+                        new VertexPositionColorTexture(new Vector3(position.X, position.Y + sourceRect.Height, 0f),    bottomLeft,  new Vector2(uvTopLeft.X, uvBottomRight.Y)),
+                        new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + sourceRect.Height, 0f), bottomRight, uvBottomRight),
                         };
-                        foreach (var pass in ContentLoader.WaterShader.CurrentTechnique.Passes)
+                        foreach (EffectPass pass in ContentLoader.WaterShader.CurrentTechnique.Passes)
                         {
                             pass.Apply();
                             graphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 2);
@@ -249,8 +251,8 @@ namespace Vestige.Game.Renderers
         }
         public void SetDrawBox(Point drawBoxMin, Point drawBoxMax)
         {
-            this._drawBoxMin = drawBoxMin;
-            this._drawBoxMax = drawBoxMax;
+            _drawBoxMin = drawBoxMin;
+            _drawBoxMax = drawBoxMax;
         }
     }
 }

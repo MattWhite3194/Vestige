@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
-using Vestige.Game.UI.Components;
-using Vestige.Game.Input;
 using System.Collections.Generic;
+using Vestige.Game.Input;
+using Vestige.Game.UI.Components;
 
 namespace Vestige.Game.UI.Containers
 {
@@ -17,7 +17,7 @@ namespace Vestige.Game.UI.Containers
             _buttonColor = buttonColor;
             _buttonSelectedColor = buttonSelectedColor;
             _selections = selections;
-            for (int i = 0; i < selections.Count; i++) 
+            for (int i = 0; i < selections.Count; i++)
             {
                 int index = i;
                 Label label = new Label(Vector2.Zero, selections[i].label, Vector2.Zero, color: buttonColor, maxWidth: buttonWidth);

@@ -31,7 +31,7 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
                 }
                 else
                 {
-                    _directionX = -MathF.Sign((enemy.Position.X + enemy.Origin.X) - (target.Position.X + target.Origin.X));
+                    _directionX = -MathF.Sign(enemy.Position.X + enemy.Origin.X - (target.Position.X + target.Origin.X));
                     if (target.Position.Y + target.Origin.Y > enemy.Position.Y + enemy.Origin.Y)
                     {
                         enemy.CollidesWithPlatforms = false;
@@ -51,7 +51,7 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
             {
                 enemy.Animation.SetCurrentAnimation(1);
             }
-            
+
             if (_directionX != MathF.Sign(enemy.Velocity.X) && _jumping)
                 newVelocity.X += _lockedDirection * (_acceleration * 2.0f) * (float)delta;
             else
@@ -60,7 +60,7 @@ namespace Vestige.Game.Entities.NPCs.Behaviors
                 newVelocity.X = _maxSpeed * Math.Sign(newVelocity.X);
             if (_elapsedTime >= _nextJumpTime)
             {
-                _nextJumpTime = Main.Random.NextDouble() * 5.0 + 2.0;
+                _nextJumpTime = (Main.Random.NextDouble() * 5.0) + 2.0;
                 _elapsedTime = 0.0;
                 newVelocity.Y = _maxSpeed * Main.Random.Next(-4, -3);
                 newVelocity.X = _maxSpeed * _directionX * Main.Random.Next(2, 5);

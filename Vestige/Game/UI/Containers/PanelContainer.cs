@@ -10,7 +10,7 @@ namespace Vestige.Game.UI.Containers
         private Vector2 _panelPosition;
         public PanelContainer(Vector2 position, Vector2 size, Color color, Color borderColor, int padding, int borderWidth, int borderRadius, GraphicsDevice graphicsDevice, Anchor anchor = Anchor.MiddleMiddle) : base(position, size, anchor)
         {
-            _panel = new Texture2D(graphicsDevice, (int)size.X + padding * 2, (int)size.Y + padding * 2);
+            _panel = new Texture2D(graphicsDevice, (int)size.X + (padding * 2), (int)size.Y + (padding * 2));
             //TODO: need to add border radius somehow
             Color[] colorData = Enumerable.Repeat(color, _panel.Width * _panel.Height).ToArray();
 
@@ -19,15 +19,15 @@ namespace Vestige.Game.UI.Containers
             {
                 for (int j = 0; j < borderWidth; j++)
                 {
-                    colorData[_panel.Width * j + i] = borderColor;
-                    colorData[colorData.Length - 1 - (_panel.Width * j + i)] = borderColor;
+                    colorData[(_panel.Width * j) + i] = borderColor;
+                    colorData[colorData.Length - 1 - ((_panel.Width * j) + i)] = borderColor;
                 }
             }
             for (int i = 0; i < _panel.Height; i++)
             {
                 for (int j = 0; j < borderWidth; j++)
                 {
-                    colorData[i * _panel.Width + j] = borderColor;
+                    colorData[(i * _panel.Width) + j] = borderColor;
                     colorData[colorData.Length - 1 - (i * _panel.Width) - j] = borderColor;
                 }
             }
@@ -49,13 +49,13 @@ namespace Vestige.Game.UI.Containers
                         replacementColor = borderColor;
                     }
                     //Top left corner
-                    colorData[j * _panel.Width + i] = replacementColor;
+                    colorData[(j * _panel.Width) + i] = replacementColor;
                     //Bottom right corner
-                    colorData[colorData.Length - 1 - (j * _panel.Width + i)] = replacementColor;
+                    colorData[colorData.Length - 1 - ((j * _panel.Width) + i)] = replacementColor;
                     //Top right
-                    colorData[j * _panel.Width + (_panel.Width - 1 - i)] = replacementColor;
+                    colorData[(j * _panel.Width) + (_panel.Width - 1 - i)] = replacementColor;
                     //bottom left
-                    colorData[colorData.Length - 1 - (j * _panel.Width + (_panel.Width - 1 - i))] = replacementColor;
+                    colorData[colorData.Length - 1 - ((j * _panel.Width) + (_panel.Width - 1 - i))] = replacementColor;
                 }
             }
             _panel.SetData(colorData);

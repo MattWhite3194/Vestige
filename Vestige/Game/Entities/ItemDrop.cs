@@ -15,7 +15,7 @@ namespace Vestige.Game.Entities
         private float _acceleration = 50f;
         public bool CanBePickedUp;
         private float _pickupTimer;
-        public ItemDrop(Item item, Vector2 position, bool canBePickedUp = true) : base(item.Image, position, ColliderSize, new Vector2(item.Image.Width / 2, item.Image.Height - ColliderSize.Y / 2), hitboxSize: ColliderSize.ToPoint(), name: item.Name)
+        public ItemDrop(Item item, Vector2 position, bool canBePickedUp = true) : base(item.Image, position, ColliderSize, new Vector2(item.Image.Width / 2, item.Image.Height - (ColliderSize.Y / 2)), hitboxSize: ColliderSize.ToPoint(), name: item.Name)
         {
             _item = item;
             CollidesWithTiles = true;

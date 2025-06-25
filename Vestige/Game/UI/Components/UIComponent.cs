@@ -32,14 +32,11 @@ namespace Vestige.Game.UI.Components
         {
             Position = position;
             this.image = image;
-            this.Color = color == default ? Color.White : color;
+            Color = color == default ? Color.White : color;
             Origin = origin;
             _rotation = rotation;
             Scale = scale;
-            if (image != null)
-                Size = new Vector2(image.Width, image.Height);
-            else
-                Size = Vector2.Zero;
+            Size = image != null ? new Vector2(image.Width, image.Height) : Vector2.Zero;
         }
 
         public virtual void Update(double delta) { }

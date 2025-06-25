@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Vestige.Game.Entities.NPCs;
 using Vestige.Game.Entities.Projectiles;
 using Vestige.Game.Input;
@@ -69,7 +68,7 @@ namespace Vestige.Game.Entities
         public void InitializeGameUpdates(Point tilePosition)
         {
             ItemCollider = new ItemCollider(this, Inventory);
-            Position = tilePosition.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y);
+            Position = (tilePosition.ToVector2() * Vestige.TILESIZE) - new Vector2(0, Size.Y);
             Main.EntityManager.AddPlayer(this);
         }
 
@@ -164,8 +163,8 @@ namespace Vestige.Game.Entities
                 //if the player falls for 10 tiles or more, take damage
                 if (_fallDistance / Vestige.TILESIZE > 10)
                 {
-                    ApplyDamage((((int)(_fallDistance / Vestige.TILESIZE) - 10) * 2));
-                    
+                    ApplyDamage(((int)(_fallDistance / Vestige.TILESIZE) - 10) * 2);
+
                 }
                 _fallDistance = 0;
                 if (_queueJump)
@@ -197,7 +196,7 @@ namespace Vestige.Game.Entities
             {
                 FlipSprite = ItemCollider.ForcePlayerFlip;
             }
-            
+
             Velocity = newVelocity;
             base.Update(delta);
         }
@@ -208,9 +207,9 @@ namespace Vestige.Game.Entities
             DrawBodyPart(spriteBatch, _headTexture, Animation.AnimationRectangle);
             DrawBodyPart(spriteBatch, _legsTexture, Animation.AnimationRectangle);
             ItemCollider.Draw(spriteBatch);
-            float armRotation = Math.Min(ItemCollider.MaxRotation, Math.Max(0, Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver2 : MathHelper.PiOver2)) - MathHelper.PiOver4 / 2));
+            float armRotation = Math.Min(ItemCollider.MaxRotation, Math.Max(0, Math.Abs(ItemCollider.Rotation + (FlipSprite ? -MathHelper.PiOver2 : MathHelper.PiOver2)) - (MathHelper.PiOver4 / 2)));
             int textureOffset = (int)Math.Floor(armRotation / MathHelper.PiOver4) * (int)Size.Y;
-            DrawBodyPart(spriteBatch, _armTexture, ItemCollider.ItemActive ? new Rectangle(0, 11 * (int)Size.Y + textureOffset, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
+            DrawBodyPart(spriteBatch, _armTexture, ItemCollider.ItemActive ? new Rectangle(0, (11 * (int)Size.Y) + textureOffset, (int)Size.X, (int)Size.Y) : Animation.AnimationRectangle);
         }
         private void DrawBodyPart(SpriteBatch spriteBatch, Texture2D bodyPart, Rectangle animationRect)
         {
@@ -251,8 +250,8 @@ namespace Vestige.Game.Entities
         }
         public void ApplyDamage(int damage)
         {
-            this._health -= damage;
-            if (this._health <= 0)
+            _health -= damage;
+            if (_health <= 0)
             {
                 Active = false;
                 ItemCollider.Active = false;
@@ -269,15 +268,15 @@ namespace Vestige.Game.Entities
         }
         private void ApplyKnockback(Vector2 knockbackSource)
         {
-            this.Velocity.Y = Math.Min(-300, Velocity.Y);
-            this.Velocity.X = Math.Sign((Position.X + Origin.X) - knockbackSource.X) * _maxSpeed;
+            Velocity.Y = Math.Min(-300, Velocity.Y);
+            Velocity.X = Math.Sign(Position.X + Origin.X - knockbackSource.X) * _maxSpeed;
         }
         void IRespawnable.Respawn()
         {
             Active = true;
             ItemCollider.Active = true;
             _dead = false;
-            Position = Main.World.SpawnTile.ToVector2() * Vestige.TILESIZE - new Vector2(0, Size.Y - 1);
+            Position = (Main.World.SpawnTile.ToVector2() * Vestige.TILESIZE) - new Vector2(0, Size.Y - 1);
             Velocity = Vector2.Zero;
             ClearInputs();
             ItemCollider.ItemActive = false;

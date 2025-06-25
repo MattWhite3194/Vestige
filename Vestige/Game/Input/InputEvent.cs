@@ -8,7 +8,7 @@
         public InputEvent(InputEventType eventType, InputButton input)
         {
             EventType = eventType;
-            this.InputButton = input;
+            InputButton = input;
             handled = false;
         }
     }

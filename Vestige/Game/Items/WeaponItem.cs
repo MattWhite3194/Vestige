@@ -16,7 +16,7 @@ namespace Vestige.Game.Items
         public IWeapon WeaponBehavior { get { return _weaponBehavior; } }
         private readonly int _projectileID;
         private readonly float _projectileSpeed;
-        public WeaponItem(int id, string name, string description, Texture2D image, Vector2 origin, bool stackable, double useSpeed, bool autoUse, bool spriteDoesDamage, int baseDamage, int baseKnockback, UseStyle useStyle = UseStyle.Swing, IWeapon weaponBehavior = null, int maxStack = 1, int projectileID = -1, float projectileSpeed = 100f) 
+        public WeaponItem(int id, string name, string description, Texture2D image, Vector2 origin, bool stackable, double useSpeed, bool autoUse, bool spriteDoesDamage, int baseDamage, int baseKnockback, UseStyle useStyle = UseStyle.Swing, IWeapon weaponBehavior = null, int maxStack = 1, int projectileID = -1, float projectileSpeed = 100f)
             : base(id, name, description, image, origin, stackable, true, useSpeed, autoUse, maxStack, useStyle)
         {
             SpriteDoesDamage = spriteDoesDamage;

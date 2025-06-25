@@ -30,16 +30,12 @@ namespace Vestige.Game.Inventory
             }
             public override bool Equals(object obj)
             {
-                if (obj is CraftingKey other)
-                {
-                    return _size.Equals(other._size) && _inputs.SequenceEqual(other._inputs);
-                }
-                return false;
+                return obj is CraftingKey other && _size.Equals(other._size) && _inputs.SequenceEqual(other._inputs);
             }
             public override int GetHashCode()
             {
                 int hash = _size.GetHashCode();
-                foreach (var input in _inputs)
+                foreach ((byte x, byte y, int itemID) input in _inputs)
                 {
                     hash = HashCode.Combine(hash, input.GetHashCode());
                 }
@@ -127,11 +123,7 @@ namespace Vestige.Game.Inventory
         };
         public static Item GetItemFromRecipe(Point size, List<(byte, byte, int)> inputs)
         {
-            if (_recipes.TryGetValue(new CraftingKey(size, inputs), out int itemID)) 
-            {
-                return Item.InstantiateItemByID(itemID);
-            }
-            return null;
+            return _recipes.TryGetValue(new CraftingKey(size, inputs), out int itemID) ? Item.InstantiateItemByID(itemID) : null;
         }
     }
 }

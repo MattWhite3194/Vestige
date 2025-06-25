@@ -81,7 +81,7 @@ namespace Vestige.Game.IO
         }
         public void Save(WorldGen world, Player player = null)
         {
-            
+
             using (FileStream worldPath = File.Create(_path))
             using (BinaryWriter binaryWriter = new BinaryWriter(worldPath))
             {
@@ -121,7 +121,7 @@ namespace Vestige.Game.IO
         {
             Dictionary<Point, Item[]> tileInventories = world.GetAllTileInventories();
             binaryWriter.Write(tileInventories.Count);
-            foreach (var inventory in tileInventories)
+            foreach (KeyValuePair<Point, Item[]> inventory in tileInventories)
             {
                 binaryWriter.Write(inventory.Key.X);
                 binaryWriter.Write(inventory.Key.Y);
@@ -135,7 +135,7 @@ namespace Vestige.Game.IO
         }
         private void SaveTileUpdates(BinaryWriter binaryWriter)
         {
-            
+
         }
         private void SavePlayer(Player player, BinaryWriter binaryWriter)
         {

@@ -2,10 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Vestige.Game.Tiles;
-using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Lighting
 {
@@ -24,8 +22,8 @@ namespace Vestige.Game.Lighting
         public LightEngine(GraphicsDevice graphicsDevice)
         {
             _lightRange = 38;
-            _lightMap = new Vector3[(Vestige.DrawDistance.X + 2 * _lightRange) * (Vestige.DrawDistance.Y + 2 * _lightRange)];
-            _maskMap = new Vector3[(Vestige.DrawDistance.X + 2 * _lightRange) * (Vestige.DrawDistance.Y + 2 * _lightRange)];
+            _lightMap = new Vector3[(Vestige.DrawDistance.X + (2 * _lightRange)) * (Vestige.DrawDistance.Y + (2 * _lightRange))];
+            _maskMap = new Vector3[(Vestige.DrawDistance.X + (2 * _lightRange)) * (Vestige.DrawDistance.Y + (2 * _lightRange))];
             _dynamicLights = new Queue<(int, int, Vector3)>();
         }
         /// <summary>
@@ -38,7 +36,7 @@ namespace Vestige.Game.Lighting
                 Vector3 skyLight = new Vector3(Main.GameClock.GlobalLight / 255.0f);
                 for (int y = _paddedDrawBoxMin.Y; y < _paddedDrawBoxMax.Y; y++)
                 {
-                    int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                    int mapIndex = ((y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + (2 * _lightRange))) + (x - _paddedDrawBoxMin.X);
                     _lightMap[mapIndex] = Vector3.Zero;
                     _maskMap[mapIndex] = _wallAbsorption;
                     if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid))
@@ -68,7 +66,7 @@ namespace Vestige.Game.Lighting
                 (int x, int y, Vector3 light) = _dynamicLights.Dequeue();
                 if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
                 {
-                    int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                    int mapIndex = ((y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + (2 * _lightRange))) + (x - _paddedDrawBoxMin.X);
                     _lightMap[mapIndex] = Vector3.Max(light, _lightMap[mapIndex]);
                 }
             }
@@ -83,18 +81,18 @@ namespace Vestige.Game.Lighting
         }
         private void SpreadLight()
         {
-            int width = Vestige.DrawDistance.X + 2 * _lightRange;
-            int height = Vestige.DrawDistance.Y + 2 * _lightRange;
+            int width = Vestige.DrawDistance.X + (2 * _lightRange);
+            int height = Vestige.DrawDistance.Y + (2 * _lightRange);
             Parallel.For(0, width, x =>
             {
-                SpreadLightInLine(x, x + (height - 1) * width, width);
-                SpreadLightInLine(x + (height - 1) * width, x, -width);
+                SpreadLightInLine(x, x + ((height - 1) * width), width);
+                SpreadLightInLine(x + ((height - 1) * width), x, -width);
             });
 
             Parallel.For(0, height, y =>
             {
-                SpreadLightInLine(y * width, y * width + width - 1, 1);
-                SpreadLightInLine(y * width + width - 1, y * width, -1);
+                SpreadLightInLine(y * width, (y * width) + width - 1, 1);
+                SpreadLightInLine((y * width) + width - 1, y * width, -1);
             });
         }
         private void SpreadLightInLine(int startIndex, int endIndex, int stride)
@@ -129,7 +127,7 @@ namespace Vestige.Game.Lighting
         {
             if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
             {
-                int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                int mapIndex = ((y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + (2 * _lightRange))) + (x - _paddedDrawBoxMin.X);
                 return new Color(_lightMap[mapIndex]);
             }
             return default;
@@ -138,7 +136,7 @@ namespace Vestige.Game.Lighting
         {
             if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
             {
-                int mapIndex = (y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + 2 * _lightRange) + (x - _paddedDrawBoxMin.X);
+                int mapIndex = ((y - _paddedDrawBoxMin.Y) * (Vestige.DrawDistance.X + (2 * _lightRange))) + (x - _paddedDrawBoxMin.X);
                 return _lightMap[mapIndex];
             }
             return default;

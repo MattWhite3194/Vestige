@@ -16,9 +16,9 @@ namespace Vestige.Game.Tiles.TileData
         public override int VerifyTile(WorldGen world, int x, int y)
         {
             Point topLeft = GetTopLeft(world, x, y);
-            if (!TileDatabase.TileHasProperties(world.GetTileID(topLeft.X, topLeft.Y - 1), TileProperty.Solid))
-                return -1;
-            return base.VerifyTile(world, x, y);
+            return !TileDatabase.TileHasProperties(world.GetTileID(topLeft.X, topLeft.Y - 1), TileProperty.Solid)
+                ? -1
+                : base.VerifyTile(world, x, y);
         }
 
         public void OnCollision(WorldGen world, int x, int y, Entity entity)
@@ -47,7 +47,7 @@ namespace Vestige.Game.Tiles.TileData
             int right = 1;
 
             //check if the door can open
-            for (int i = 0; i < this.TileSize.Y; i++)
+            for (int i = 0; i < TileSize.Y; i++)
             {
                 if (world.GetTileID(topLeft.X + left, topLeft.Y + i) != 0)
                 {
@@ -68,7 +68,7 @@ namespace Vestige.Game.Tiles.TileData
             if (direction == 1)
                 direction = 0;
 
-            for (int i = 0; i < this.TileSize.Y; i++)
+            for (int i = 0; i < TileSize.Y; i++)
             {
                 world.PlaceTile(topLeft.X, topLeft.Y + i, 0);
             }
@@ -78,7 +78,7 @@ namespace Vestige.Game.Tiles.TileData
             {
                 for (int j = 0; j < 3; j++)
                 {
-                    world.SetTileState(topLeft.X - (direction == -1 ? 1 : 0) + i, topLeft.Y + j, (byte)(j * 10 + i + (direction == -1 ? 2 : 0) + (openedByCollision ? 100 : 0)));
+                    world.SetTileState(topLeft.X - (direction == -1 ? 1 : 0) + i, topLeft.Y + j, (byte)((j * 10) + i + (direction == -1 ? 2 : 0) + (openedByCollision ? 100 : 0)));
                 }
             }
         }

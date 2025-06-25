@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
 using Vestige.Game.Entities;
 using Vestige.Game.WorldGeneration;
 

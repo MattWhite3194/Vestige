@@ -1,14 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 
 namespace Vestige.Game.Drawables
 {
     public class ParallaxBackground
     {
-        private Texture2D _backgroundImage;
-        private Vector2 Offset;
+        protected Texture2D backgroundImage;
+        protected Vector2 offset;
         public Vector2 Speed;
         /// <summary>
         /// The height in the world that this parallax background should be draw in
@@ -18,6 +17,7 @@ namespace Vestige.Game.Drawables
         public bool Active = true;
         private Vector2 _currentPosition;
         private float _alpha = 1.0f;
+        protected Vector2 size;
         /// <summary>
         /// 
         /// </summary>
@@ -25,53 +25,57 @@ namespace Vestige.Game.Drawables
         /// <param name="speed"></param>
         /// <param name="initialPlayerPosition"></param>
         /// <param name="maxDrawDepth">The lowest height this parallax background draws at, also the height at which the offset is calculated from. If this position is at the bottom of the screen, the parallax background will draw here with no offset</param>
-        /// <param name="minDrawDepth">The point at which the parallax backgorund becomes invisible</param>
-        public ParallaxBackground(Texture2D backgroundImage, Vector2 speed, Vector2 initialPlayerPosition, int maxDrawDepth, int minDrawDepth) 
-        { 
-            this._backgroundImage = backgroundImage;
-            this.Speed = speed;
-            this._currentPosition = initialPlayerPosition;
-            this._maxDrawDepth = maxDrawDepth;
-            this._minDrawDepth = minDrawDepth;
-            this.Offset = new Vector2(0, (maxDrawDepth - initialPlayerPosition.Y) * Speed.Y);
+        /// <param name="minDrawDepth">The point at which the parallax background becomes invisible</param>
+        public ParallaxBackground(Texture2D backgroundImage, Vector2 speed, Vector2 initialPlayerPosition, int maxDrawDepth, int minDrawDepth, Vector2 size = default)
+        {
+            this.backgroundImage = backgroundImage;
+            Speed = speed;
+            _currentPosition = initialPlayerPosition;
+            _maxDrawDepth = maxDrawDepth;
+            _minDrawDepth = minDrawDepth;
+            offset = new Vector2(0, (maxDrawDepth - initialPlayerPosition.Y) * Speed.Y);
+            if (size == default)
+            {
+                this.size = new Vector2(backgroundImage.Width, backgroundImage.Height);
+            }
         }
 
-        public void Update(double delta, Vector2 position)
+        public virtual void Update(double delta, Vector2 position)
         {
             //Only Activate this parallax if the player is above the maxdrawdepth
             Active = position.Y <= _maxDrawDepth && position.Y > _minDrawDepth;
             //offset increases as the player is moving left, and decreases as the player is moving right
-            Offset.X -= (position.X - _currentPosition.X) * Speed.X;
-            Offset.Y = (_maxDrawDepth - position.Y) * Speed.Y;
+            offset.X -= (position.X - _currentPosition.X) * Speed.X;
+            offset.Y = (_maxDrawDepth - position.Y) * Speed.Y;
             _currentPosition = position;
-            if (Offset.X < 0)
+            if (offset.X < 0)
             {
-                Offset.X = _backgroundImage.Width + Offset.X;
+                offset.X = size.X + offset.X;
             }
-            if (Offset.X > _backgroundImage.Width)
+            if (offset.X > size.X)
             {
-                Offset.X = Offset.X - _backgroundImage.Width;
+                offset.X = offset.X - size.X;
             }
             if (Active && _alpha < 1.0f)
             {
-                _alpha = (float)Math.Min(1.0f, _alpha + 4 * delta);
+                _alpha = (float)Math.Min(1.0f, _alpha + (4 * delta));
             }
             else if (!Active && _alpha > 0.0f)
             {
-                _alpha = (float)Math.Max(0.0f, _alpha - 4 * delta);
+                _alpha = (float)Math.Max(0.0f, _alpha - (4 * delta));
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, Color color)
+        public virtual void Draw(SpriteBatch spriteBatch, Color color)
         {
             if (_alpha == 0.0f)
                 return;
             color *= _alpha;
-            for (int i = 0; i <= (int)Math.Ceiling(Vestige.NativeResolution.X / (float)_backgroundImage.Width); i++)
+            for (int i = 0; i <= (int)Math.Ceiling(Vestige.NativeResolution.X / (float)size.X); i++)
             {
                 spriteBatch.Draw(
-                    _backgroundImage,
-                    new Vector2(Offset.X + (i * _backgroundImage.Width) - _backgroundImage.Width, Vestige.NativeResolution.Y - _backgroundImage.Height + Offset.Y),
+                    backgroundImage,
+                    new Vector2(offset.X + (i * size.X) - size.X, Vestige.NativeResolution.Y - size.Y + offset.Y),
                     color
                     );
             }

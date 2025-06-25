@@ -59,11 +59,11 @@ namespace Vestige.Game.UI.Containers
                 }
             }
             _scrollOffset += scrollAmount;
-            for (int i = 0; i < this.ComponentCount; i++)
+            for (int i = 0; i < ComponentCount; i++)
             {
                 GetComponentChild(i).Position = GetComponentChild(i).Position + new Vector2(0, scrollAmount);
             }
-            for (int i = 0; i < this.ContainerCount; i++)
+            for (int i = 0; i < ContainerCount; i++)
             {
                 GetContainerChild(i).Position = GetContainerChild(i).Position + new Vector2(0, scrollAmount);
                 GetContainerChild(i).UpdateAnchorMatrix((int)Size.X, (int)Size.Y, AnchorMatrix);

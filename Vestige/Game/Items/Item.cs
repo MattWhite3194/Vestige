@@ -27,17 +27,17 @@ namespace Vestige.Game.Items
 
         public Item(int id, string name, string description, Texture2D image, Vector2 origin = default, bool stackable = false, bool canUse = false, double useSpeed = 0.5f, bool autoUse = false, int maxStack = 999, UseStyle useStyle = UseStyle.None)
         {
-            this.ID = id;
-            this.Name = name;
-            this.Description = description;
-            this.Image = image;
-            this.Origin = origin;
-            this.Stackable = stackable;
-            this.UseSpeed = useSpeed;
-            this.AutoUse = autoUse;
-            this.UseStyle = useStyle;
-            this.MaxStack = maxStack;
-            this.CanUse = canUse;
+            ID = id;
+            Name = name;
+            Description = description;
+            Image = image;
+            Origin = origin;
+            Stackable = stackable;
+            UseSpeed = useSpeed;
+            AutoUse = autoUse;
+            UseStyle = useStyle;
+            MaxStack = maxStack;
+            CanUse = canUse;
         }
         public virtual bool UseItem(Player player, bool altUse)
         {

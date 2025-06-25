@@ -17,7 +17,7 @@ namespace Vestige.Game.Inventory
                 itemPosition,
                 Color.White
                 );
-            
+
             if (item.Stackable)
             {
                 string quantity = item.Quantity.ToString();

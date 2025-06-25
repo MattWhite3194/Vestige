@@ -1,6 +1,4 @@
-﻿using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
+﻿using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
@@ -11,7 +9,7 @@ namespace Vestige.Game.IO
     {
         private string _path;
         private Dictionary<string, object> _data;
-        public Settings(string path) 
+        public Settings(string path)
         {
             _data = new Dictionary<string, object>();
             _path = path;
@@ -22,7 +20,7 @@ namespace Vestige.Game.IO
             {
                 FileStream stream = File.OpenRead(_path);
                 Dictionary<string, JsonElement> rawData = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(stream);
-                foreach (var kvp in rawData)
+                foreach (KeyValuePair<string, JsonElement> kvp in rawData)
                 {
                     JsonElement elem = kvp.Value;
 
@@ -44,7 +42,9 @@ namespace Vestige.Game.IO
                 {
                     {"screen-width", GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width},
                     {"screen-height", GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height},
-                    {"fullscreen", false }
+                    {"fullscreen", false },
+                    {"ui-scale", 1.0f },
+                    {"smooth-lighting", true }
                 };
             }
         }
@@ -62,7 +62,7 @@ namespace Vestige.Game.IO
         }
         public void Set(string key, object value)
         {
-           _data[key] = value;
+            _data[key] = value;
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
 
 namespace Vestige.Game.UI.Components
 {
@@ -16,8 +15,8 @@ namespace Vestige.Game.UI.Components
         private TextAlign _textAlign;
         public override Vector2 Position
         {
-            get 
-            { 
+            get
+            {
                 return base.Position;
             }
             set
@@ -29,7 +28,7 @@ namespace Vestige.Game.UI.Components
         public Label(Vector2 position, string text, Vector2 padding, Color color = default,
             int maxWidth = 0, float rotation = 0.0f, float scale = 1.0f, TextAlign textAlign = TextAlign.Center) : base(position, null, color, rotation, scale)
         {
-            this.Color = color == default ? Color.White : color;
+            Color = color == default ? Color.White : color;
             _padding = padding;
             _maxWidth = maxWidth;
             _textAlign = textAlign;
@@ -39,7 +38,7 @@ namespace Vestige.Game.UI.Components
         private void UpdateStringPosition()
         {
             if (_text == null) return;
-            _stringPosition.Y = Position.Y + Size.Y / 2 - _stringSize.Y / 2;
+            _stringPosition.Y = Position.Y + (Size.Y / 2) - (_stringSize.Y / 2);
             switch (_textAlign)
             {
                 case TextAlign.Left:
@@ -48,7 +47,7 @@ namespace Vestige.Game.UI.Components
                     _stringOrigin = new Vector2(0, _stringSize.Y / 2);
                     break;
                 case TextAlign.Center:
-                    _stringPosition.X = Position.X + Size.X / 2 - _stringSize.X / 2;
+                    _stringPosition.X = Position.X + (Size.X / 2) - (_stringSize.X / 2);
                     Origin = Size / 2;
                     _stringOrigin = _stringSize / 2.0f;
                     break;

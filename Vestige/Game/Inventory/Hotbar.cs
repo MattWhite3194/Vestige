@@ -2,8 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
-using Vestige.Game.UI.Containers;
 using Vestige.Game.UI;
+using Vestige.Game.UI.Containers;
 
 namespace Vestige.Game.Inventory
 {

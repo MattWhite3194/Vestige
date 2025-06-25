@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Vestige.Game.WorldGeneration
+﻿namespace Vestige.Game.WorldGeneration
 {
     public class DamagedTile
     {
@@ -27,9 +21,9 @@ namespace Vestige.Game.WorldGeneration
         public int Layer;
         public DamagedTile(int X, int Y, ushort tileID, int health, int totalTileHealth, int time)
         {
-            this.TotalTileHealth = totalTileHealth;
-            this.Health = health;
-            this.Time = time;
+            TotalTileHealth = totalTileHealth;
+            Health = health;
+            Time = time;
             this.X = X;
             this.Y = Y;
         }

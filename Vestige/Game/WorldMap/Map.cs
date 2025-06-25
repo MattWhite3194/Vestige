@@ -20,7 +20,7 @@ namespace Vestige.Game.WorldMap
         }
         public void UpdateMapTile(SpriteBatch spriteBatch, Point position, Color color)
         {
-            
+
         }
         public void RevealAllMapTiles()
         {
@@ -29,7 +29,7 @@ namespace Vestige.Game.WorldMap
             {
                 for (int j = 0; j < _world.WorldSize.Y; j++)
                 {
-                    mapTiles[_world.WorldSize.X * j + i] = TileDatabase.GetTileData(_world.GetTileID(i, j)).MapColor;
+                    mapTiles[(_world.WorldSize.X * j) + i] = TileDatabase.GetTileData(_world.GetTileID(i, j)).MapColor;
                 }
             }
             MapRenderTarget.SetData(mapTiles);

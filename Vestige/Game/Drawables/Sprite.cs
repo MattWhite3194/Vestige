@@ -18,9 +18,7 @@ namespace Vestige.Game.Drawables
         {
             get
             {
-                if (_size == default)
-                    return Image == null ? Vector2.Zero : new Vector2(Image.Width, Image.Height);
-                return _size;
+                return _size == default ? Image == null ? Vector2.Zero : new Vector2(Image.Width, Image.Height) : _size;
             }
             set
             {
@@ -35,9 +33,7 @@ namespace Vestige.Game.Drawables
         {
             get
             {
-                if (_origin == default)
-                    return new Vector2(Size.X / 2, Size.Y / 2);
-                return _origin;
+                return _origin == default ? new Vector2(Size.X / 2, Size.Y / 2) : _origin;
             }
             set
             {
@@ -47,19 +43,19 @@ namespace Vestige.Game.Drawables
 
         public Sprite(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, Color color = default, List<(int, int)> animationFrames = null)
         {
-            this.Image = image;
-            this.Position = position;
+            Image = image;
+            Position = position;
             if (size != default)
             {
-                this.Size = size;
+                Size = size;
             }
             if (origin != default)
             {
-                this.Origin = origin;
+                Origin = origin;
             }
             if (animationFrames != null)
             {
-                this.Animation = new AnimationComponent(size, animationFrames);
+                Animation = new AnimationComponent(size, animationFrames);
             }
             Color = color == default ? Color.White : color;
         }

@@ -21,17 +21,17 @@ namespace Vestige.Game.Entities.NPCs
         private float _maxInvincibilityTime = 0.5f;
         private bool _invincible = false;
         private List<(int, int)> _animationFrames;
-        public NPC(int id, 
-            string name, 
-            Texture2D image, 
-            Vector2 size, 
-            int health, 
-            int damage, 
-            bool collidesWithTiles, 
+        public NPC(int id,
+            string name,
+            Texture2D image,
+            Vector2 size,
+            int health,
+            int damage,
+            bool collidesWithTiles,
             INPCBehavior behavior,
             bool drawBehindTiles = false,
             bool friendly = false,
-            List<(int, int)> animationFrames = null) 
+            List<(int, int)> animationFrames = null)
             : base(image, default, size: size, animationFrames: animationFrames, name: name)
         {
             ID = id;
@@ -78,18 +78,18 @@ namespace Vestige.Game.Entities.NPCs
         }
         private void ApplyDamage(int damage)
         {
-            this._health -= damage;
+            _health -= damage;
             _invincible = true;
-            if (this._health <= 0)
+            if (_health <= 0)
                 Active = false;
             if (Active)
             {
                 _invincibilityTimeLeft = _maxInvincibilityTime;
-            } 
+            }
         }
         private void ApplyKnockback(int knockback, Vector2 knockbackSource)
         {
-            this.Velocity = new Vector2(1.0f, 0.5f) * new Vector2(Math.Sign(Position.X + Origin.X - knockbackSource.X) * knockback, 1) * 100.0f;
+            Velocity = new Vector2(1.0f, 0.5f) * new Vector2(Math.Sign(Position.X + Origin.X - knockbackSource.X) * knockback, 1) * 100.0f;
         }
         /// <summary>
         /// 

@@ -30,7 +30,7 @@ namespace Vestige.Game.Drawables
         public AnimationComponent(Vector2 size, List<(int, int)> animationFrames)
         {
             _size = size;
-            foreach (var animation in animationFrames)
+            foreach ((int, int) animation in animationFrames)
             {
                 AddAnimation(animation.Item1, animation.Item2);
             }

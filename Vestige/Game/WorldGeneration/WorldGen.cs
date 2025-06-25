@@ -10,7 +10,7 @@ using Vestige.Game.WorldGeneration.WorldUpdaters;
 namespace Vestige.Game.WorldGeneration
 {
     public class WorldGen
-    {   
+    {
         private Tile[] _tiles;
         private Random _random = new Random();
         public Point SpawnTile;
@@ -37,11 +37,14 @@ namespace Vestige.Game.WorldGeneration
         /// Stores the location and damage information of any walls that are actively being mined by the player
         /// </summary>
         private Dictionary<Point, DamagedTile> _minedWalls = new Dictionary<Point, DamagedTile>();
-        
+
         private List<WorldUpdater> _worldUpdaters;
         private LiquidUpdater _liquidUpdater;
         private OverlayTileUpdater _overlayTileUpdater;
         private Dictionary<Point, Item[]> _tileInventories;
+        /// <summary>
+        /// Event called every time the world is updated. Members assigned will persist until they return true
+        /// </summary>
         public event Func<bool> OnWorldUpdate;
         private List<Structure> _structures;
 
@@ -58,7 +61,6 @@ namespace Vestige.Game.WorldGeneration
 
         public void GenerateWorld(int seed = 0)
         {
-            //TODO: add a structures array of rectangles, so when generating a new structure, check if it intersects with any existing structures
             _random = seed != 0 ? new Random(seed) : new Random();
             _structures = new List<Structure>();
             int[] surfaceNoise = Generate1DNoise(WorldSize.X, 50, 300, 4, 0.5f);
@@ -68,11 +70,11 @@ namespace Vestige.Game.WorldGeneration
             //place stone and get surface height
             for (int i = 0; i < WorldSize.X; i++)
             {
-                for (int j = WorldSize.Y / 2 - WorldSize.Y / 4 + surfaceNoise[i]; j < WorldSize.Y; j++)
+                for (int j = (WorldSize.Y / 2) - (WorldSize.Y / 4) + surfaceNoise[i]; j < WorldSize.Y; j++)
                 {
                     SetTile(i, j, 4);
                     SetWall(i, j, 2);
-                    surfaceTerrain[i] = WorldSize.Y / 2 - WorldSize.Y / 4 + surfaceNoise[i];
+                    surfaceTerrain[i] = (WorldSize.Y / 2) - (WorldSize.Y / 4) + surfaceNoise[i];
 
                     if (WorldSize.Y - surfaceTerrain[i] < _surfaceHeight)
                         _surfaceHeight = WorldSize.Y - surfaceTerrain[i];
@@ -83,7 +85,7 @@ namespace Vestige.Game.WorldGeneration
             //place dirt
             for (int i = 0; i < WorldSize.X; i++)
             {
-                
+
                 for (int j = 0; j < _dirtDepth + _random.Next(0, 3); j++)
                 {
                     if (surfaceTerrain[i] < SurfaceDepth - 100 - _random.Next(0, 30))
@@ -150,17 +152,17 @@ namespace Vestige.Game.WorldGeneration
             //Generate dirt chunks in stone layer
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0002; i++)
             {
-                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth, SurfaceDepth + _dirtDepth + (_surfaceHeight - _dirtDepth) / 2), _random.Next(4, 10), _random.Next(5, 30), 1);
+                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth, SurfaceDepth + _dirtDepth + ((_surfaceHeight - _dirtDepth) / 2)), _random.Next(4, 10), _random.Next(5, 30), 1);
             }
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0001; i++)
             {
-                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth + (_surfaceHeight - _dirtDepth) / 2, WorldSize.Y), _random.Next(4, 10), _random.Next(5, 30), 1);
+                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth + ((_surfaceHeight - _dirtDepth) / 2), WorldSize.Y), _random.Next(4, 10), _random.Next(5, 30), 1);
             }
 
             //Generate Coal
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0005; i++)
             {
-                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth / 2, SurfaceDepth + _dirtDepth + (_surfaceHeight - _dirtDepth) / 2), _random.Next(3, 5), _random.Next(5, 8), 12, replaceTiles: new HashSet<int>{4});
+                TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + (_dirtDepth / 2), SurfaceDepth + _dirtDepth + ((_surfaceHeight - _dirtDepth) / 2)), _random.Next(3, 5), _random.Next(5, 8), 12, replaceTiles: new HashSet<int> { 4 });
             }
 
             //Generate lakes
@@ -172,11 +174,11 @@ namespace Vestige.Game.WorldGeneration
             }
 
             //Generate buildings
-            for (int i = _random.Next(20, 40); i < WorldSize.X - _random.Next(80, 100); i+= (int)Math.Max(200.0f, WorldSize.X * _random.NextDouble() / 5.0f))
+            for (int i = _random.Next(20, 40); i < WorldSize.X - _random.Next(80, 100); i += (int)Math.Max(200.0f, WorldSize.X * _random.NextDouble() / 5.0f))
             {
                 if (_random.NextDouble() < 0.25)
                     continue;
-                if (Math.Abs(WorldSize.X / 2 - i) < 40)
+                if (Math.Abs((WorldSize.X / 2) - i) < 40)
                     continue;
                 Rectangle building = GenerateBuilding(i, surfaceTerrain[i]);
                 for (int j = 0; j < _random.Next(0, 2); j++)
@@ -187,7 +189,7 @@ namespace Vestige.Game.WorldGeneration
                 Structure structure = new Structure(building, 0);
                 _structures.Add(structure);
             }
-            
+
 
 
             //calculate tile states
@@ -196,7 +198,7 @@ namespace Vestige.Game.WorldGeneration
                 for (int j = 1; j < WorldSize.Y - 1; j++)
                 {
                     SetTileState(i, j, TileDatabase.GetTileData(GetTileID(i, j)).GetUpdatedTileState(this, i, j));
-                    SetWallState(i, j, TileDatabase.GetWallData(GetWallID(i, j)).GetUpdatedWallState(this, i,j));
+                    SetWallState(i, j, TileDatabase.GetWallData(GetWallID(i, j)).GetUpdatedWallState(this, i, j));
                 }
             }
 
@@ -284,7 +286,7 @@ namespace Vestige.Game.WorldGeneration
             DefaultTileData tileData = TileDatabase.GetTileData(tileID);
             if (!tileData.CanTileBeDamaged(this, coordinates.X, coordinates.Y))
                 return;
-            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates)? _minedTiles[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, tileID, tileData.Health, tileData.Health, 0);
+            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates) ? _minedTiles[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, tileID, tileData.Health, tileData.Health, 0);
             damagedTileData.Health = damagedTileData.Health - damage;
             damagedTileData.Time = 0;
             if (damagedTileData.Health <= 0)
@@ -323,7 +325,7 @@ namespace Vestige.Game.WorldGeneration
         }
         public bool IsTileInBounds(int x, int y)
         {
-            return (x >= 0 && y >= 0 && x < WorldSize.X && y < WorldSize.Y);
+            return x >= 0 && y >= 0 && x < WorldSize.X && y < WorldSize.Y;
         }
 
         private byte[] _randTreeTileStates = [0, 2, 8, 10];
@@ -389,12 +391,12 @@ namespace Vestige.Game.WorldGeneration
             {
                 for (int i = 0; i < size; i++)
                 {
-                    int x0 = (i / scale) % 256;
+                    int x0 = i / scale % 256;
                     int x1 = (x0 + 1) % 256;
                     int xMinus = (x0 - 1 + 256) % 256;
                     int xPlus = (x1 + 1) % 256;
 
-                    float t = (float)Fade((i % scale) / (float)scale);
+                    float t = (float)Fade(i % scale / (float)scale);
 
                     float y = MathHelper.CatmullRom(
                         values[xMinus] * height,
@@ -442,11 +444,11 @@ namespace Vestige.Game.WorldGeneration
         }
         private double Lerp(double v0, double v1, double t)
         {
-            return (1 - t) * v0 + t * v1;
+            return ((1 - t) * v0) + (t * v1);
         }
         private double Fade(double t)
         {
-            return 3 * Math.Pow(t, 2) - 2 * Math.Pow(t, 3);
+            return (3 * Math.Pow(t, 2)) - (2 * Math.Pow(t, 3));
         }
         private double Perlin(double x, double y)
         {
@@ -462,9 +464,9 @@ namespace Vestige.Game.WorldGeneration
             double topRightDot = GetInfluenceValue(x, y, X1, Y1);
             double bottomLeftDot = GetInfluenceValue(x, y, X0, Y0);
             double bottomRightDot = GetInfluenceValue(x, y, X1, Y0);
-
             return Lerp(Lerp(bottomLeftDot, bottomRightDot, sx), Lerp(topLeftDot, topRightDot, sx), sy);
         }
+        //I'm not gonna lie, I copied this function because I didn't feel like learning the perlin noise algorithm
         private double[,] GeneratePerlinNoiseWithOctaves(int width, int height, double scale = 100.0, int octaves = 4, double persistence = 0.5)
         {
             double[,] noise = new double[height, width];
@@ -501,11 +503,11 @@ namespace Vestige.Game.WorldGeneration
         }
         public ushort GetTileID(int x, int y)
         {
-            return _tiles[y * WorldSize.X + x].ID;
+            return _tiles[(y * WorldSize.X) + x].ID;
         }
         public ushort GetWallID(int x, int y)
         {
-            return _tiles[y * WorldSize.X + x].WallID;
+            return _tiles[(y * WorldSize.X) + x].WallID;
         }
         public bool PlaceTile(int x, int y, ushort ID)
         {
@@ -539,7 +541,7 @@ namespace Vestige.Game.WorldGeneration
             }
             return true;
         }
-        public void UpdateTile(int x, int y)
+        private void UpdateTile(int x, int y)
         {
             if (TileDatabase.GetTileData(GetTileID(x, y)).VerifyTile(this, x, y) == -1)
             {
@@ -552,7 +554,7 @@ namespace Vestige.Game.WorldGeneration
             if (TileDatabase.GetTileData(GetTileID(x, y)) is OverlayTileData overlayTile)
             {
                 if (GetTileState(x, y) == 255)
-                    _tiles[y * WorldSize.X + x].ID = overlayTile.BaseTileID;
+                    _tiles[(y * WorldSize.X) + x].ID = overlayTile.BaseTileID;
                 else
                     _overlayTileUpdater.EnqueueOverlayTile(x, y, GetTileID(x, y));
             }
@@ -594,20 +596,20 @@ namespace Vestige.Game.WorldGeneration
             Item item = Item.InstantiateItemByID(itemID);
             if (item != null)
             {
-                Main.EntityManager.CreateItemDrop(item, new Vector2(x, y) * Vestige.TILESIZE + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
+                Main.EntityManager.CreateItemDrop(item, (new Vector2(x, y) * Vestige.TILESIZE) + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
             }
         }
         private void SetLargeTile(int x, int y, ushort ID)
         {
-            if (!(TileDatabase.GetTileData(ID) is LargeTileData largeTileData))
+            if (TileDatabase.GetTileData(ID) is not LargeTileData largeTileData)
                 return;
-            Point topLeft = largeTileData.GetTopLeft(this, x, y) ;
+            Point topLeft = largeTileData.GetTopLeft(this, x, y);
             for (int i = 0; i < largeTileData.TileSize.X; i++)
             {
                 for (int j = 0; j < largeTileData.TileSize.Y; j++)
                 {
-                    _tiles[(topLeft.Y + j) * WorldSize.X + (topLeft.X + i)].ID = ID;
-                    SetTileState(topLeft.X + i, topLeft.Y + j, (byte)(j * 10 + i));
+                    _tiles[((topLeft.Y + j) * WorldSize.X) + topLeft.X + i].ID = ID;
+                    SetTileState(topLeft.X + i, topLeft.Y + j, (byte)((j * 10) + i));
                     if (TileDatabase.TileHasProperties(ID, TileProperty.Solid))
                     {
                         SetLiquid(topLeft.X + i, topLeft.Y + j, 0);
@@ -617,14 +619,14 @@ namespace Vestige.Game.WorldGeneration
         }
         private void RemoveLargeTile(int x, int y, ushort ID)
         {
-            if (!(TileDatabase.GetTileData(ID) is LargeTileData largeTileData))
+            if (TileDatabase.GetTileData(ID) is not LargeTileData largeTileData)
                 return;
             Point topLeft = largeTileData.GetTopLeft(this, x, y);
             for (int i = 0; i < largeTileData.TileSize.X; i++)
             {
                 for (int j = 0; j < largeTileData.TileSize.Y; j++)
                 {
-                    _tiles[(topLeft.Y + j) * WorldSize.X + (topLeft.X + i)].ID = 0;
+                    _tiles[((topLeft.Y + j) * WorldSize.X) + topLeft.X + i].ID = 0;
                     SetTileState(topLeft.X + i, topLeft.Y + j, 0);
                 }
             }
@@ -654,46 +656,46 @@ namespace Vestige.Game.WorldGeneration
             Item item = Item.InstantiateItemByID(itemID);
             if (item != null)
             {
-                Main.EntityManager.CreateItemDrop(item, new Vector2(x, y) * Vestige.TILESIZE + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
+                Main.EntityManager.CreateItemDrop(item, (new Vector2(x, y) * Vestige.TILESIZE) + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
             }
         }
         public void SetTileState(int x, int y, byte state)
         {
-            _tiles[y * WorldSize.X + x].State = state;
+            _tiles[(y * WorldSize.X) + x].State = state;
         }
         public void SetWallState(int x, int y, byte state)
         {
-            _tiles[y * WorldSize.X + x].WallState = state;
+            _tiles[(y * WorldSize.X) + x].WallState = state;
         }
         public void SetTile(int x, int y, ushort ID)
         {
-            _tiles[y * WorldSize.X + x].ID = ID;
+            _tiles[(y * WorldSize.X) + x].ID = ID;
             if (TileDatabase.TileHasProperties(ID, TileProperty.Solid))
                 SetLiquid(x, y, 0);
         }
         public void SetWall(int x, int y, ushort WallID)
         {
-            _tiles[y * WorldSize.X + x].WallID = WallID;
+            _tiles[(y * WorldSize.X) + x].WallID = WallID;
         }
         public Dictionary<Point, DamagedTile> GetDamagedTiles()
         {
             return _minedTiles;
-        } 
+        }
         public Dictionary<Point, DamagedTile> GetDamagedWalls()
         {
             return _minedWalls;
         }
         public byte GetTileState(int x, int y)
         {
-            return _tiles[y * WorldSize.X + x].State;
+            return _tiles[(y * WorldSize.X) + x].State;
         }
         public byte GetWallState(int x, int y)
         {
-            return _tiles[y * WorldSize.X + x].WallState;
+            return _tiles[(y * WorldSize.X) + x].WallState;
         }
         public byte GetLiquid(int x, int y)
         {
-            return _tiles[y * WorldSize.X + x].Liquid;
+            return _tiles[(y * WorldSize.X) + x].Liquid;
         }
         public void SetLiquid(int x, int y, byte amount, bool forceUpdate = false)
         {
@@ -702,7 +704,7 @@ namespace Vestige.Game.WorldGeneration
                 _liquidUpdater.QueueLiquidUpdate(x, y);
                 UpdateTile(x, y);
             }
-            _tiles[y * WorldSize.X + x].Liquid = amount;
+            _tiles[(y * WorldSize.X) + x].Liquid = amount;
         }
         public void AddTileInventory(Point coordinates, Item[] items)
         {
@@ -714,9 +716,7 @@ namespace Vestige.Game.WorldGeneration
         }
         public Item[] GetTileInventory(Point coordinates)
         {
-            if (_tileInventories.ContainsKey(coordinates))
-                return _tileInventories[coordinates];
-            return null;
+            return _tileInventories.ContainsKey(coordinates) ? _tileInventories[coordinates] : null;
         }
         public Dictionary<Point, Item[]> GetAllTileInventories()
         {
@@ -734,16 +734,16 @@ namespace Vestige.Game.WorldGeneration
                 remainingSize = size * (remainingPasses / passes);
                 remainingPasses -= 1.0;
                 //Rectangle around point with width = remainingStrength and height = remainingStrength
-                int leftBound = Math.Max(0, (int)(currentTile.X - remainingSize / 2));
-                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + remainingSize / 2));
-                int topBound = Math.Max(0, (int)(currentTile.Y - remainingSize / 2));
-                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + remainingSize / 2));
+                int leftBound = Math.Max(0, (int)(currentTile.X - (remainingSize / 2)));
+                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + (remainingSize / 2)));
+                int topBound = Math.Max(0, (int)(currentTile.Y - (remainingSize / 2)));
+                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + (remainingSize / 2)));
                 for (int i = leftBound; i < rightBound; i++)
                 {
                     for (int j = topBound; j < bottomBound; j++)
                     {
                         //check distance in a diamond shape + a random offset
-                        if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + _random.Next(-10, 11) * 0.015))
+                        if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + (_random.Next(-10, 11) * 0.015)))
                         {
                             if (!replaceOnly)
                                 SetTile(i, j, tileID);
@@ -753,7 +753,6 @@ namespace Vestige.Game.WorldGeneration
                     }
                 }
                 currentTile += tileOffset;
-                //random vector from -0.5 -> 0.5
                 tileOffset.X += _random.Next(-10, 11) * 0.05f;
                 tileOffset.X = float.Clamp(tileOffset.X, -1, 1);
             }
@@ -771,7 +770,7 @@ namespace Vestige.Game.WorldGeneration
                 {
                     if (i == 0 || i == width - 1)
                     {
-                        if (j == 0 || j > 3)
+                        if (j is 0 or > 3)
                             SetTile(x + i, y - j, 14);
                         continue;
                     }
@@ -793,10 +792,10 @@ namespace Vestige.Game.WorldGeneration
             if (_random.Next(0, 2) == 0)
             {
                 int topOffset = _random.Next(-5, 5);
-                Point topMiddle = new Point(x + width / 2 + topOffset, y - (numFloors * floorHeight + 1));
-                for (int i = topMiddle.X - width; i < topMiddle.X + width / 2; i++)
+                Point topMiddle = new Point(x + (width / 2) + topOffset, y - ((numFloors * floorHeight) + 1));
+                for (int i = topMiddle.X - width; i < topMiddle.X + (width / 2); i++)
                 {
-                    for (int j = topMiddle.Y; j < topMiddle.Y + width / 2; j++)
+                    for (int j = topMiddle.Y; j < topMiddle.Y + (width / 2); j++)
                     {
                         if (Math.Sqrt(Math.Pow(i - topMiddle.X, 2) + Math.Pow(j - topMiddle.Y, 2)) < width / 2)
                         {
@@ -835,7 +834,7 @@ namespace Vestige.Game.WorldGeneration
                     j++;
                 }
             }
-            return new Rectangle(x, y - floorHeight * numFloors, width, floorHeight * numFloors);
+            return new Rectangle(x, y - (floorHeight * numFloors), width, floorHeight * numFloors);
         }
         private void GenerateLake(int x, int y)
         {
@@ -851,16 +850,16 @@ namespace Vestige.Game.WorldGeneration
                 remainingSize = size * (remainingPasses / passes);
                 remainingPasses -= 1.0;
                 //Rectangle around point with width = remainingStrength and height = remainingStrength
-                int leftBound = Math.Max(0, (int)(currentTile.X - remainingSize / 2));
-                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + remainingSize / 2));
-                int topBound = Math.Max(0, (int)(currentTile.Y - remainingSize / 2));
-                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + remainingSize / 2));
+                int leftBound = Math.Max(0, (int)(currentTile.X - (remainingSize / 2)));
+                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + (remainingSize / 2)));
+                int topBound = Math.Max(0, (int)(currentTile.Y - (remainingSize / 2)));
+                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + (remainingSize / 2)));
                 for (int i = leftBound; i < rightBound; i++)
                 {
                     for (int j = topBound; j < bottomBound; j++)
                     {
                         //check distance in a diamond shape + a random offset
-                        if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + _random.Next(-10, 11) * 0.015))
+                        if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + (_random.Next(-10, 11) * 0.015)))
                         {
                             SetTile(i, j, 0);
                             if (j >= y)
@@ -871,7 +870,6 @@ namespace Vestige.Game.WorldGeneration
                     }
                 }
                 currentTile += tileOffset;
-                //random vector from -0.5 -> 0.5
                 tileOffset.X += _random.Next(-10, 11) * 0.05f;
                 tileOffset.X = float.Clamp(tileOffset.X, -1, 1);
             }

@@ -3,8 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 using System;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
-using Vestige.Game.UI.Containers;
 using Vestige.Game.UI;
+using Vestige.Game.UI.Containers;
 
 namespace Vestige.Game.Inventory
 {
@@ -24,15 +24,15 @@ namespace Vestige.Game.Inventory
             {
                 itemSlotColor = Color.White;
             }
-            this._dragItem = dragItem;
+            _dragItem = dragItem;
             for (int i = 0; i < _inventoryItemSlots.Length; i++)
             {
                 int index = i;
                 _inventoryItemSlots[i] = new ItemSlot(Vector2.Zero, ContentLoader.ItemSlotTexture, itemSlotColor);
                 AddComponentChild(_inventoryItemSlots[i]);
                 _inventoryItemSlots[i].OnMouseInput += (@mouseEvent, mouseCoordinates) => OnItemSlotGuiInput(index, @mouseEvent);
-                _inventoryItemSlots[i].OnMouseEntered += () => 
-                { 
+                _inventoryItemSlots[i].OnMouseEntered += () =>
+                {
                     if (_dragItem.Item == null)
                     {
                         toolTip.ShowItemStats(_inventoryItems[index]);

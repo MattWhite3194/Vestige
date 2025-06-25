@@ -28,7 +28,7 @@ namespace Vestige.Game.Tiles.TileData
             {
                 for (int j = 0; j < TileSize.Y; j++)
                 {
-                    world.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)(j * 10 + i));
+                    world.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)((j * 10) + i));
                 }
             }
             Item[] items = world.GetTileInventory(worldOrigin);
@@ -55,7 +55,7 @@ namespace Vestige.Game.Tiles.TileData
             {
                 for (int j = 0; j < TileSize.Y; j++)
                 {
-                    world.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)(j * 10 + i + TileSize.X));
+                    world.SetTileState(worldOrigin.X + i, worldOrigin.Y + j, (byte)((j * 10) + i + TileSize.X));
                 }
             }
             Item[] items = world.GetTileInventory(worldOrigin);

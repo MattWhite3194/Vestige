@@ -1,9 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Vestige.Game.Time
 {
@@ -39,11 +35,11 @@ namespace Vestige.Game.Time
             TotalDayCycleTime = totalDayCycleTime;
             _timeToLightGradient = [
                 (0, 40),
-                (totalDayCycleTime/4 - totalDayCycleTime/8, 40),
-                (totalDayCycleTime/4 + totalDayCycleTime/8, 255),
+                ((totalDayCycleTime/4) - (totalDayCycleTime/8), 40),
+                ((totalDayCycleTime/4) + (totalDayCycleTime/8), 255),
 
-                (totalDayCycleTime/2 + totalDayCycleTime/4 - totalDayCycleTime/8, 255),
-                (totalDayCycleTime/2 + totalDayCycleTime/4 + totalDayCycleTime/8, 40),
+                ((totalDayCycleTime/2) + (totalDayCycleTime/4) - (totalDayCycleTime/8), 255),
+                ((totalDayCycleTime/2) + (totalDayCycleTime/4) + (totalDayCycleTime/8), 40),
                 (totalDayCycleTime, 40)
             ];
         }
@@ -54,13 +50,13 @@ namespace Vestige.Game.Time
             _gameTime = _gameTime % TotalDayCycleTime;
             for (int i = 0; i < _timeToLightGradient.Count; i++)
             {
-                var (x1, y1) = _timeToLightGradient[i];
-                var (x2, y2) = _timeToLightGradient[(i + 1) % _timeToLightGradient.Count];
+                (int x1, byte y1) = _timeToLightGradient[i];
+                (int x2, byte y2) = _timeToLightGradient[(i + 1) % _timeToLightGradient.Count];
 
                 if (_gameTime >= x1 && _gameTime <= x2)
                 {
-                    GlobalLight = (byte)Lerp(y1, y2, (_gameTime - x1) / (x2 - x1));
-                    _dayTime = x1 > TotalDayCycleTime / 4 || x2 < TotalDayCycleTime / 2 + TotalDayCycleTime / 4;
+                    GlobalLight = (byte)MathHelper.Lerp(y1, y2, (float)(_gameTime - x1) / (x2 - x1));
+                    _dayTime = x1 > TotalDayCycleTime / 4 || x2 < (TotalDayCycleTime / 2) + (TotalDayCycleTime / 4);
                     break;
                 }
             }
@@ -71,15 +67,11 @@ namespace Vestige.Game.Time
         }
         public double GetCycleTime()
         {
-            return (_gameTime + TotalDayCycleTime / 4) % (TotalDayCycleTime / 2);
+            return (_gameTime + (TotalDayCycleTime / 4)) % (TotalDayCycleTime / 2);
         }
         public bool DayTime()
         {
             return _dayTime;
-        }
-        private double Lerp(double y1, double y2, double t)
-        {
-            return y1 + (y2 - y1) * t;
         }
     }
 }

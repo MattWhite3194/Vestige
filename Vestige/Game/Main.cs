@@ -39,7 +39,7 @@ namespace Vestige.Game
         private SunAndMoon _sunMoon;
         private bool _gamePaused;
         private Map _map;
-        public bool SmoothLighting = true;
+        public bool SmoothLighting;
 
         public Main(Vestige gameHandle, WorldGen world, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
@@ -56,6 +56,7 @@ namespace Vestige.Game
             _localPlayer = new Player();
             InventoryManager inventory = new InventoryManager(_localPlayer, _worldFile.GetPlayerItems(), 8);
             _localPlayer.Inventory = inventory;
+            SmoothLighting = (bool)Vestige.Settings.Get("smooth-lighting");
 
             //2x supersampling on all render targets
             _wallTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
@@ -84,11 +85,12 @@ namespace Vestige.Game
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
             ContentLoader.WaterShader.Parameters["Projection"].SetValue(Matrix.CreateOrthographicOffCenter(0, 1920, 1280, 0, 0, 1));
-            
+
+            _parallaxManager.AddParallaxBackground(new Clouds(ContentLoader.Clouds, new Vector2(0.02f, 0.002f), _localPlayer.Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 100) * Vestige.TILESIZE));
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), _localPlayer.Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), _localPlayer.Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), _localPlayer.Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
-            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), _localPlayer.Position + new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE, (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(0.1f, 0.06f), _localPlayer.Position + (new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE), (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(0.2f, 0.08f), _localPlayer.Position + (new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE), (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
+            _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(0.3f, 0.1f), _localPlayer.Position + (new Vector2(Random.Next(-50, 50), 0) * Vestige.TILESIZE), (World.SurfaceDepth + 5) * Vestige.TILESIZE, (World.SurfaceDepth - 50) * Vestige.TILESIZE));
         }
         public void Update(double delta)
         {
@@ -204,10 +206,10 @@ namespace Vestige.Game
         }
         private void CalculateTranslation()
         {
-            int dx = (int)Math.Round(Vestige.NativeResolution.X / 2 - _localPlayer.Position.X - _localPlayer.Origin.X);
-            dx = MathHelper.Clamp(dx, -World.WorldSize.X * Vestige.TILESIZE + Vestige.NativeResolution.X, 0);
-            int dy = (int)Math.Round(Vestige.NativeResolution.Y / 2 - _localPlayer.Position.Y - _localPlayer.Origin.Y);
-            dy = MathHelper.Clamp(dy, -World.WorldSize.Y * Vestige.TILESIZE + Vestige.NativeResolution.Y, 0);
+            int dx = (int)Math.Round((Vestige.NativeResolution.X / 2) - _localPlayer.Position.X - _localPlayer.Origin.X);
+            dx = MathHelper.Clamp(dx, (-World.WorldSize.X * Vestige.TILESIZE) + Vestige.NativeResolution.X, 0);
+            int dy = (int)Math.Round((Vestige.NativeResolution.Y / 2) - _localPlayer.Position.Y - _localPlayer.Origin.Y);
+            dy = MathHelper.Clamp(dy, (-World.WorldSize.Y * Vestige.TILESIZE) + Vestige.NativeResolution.Y, 0);
             _translation = Matrix.CreateTranslation(dx, dy, 0f);
         }
         private void SaveAndQuit()

@@ -9,7 +9,7 @@ namespace Vestige.Game.Items.Weapons
         private int _minePower;
         public Pickaxe(int minePower)
         {
-            this._minePower = minePower;
+            _minePower = minePower;
         }
         public bool UseItem(Player player, bool altUse)
         {

@@ -27,6 +27,7 @@ namespace Vestige.Game.Menus
         private Dictionary<(UIMenuType from, InputButton trigger), UIMenuType> _menuTransitions = new();
         private UIMenuType _activeMenuType;
         private EventHandler _updateResolutionText;
+        private MiniMapMenu _miniMapMenu;
         public InGameMenu(Vestige gameHandle, Main gameManager, Player owner, Map map, InventoryManager inventoryManager, GraphicsDevice graphicsDevice) : base(anchor: UI.Anchor.None)
         {
             _gameManager = gameManager;
@@ -36,14 +37,12 @@ namespace Vestige.Game.Menus
             _chatDisplay = new ChatDisplay(position: new Vector2(0, -_commandTerminal.Size.Y), anchor: UI.Anchor.BottomLeft);
             _activeMenu = inventoryManager;
             _mapMenu = new MapMenu(map);
+            _miniMapMenu = new MiniMapMenu(map, new Vector2(-20, 20), new Vector2(100, 100));
             InitializeMenuTransitions();
             _commandTerminal.OnExitTerminal += () =>
             {
-                RemoveContainerChild(_activeMenu);
                 _commandTerminal.SetFocused(false);
-                AddContainerChild(_inventoryManager);
-                _activeMenu = _inventoryManager;
-                _activeMenuType = UIMenuType.Inventory;
+                TransitionTo(UIMenuType.Inventory);
             };
             _subMenus = new Stack<UIContainer>();
             _optionsPanel = new PanelContainer(Vector2.Zero, new Vector2(288, 150), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 20, 1, 10, graphicsDevice);
@@ -70,10 +69,11 @@ namespace Vestige.Game.Menus
             LightingSelection.OnButtonPress += () =>
             {
                 gameManager.SmoothLighting = !gameManager.SmoothLighting;
+                Vestige.Settings.Set("smooth-lighting", gameManager.SmoothLighting);
                 LightingSelection.SetText("Lighting: " + (gameManager.SmoothLighting ? "Smooth" : "Blocky"));
             };
             settingsGrid.AddComponentChild(LightingSelection);
-            Slider uiScaleSlider = new Slider(Vector2.Zero, new Vector2(288, 10), "UI Scale:", 50, 200, 100, "%");
+            Slider uiScaleSlider = new Slider(Vector2.Zero, new Vector2(288, 10), "UI Scale:", 50, 200, gameHandle.UserUIScale * 100, "%");
             uiScaleSlider.OnValueChanged += (value) =>
             {
                 value = (int)value;
@@ -113,6 +113,7 @@ namespace Vestige.Game.Menus
 
             AddContainerChild(inventoryManager);
             AddContainerChild(_chatDisplay);
+            AddContainerChild(_miniMapMenu);
             _activeMenuType = UIMenuType.Inventory;
         }
         public void AddMessageToChat(string message)
@@ -128,8 +129,8 @@ namespace Vestige.Game.Menus
 
             if (@event.EventType == InputEventType.KeyDown)
             {
-                var input = @event.InputButton;
-                if (_menuTransitions.TryGetValue((_activeMenuType, input), out var newMenu))
+                InputButton input = @event.InputButton;
+                if (_menuTransitions.TryGetValue((_activeMenuType, input), out UIMenuType newMenu))
                 {
                     TransitionTo(newMenu);
                     InputManager.MarkInputAsHandled(@event);
@@ -150,20 +151,25 @@ namespace Vestige.Game.Menus
                 case UIMenuType.Inventory:
                     AddContainerChild(_inventoryManager);
                     AddContainerChild(_chatDisplay);
+                    AddContainerChild(_miniMapMenu);
                     _gameManager.SetGameState(false);
                     _activeMenu = _inventoryManager;
                     break;
                 case UIMenuType.Options:
+                    RemoveContainerChild(_chatDisplay);
+                    RemoveContainerChild(_miniMapMenu);
                     AddSubMenu(_optionsPanel);
                     _gameManager.SetGameState(true);
                     _activeMenu = _optionsPanel;
                     break;
                 case UIMenuType.Map:
+                    RemoveContainerChild(_miniMapMenu);
                     RemoveContainerChild(_chatDisplay);
                     AddContainerChild(_mapMenu);
                     _activeMenu = _mapMenu;
                     break;
                 case UIMenuType.Terminal:
+                    RemoveContainerChild(_miniMapMenu);
                     AddContainerChild(_commandTerminal);
                     _commandTerminal.SetFocused(true);
                     _activeMenu = _commandTerminal;

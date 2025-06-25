@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Vestige.Game.Entities;
-using Vestige.Game.Input;
 using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Items
@@ -12,7 +11,7 @@ namespace Vestige.Game.Items
         public LiquidItem(int id, string name, string description, Texture2D image, ushort liquidID) : base(id, name, description, image, default, true, true, 0.15, true, 50, UseStyle.Swing)
         {
             //TODO: liquid IDS like lava or water or whatever
-            this.LiquidID = liquidID;
+            LiquidID = liquidID;
         }
         public override bool UseItem(Player player, bool altUse)
         {

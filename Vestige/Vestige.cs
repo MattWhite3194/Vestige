@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Vestige.Game;
 using Vestige.Game.Input;
@@ -28,12 +27,19 @@ namespace Vestige
         /// <summary>
         /// The users selected UI scale, this will multiply with _defaultUIScale for the final scale
         /// </summary>
-        private float _userUIScale = 1.0f;
+        private float _userUIScale;
+        public float UserUIScale
+        {
+            get
+            {
+                return _userUIScale;
+            }
+        }
         public static Rectangle RenderDestination;
         public static GameWindow GameWindow;
         public static readonly Point NativeResolution = new Point(960, 640);
         public static readonly int TILESIZE = 16;
-        public static readonly Point DrawDistance = new Point(960 / TILESIZE + 1, 640 / TILESIZE + 2);
+        public static readonly Point DrawDistance = new Point((960 / TILESIZE) + 1, (640 / TILESIZE) + 2);
         public static readonly float GRAVITY = 1300.0f;
         public static readonly Point ScreenCenter = new Point(960 / 2, 640 / 2);
         public static Settings Settings;
@@ -74,6 +80,8 @@ namespace Vestige
         {
             GetSupportedDisplayModes();
             Settings.Load();
+            //Necessary Conversion due to JSON saving 1.0 as an integer. So casting as a float when UIScale is saved at 100% will fail
+            _userUIScale = Convert.ToSingle(Settings.Get("ui-scale"));
             SetWindowProperties((int)Settings.Get("screen-width"), (int)Settings.Get("screen-height"), false);
             Window.AllowUserResizing = true;
             Window.ClientSizeChanged += (sender, e) => UpdateRenderDestination(Window.ClientBounds.Width, Window.ClientBounds.Height);
@@ -92,8 +100,9 @@ namespace Vestige
         protected override void BeginRun()
         {
             LoadMainMenu();
-            //need to call this here because starting the application in fullscreen mode will disable window resizing when set back to windowed.
-            if ((bool)Settings.Get("fullscreen")) {
+            //need to call this here because starting the application in fullscreen mode will disable window resizing when set back to windowed. Why, I have no clue.
+            if ((bool)Settings.Get("fullscreen"))
+            {
                 SetFullScreen(true);
             }
         }
@@ -119,7 +128,7 @@ namespace Vestige
         {
             GraphicsDevice.Clear(Color.Gray);
             _gameManager?.Draw(_spriteBatch, gameTime);
-            
+
             UIManager.Draw(_spriteBatch);
 
             base.Draw(gameTime);
@@ -156,9 +165,9 @@ namespace Vestige
                         height = (int)(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height * 0.97f);
                         width = Math.Min(GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width, width);
                     }
-                }                
+                }
             }
-            //not allowed to set resolution to larger than the screens
+            //not allowed to set resolution to larger than the screen if in fullscreen. - Will break UI transform matrices
             if (fullscreen)
             {
                 width = Math.Min(_maxScreenResolution.X, width);
@@ -180,17 +189,16 @@ namespace Vestige
             SetUIScale(_userUIScale);
             float scale = Math.Max(xScale, yScale);
             RenderDestination = new Rectangle(
-                width / 2 - (int)(NativeResolution.X * scale) / 2,
-                height / 2 - (int)(NativeResolution.Y * scale) / 2,
+                (width / 2) - ((int)(NativeResolution.X * scale) / 2),
+                (height / 2) - ((int)(NativeResolution.Y * scale) / 2),
                 (int)(NativeResolution.X * scale),
                 (int)(NativeResolution.Y * scale)
                 );
-            Debug.WriteLine(ScreenResolution);
         }
         private void GetSupportedDisplayModes()
         {
             _supportedResolutions = new List<Point>();
-            foreach (var displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
+            foreach (DisplayMode displayMode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
             {
                 if (displayMode.Width < NativeResolution.X || displayMode.Height < NativeResolution.Y)
                     continue;
@@ -200,11 +208,9 @@ namespace Vestige
         public Point GetNextSupportedResolution()
         {
             int currentResolutionIndex = _supportedResolutions.IndexOf(ScreenResolution);
-            if (currentResolutionIndex != -1)
-            {
-                return _supportedResolutions[(currentResolutionIndex + 1) % _supportedResolutions.Count];
-            }
-            return _supportedResolutions[0];
+            return currentResolutionIndex != -1
+                ? _supportedResolutions[(currentResolutionIndex + 1) % _supportedResolutions.Count]
+                : _supportedResolutions[0];
         }
         public void SetUIScale(float scale)
         {
@@ -229,8 +235,9 @@ namespace Vestige
             Settings.Set("screen-width", GraphicsDevice.PresentationParameters.BackBufferWidth);
             Settings.Set("screen-height", GraphicsDevice.PresentationParameters.BackBufferHeight);
             Settings.Set("fullscreen", _graphics.IsFullScreen);
+            Settings.Set("ui-scale", _userUIScale);
             Settings.Save();
-            this.Exit();
+            Exit();
         }
     }
 }

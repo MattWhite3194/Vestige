@@ -57,7 +57,7 @@ namespace Vestige.Game
                 int nextColor = (colorIndex + 1) % colors.Length;
                 if (colorIndex == colors.Length - 1 && !wrap)
                     nextColor = colorIndex;
-                gradientData[i] = Color.Lerp(colors[colorIndex], colors[nextColor], (i % colorOffset) / (float)colorOffset);
+                gradientData[i] = Color.Lerp(colors[colorIndex], colors[nextColor], i % colorOffset / (float)colorOffset);
             }
             gradient.SetData(gradientData);
             return gradient;
@@ -75,7 +75,7 @@ namespace Vestige.Game
             {
                 for (int y = 0; y < sizeY; y++)
                 {
-                    colorData[x + y * sizeX] = TileDatabase.GetTileData(world.GetTileID(x, y)).MapColor;
+                    colorData[x + (y * sizeX)] = TileDatabase.GetTileData(world.GetTileID(x, y)).MapColor;
                 }
             }
 
@@ -92,7 +92,7 @@ namespace Vestige.Game
             }
 
             //open world image
-            var psi = new ProcessStartInfo
+            ProcessStartInfo psi = new ProcessStartInfo
             {
                 FileName = filePath,
                 UseShellExecute = true

@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
-using System.Diagnostics;
 using Vestige.Game.Input;
 using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
@@ -51,42 +50,27 @@ namespace Vestige.Game.Menus
             }
             else if (@event.InputButton == InputButton.MiddleMouse)
             {
-                if (@event.EventType == InputEventType.MouseButtonDown)
-                {
-                    _userZoom = Math.Min(_userZoom + 0.05f * _userZoom, _maxZoom);
-                }
-                else
-                {
-                    _userZoom = Math.Max(_userZoom - 0.05f * _userZoom, 0.5f);
-                }
+                _userZoom = @event.EventType == InputEventType.MouseButtonDown
+                    ? Math.Min(_userZoom + (0.05f * _userZoom), _maxZoom)
+                    : Math.Max(_userZoom - (0.05f * _userZoom), 0.5f);
             }
-            base.HandleInput( @event );
+            base.HandleInput(@event);
         }
         public override void Update(double delta)
         {
             if (_mouseDown)
             {
                 _offset = InputManager.GetMouseWindowPosition() - _grabPosition;
-                _mapPosition = (_mapPositionOnGrab + _offset / (_userZoom * _defaultZoom));
+                _mapPosition = _mapPositionOnGrab + (_offset / (_userZoom * _defaultZoom));
             }
             float mapWidth = _map.MapRenderTarget.Width * (_userZoom * _defaultZoom) * (parentSize.X / Vestige.NativeResolution.X);
-            if (mapWidth > parentSize.X)
-            {
-                _mapPosition = Vector2.Clamp(_mapPosition, new Vector2(-(mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y), new Vector2((mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y));
-            }
-            else
-            {
-                _mapPosition = Vector2.Clamp(_mapPosition, new Vector2((-parentSize.X + mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y), new Vector2((parentSize.X - mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y));
-            }
+            _mapPosition = mapWidth > parentSize.X
+                ? Vector2.Clamp(_mapPosition, new Vector2(-(mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y), new Vector2((mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y))
+                : Vector2.Clamp(_mapPosition, new Vector2((-parentSize.X + mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y), new Vector2((parentSize.X - mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y));
             float mapHeight = _map.MapRenderTarget.Height * (_userZoom * _defaultZoom) * (parentSize.X / Vestige.NativeResolution.X);
-            if (mapHeight > parentSize.Y)
-            {
-                _mapPosition = Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, -(mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)));
-            }
-            else
-            {
-                _mapPosition = Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, (-parentSize.Y + mapHeight) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (parentSize.Y - mapHeight) / 2.0f / (_userZoom * _defaultZoom)));
-            }
+            _mapPosition = mapHeight > parentSize.Y
+                ? Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, -(mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)))
+                : Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, (-parentSize.Y + mapHeight) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (parentSize.Y - mapHeight) / 2.0f / (_userZoom * _defaultZoom)));
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
@@ -94,7 +78,7 @@ namespace Vestige.Game.Menus
             spriteBatch.Begin();
             Utilities.DrawFilledRectangle(spriteBatch, new Rectangle(0, 0, (int)parentSize.X, (int)parentSize.Y), Color.DarkBlue);
             spriteBatch.End();
-            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(parentSize.X / Vestige.NativeResolution.X) * Matrix.CreateTranslation(new Vector3(parentSize / 2.0f + _mapPosition * (_userZoom * _defaultZoom), 0)));
+            spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(parentSize.X / Vestige.NativeResolution.X) * Matrix.CreateTranslation(new Vector3((parentSize / 2.0f) + (_mapPosition * (_userZoom * _defaultZoom)), 0)));
             spriteBatch.Draw(_map.MapRenderTarget, Vector2.Zero, null, Color.White, 0.0f, _mapOrigin, _userZoom * _defaultZoom, SpriteEffects.None, 0.0f);
             spriteBatch.End();
         }

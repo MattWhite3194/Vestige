@@ -7,7 +7,7 @@ namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
     {
         private int _radius;
         private float _maxFallSpeed = 400f;
-        public Bomb(int radius) 
+        public Bomb(int radius)
         {
             _radius = radius;
         }
@@ -15,7 +15,7 @@ namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
         {
             Main.LightEngine.AddLight((int)projectile.Position.X / Vestige.TILESIZE, (int)projectile.Position.Y / Vestige.TILESIZE, new Color(150, 100, 0));
             Vector2 newVelocity = projectile.Velocity;
-            newVelocity.Y = newVelocity.Y + (float)delta * (Vestige.GRAVITY / 3);
+            newVelocity.Y = newVelocity.Y + ((float)delta * (Vestige.GRAVITY / 3));
             if (newVelocity.Y > _maxFallSpeed)
             {
                 newVelocity.Y = _maxFallSpeed;
@@ -36,7 +36,7 @@ namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
             return new Bomb(_radius);
         }
         public void OnCollision(Projectile projectile, Entity entity) { }
-        public void OnDeath(Projectile projectile) 
+        public void OnDeath(Projectile projectile)
         {
             Vector2 bombTilePosition = Vector2.Round(projectile.Position / Vestige.TILESIZE);
             for (int i = -_radius; i < _radius; i++)
@@ -51,8 +51,8 @@ namespace Vestige.Game.Entities.Projectiles.ProjectileBehaviors
                 }
             }
         }
-        public void OnTileCollision(Projectile projectile) 
-        { 
+        public void OnTileCollision(Projectile projectile)
+        {
             //TODO: bounce
         }
     }

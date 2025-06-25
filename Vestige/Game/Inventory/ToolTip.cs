@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
 using Vestige.Game.Input;
 using Vestige.Game.Items;
 using Vestige.Game.UI.Components;
@@ -32,7 +31,7 @@ namespace Vestige.Game.Inventory
                 SetText("");
                 return;
             }
-            SetText(item.Name + (item.Description != "" ? "\n" +  item.Description : "" ), true);
+            SetText(item.Name + (item.Description != "" ? "\n" + item.Description : ""), true);
         }
         public override void Draw(SpriteBatch spriteBatch)
         {

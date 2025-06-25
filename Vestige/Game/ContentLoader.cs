@@ -27,6 +27,7 @@ namespace Vestige.Game
         public static Texture2D LiquidTexture;
         public static Texture2D SunMoonTexture;
         public static Texture2D Squircle;
+        public static Texture2D Clouds;
         //Shaders
         public static Effect WaterShader;
 
@@ -54,6 +55,7 @@ namespace Vestige.Game
             LiquidTexture = content.Load<Texture2D>("Assets/Textures/Tiles/Liquids/Liquid0");
             SunMoonTexture = content.Load<Texture2D>("Assets/Textures/Backgrounds/Sun");
             Squircle = content.Load<Texture2D>("Assets/Textures/UIComponents/Squircle");
+            Clouds = content.Load<Texture2D>("Assets/Textures/Backgrounds/Clouds");
 
             //load tile textures into an array
             int numTiles = Directory.GetFiles(Path.Combine(fullContentDirectory, "Assets/Textures/Tiles")).Length;
@@ -91,11 +93,9 @@ namespace Vestige.Game
         }
         private static string GetFullContentPath(ContentManager content)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            {
-                return Path.Combine(AppContext.BaseDirectory, "..", "Resources", content.RootDirectory);
-            }
-            return Path.Combine(AppContext.BaseDirectory, content.RootDirectory);
+            return RuntimeInformation.IsOSPlatform(OSPlatform.OSX)
+                ? Path.Combine(AppContext.BaseDirectory, "..", "Resources", content.RootDirectory)
+                : Path.Combine(AppContext.BaseDirectory, content.RootDirectory);
         }
     }
 }

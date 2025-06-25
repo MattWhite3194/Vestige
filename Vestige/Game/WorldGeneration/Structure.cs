@@ -8,8 +8,8 @@ namespace Vestige.Game.WorldGeneration
         public Rectangle Bounds { get { return _bounds; } }
         private int _priority;
         public int Priority { get { return _priority; } }
-        public Structure(int x, int y, int width, int height, int priority = 0) 
-        { 
+        public Structure(int x, int y, int width, int height, int priority = 0)
+        {
             _bounds = new Rectangle(x, y, width, height);
             _priority = priority;
         }
