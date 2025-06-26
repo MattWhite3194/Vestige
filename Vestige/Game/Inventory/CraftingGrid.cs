@@ -254,6 +254,10 @@ namespace Vestige.Game.Inventory
         private void SetItemQuantity(int index, int quantity)
         {
             _craftingInputItems[index].Quantity = quantity;
+            if (quantity <= 0)
+            {
+                SetItem(null, index);
+            }
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {

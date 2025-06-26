@@ -33,6 +33,7 @@ namespace Vestige.Game.Menus
         private SelectionContainer _worldSizeSelector;
         private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _worldSortMethod;
         private EventHandler _updateResolutionText;
+        private event Action MenuUpdate;
 
         public MainMenu(Vestige gameHandle, GraphicsDevice graphicsDevice) : base(anchor: Anchor.None)
         {
@@ -122,7 +123,7 @@ namespace Vestige.Game.Menus
             worldGenTestButton.OnButtonPress += () =>
             {
                 Point worldSize = (Point)_worldSizeSelector.GetSelected();
-                Utilities.RunWorldGenTest(worldSize.X, worldSize.Y, _graphicsDevice, 69);
+                Utilities.RunWorldGenTest(worldSize.X, worldSize.Y, _graphicsDevice);
             };
             _createWorldMenu.AddComponentChild(worldGenTestButton);
 
@@ -133,6 +134,7 @@ namespace Vestige.Game.Menus
         }
         public override void Update(double delta)
         {
+            MenuUpdate?.Invoke();
             _parallaxOffset.X += (float)delta;
             parallaxManager.Update(delta, _parallaxOffset);
             base.Update(delta);
@@ -153,6 +155,15 @@ namespace Vestige.Game.Menus
             bool worldGenSuccessful = true;
             Point worldSize = (Point)_worldSizeSelector.GetSelected();
             WorldGen world = new WorldGen(worldSize.X, worldSize.Y);
+            GridContainer generationStatusContainer = new GridContainer(1, anchor: Anchor.MiddleMiddle);
+            Label generationStatusLabel = new Label(new Vector2(0, 0), "", Vector2.Zero, Color.White, maxWidth: 288);
+            generationStatusContainer.AddComponentChild(generationStatusLabel);
+            AddContainerChild(generationStatusContainer);
+            Action updateGenerationStatus = () =>
+            {
+                generationStatusLabel.SetText(world.GetGenerationStatus());
+            };
+            MenuUpdate += updateGenerationStatus;
             await Task.Run(() =>
             {
                 world.GenerateWorld();
@@ -166,6 +177,8 @@ namespace Vestige.Game.Menus
                     worldGenSuccessful = false;
                 }
             });
+            MenuUpdate -= updateGenerationStatus;
+            RemoveContainerChild(generationStatusContainer);
             if (!worldGenSuccessful)
             {
                 AddContainerChild(_createWorldMenu);

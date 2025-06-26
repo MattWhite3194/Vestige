@@ -48,24 +48,29 @@ namespace Vestige.Game.Items
             return new Item(ID, Name, Description, Image, Origin, Stackable, CanUse, UseSpeed, AutoUse, MaxStack, UseStyle);
         }
 
-        private static Dictionary<int, Item> _items = new Dictionary<int, Item>
+        private static Item[] _items = 
         {
-            {0, new TileItem(0, "Dirt", "Keep your hands off my dirt!", ContentLoader.ItemTextures[0], 1) },
-            {1, new TileItem(1, "Cobblestone", "Hard as a rock.", ContentLoader.ItemTextures[1], 3) },
-            {2, new WeaponItem(2, "Stone Pickaxe", "Go and break something.", ContentLoader.ItemTextures[2], default, false, 0.4f, true, true, 4, 2, UseStyle.Swing, new Pickaxe(35)) }, //0.2f
-            {3, new TileItem(3, "Torch", "Light it up!", ContentLoader.ItemTextures[3], 7) },
-            {4, new LiquidItem(4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], 1) },
-            {5, new TileItem(5, "Chest", "For storing shiny things!", ContentLoader.ItemTextures[5], 8) },
-            {6, new WeaponItem(6, "Steel Axe", "Don't take from my pile.", ContentLoader.ItemTextures[6], default, false, 0.3f, true, true, 12, 1, UseStyle.Swing, new Axe(10)) },
-            {7, new TileItem(7, "Wood Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[7], 9) },
-            {8, new TileItem(8, "Wood Planks", "", ContentLoader.ItemTextures[8], 11) },
-            {9, new Item(9, "Stick", "", ContentLoader.ItemTextures[9], stackable: true) },
-            {10, new WeaponItem(10, "Wood Bow", "", ContentLoader.ItemTextures[10], new Vector2(4, 15), false, 0.5f, true, false, 10, 2, UseStyle.Point, projectileID: 0, projectileSpeed: 500f) }, //500f
-            {11, new WeaponItem(11, "Bomb", "", ContentLoader.ItemTextures[11], default, true, 0.5f, true, false, 10, 2, UseStyle.Throw, projectileID: 1, projectileSpeed: 200f, maxStack: 50) },
-            {12, new TileItem(12, "Wood Platform", "", ContentLoader.ItemTextures[12], 13) },
-            {13, new Item(13, "Coal", "", ContentLoader.ItemTextures[13], stackable: true) },
-            {14, new TileItem(14, "Stone Bricks", "", ContentLoader.ItemTextures[14], 14) },
-            {15, new TileItem(15, "Stone", "", ContentLoader.ItemTextures[15], 4) },
+            new TileItem(0, "Dirt", "Keep your hands off my dirt!", ContentLoader.ItemTextures[0], 1),
+            new TileItem(1, "Cobblestone", "Hard as a rock.", ContentLoader.ItemTextures[1], 3),
+            new WeaponItem(2, "Stone Pickaxe", "Go and break something.", ContentLoader.ItemTextures[2], default, false, 0.4f, true, true, 4, 2, UseStyle.Swing, new Pickaxe(35)), //0.2f
+            new TileItem(3, "Torch", "Light it up!", ContentLoader.ItemTextures[3], 7),
+            new LiquidItem(4, "Water Bucket", "It's a little wet.", ContentLoader.ItemTextures[4], 1),
+            new TileItem(5, "Chest", "For storing shiny things!", ContentLoader.ItemTextures[5], 8),
+            new WeaponItem(6, "Steel Axe", "Don't take from my pile.", ContentLoader.ItemTextures[6], default, false, 0.35f, true, true, 6, 1, UseStyle.Swing, new Axe(10)),
+            new TileItem(7, "Wood Door", "When one door closes, you can't get in anymore.", ContentLoader.ItemTextures[7], 9),
+            new TileItem(8, "Wood Planks", "", ContentLoader.ItemTextures[8], 11),
+            new Item(9, "Stick", "", ContentLoader.ItemTextures[9], stackable: true),
+            new WeaponItem(10, "Wood Bow", "", ContentLoader.ItemTextures[10], new Vector2(4, 15), false, 0.5f, true, false, 10, 2, UseStyle.Point, projectileID: 0, projectileSpeed: 500f), //500f
+            new WeaponItem(11, "Bomb", "", ContentLoader.ItemTextures[11], default, true, 0.5f, true, false, 10, 2, UseStyle.Throw, projectileID: 1, projectileSpeed: 200f, maxStack: 50),
+            new TileItem(12, "Wood Platform", "", ContentLoader.ItemTextures[12], 13),
+            new Item(13, "Coal", "", ContentLoader.ItemTextures[13], stackable: true),
+            new TileItem(14, "Stone Bricks", "", ContentLoader.ItemTextures[14], 14),
+            new TileItem(15, "Stone", "", ContentLoader.ItemTextures[15], 4),
+            new WeaponItem(16, "Steel Pickaxe", "Upgraded breaking thinks.", ContentLoader.ItemTextures[16], default, false, 0.35f, true, true, 5, 2, UseStyle.Swing, new Pickaxe(55)), //0.2f
+            new WeaponItem(17, "Stone Axe", "Go and break something.", ContentLoader.ItemTextures[17], default, false, 0.4f, true, true, 4, 2, UseStyle.Swing, new Axe(6)), //0.2f
+            new WeaponItem(18, "Steel Sword", "Time for dicing.", ContentLoader.ItemTextures[18], default, false, 0.35f, true, true, 11, 3, UseStyle.Swing), //0.2f
+            new WeaponItem(19, "Stone Sword", "Time for slicing.", ContentLoader.ItemTextures[19], default, false, 0.4f, true, true, 7, 2, UseStyle.Swing), //0.2f
+
         };
         public static Item InstantiateItemByID(int id, int quantity = 1)
         {

@@ -44,7 +44,8 @@ namespace Vestige.Game.IO
                     {"screen-height", GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height},
                     {"fullscreen", false },
                     {"ui-scale", 1.0f },
-                    {"smooth-lighting", true }
+                    {"smooth-lighting", true },
+                    {"show-minimap", true }
                 };
             }
         }

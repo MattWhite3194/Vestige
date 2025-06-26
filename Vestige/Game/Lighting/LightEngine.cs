@@ -132,7 +132,19 @@ namespace Vestige.Game.Lighting
             }
             return default;
         }
-        public Vector3 GetLightAsVector(int x, int y)
+        //Lighting is stored centered on a tile, smooth lighting is calculated by corners. In order to get the proper light value for a corner, The max of the four surrounding center points is chosen for the specified corner
+        /// <summary>
+        /// Gets the corresponding light value at the specified corned. Value 0, 0 is the top left corner of the top left tile. Value (1, 1) is the bottom right corner of the top left tile, the top left corner of tile (1, 1) etc...
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        public Color GetCornerLight(int x, int y)
+        {
+            Vector3 totalLight = Vector3.Max(Vector3.Max(GetLightAsVector(x, y), GetLightAsVector(x - 1, y)), Vector3.Max(GetLightAsVector(x, y - 1), GetLightAsVector(x - 1, y - 1)));
+            return new Color(totalLight);
+        }
+        private Vector3 GetLightAsVector(int x, int y)
         {
             if (_paddedDrawBoxMin.X <= x && x < _paddedDrawBoxMax.X && _paddedDrawBoxMin.Y <= y && y < _paddedDrawBoxMax.Y)
             {

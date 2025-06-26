@@ -12,10 +12,11 @@ namespace Vestige.Game.Tiles.WallData
         public readonly string Name;
         public readonly int ItemID;
         public readonly Color MapColor;
-        public DefaultWallData(ushort wallID, string name, int itemID = -1, int health = 100)
+        public DefaultWallData(ushort wallID, string name, Color mapColor, int itemID = -1, int health = 100)
         {
             WallID = wallID;
             Name = name;
+            MapColor = mapColor;
             Health = health;
             ItemID = itemID;
         }

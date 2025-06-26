@@ -35,9 +35,8 @@ namespace Vestige.Game.Menus
             _inventoryManager = inventoryManager;
             _commandTerminal = new CommandTerminal(AddMessageToChat);
             _chatDisplay = new ChatDisplay(position: new Vector2(0, -_commandTerminal.Size.Y), anchor: UI.Anchor.BottomLeft);
-            _activeMenu = inventoryManager;
             _mapMenu = new MapMenu(map);
-            _miniMapMenu = new MiniMapMenu(map, new Vector2(-20, 20), new Vector2(100, 100));
+            _miniMapMenu = new MiniMapMenu(map, new Vector2(-20, 20), new Vector2(150, 150));
             InitializeMenuTransitions();
             _commandTerminal.OnExitTerminal += () =>
             {
@@ -65,14 +64,22 @@ namespace Vestige.Game.Menus
             _optionsPanel.AddContainerChild(optionsGrid);
 
             //settings menu
-            Button LightingSelection = new Button(Vector2.Zero, "Lighting: " + (gameManager.SmoothLighting ? "Smooth" : "Blocky"), Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
-            LightingSelection.OnButtonPress += () =>
-            {
+            Button LightingToggle = new Button(Vector2.Zero, "Lighting: " + (gameManager.SmoothLighting ? "Smooth" : "Blocky"), Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            LightingToggle.OnButtonPress += () =>
+            { 
                 gameManager.SmoothLighting = !gameManager.SmoothLighting;
                 Vestige.Settings.Set("smooth-lighting", gameManager.SmoothLighting);
-                LightingSelection.SetText("Lighting: " + (gameManager.SmoothLighting ? "Smooth" : "Blocky"));
+                LightingToggle.SetText("Lighting: " + (gameManager.SmoothLighting ? "Smooth" : "Blocky"));
             };
-            settingsGrid.AddComponentChild(LightingSelection);
+            settingsGrid.AddComponentChild(LightingToggle);
+            Button MiniMapToggle = new Button(Vector2.Zero, "Mini-Map: " + (gameManager.ShowMiniMap ? "Shown" : "Hidden"), Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: 288);
+            MiniMapToggle.OnButtonPress += () =>
+            {
+                gameManager.ShowMiniMap = !gameManager.ShowMiniMap;
+                Vestige.Settings.Set("show-minimap", gameManager.ShowMiniMap);
+                MiniMapToggle.SetText("Mini-Map: " + (gameManager.ShowMiniMap ? "Shown" : "Hidden"));
+            };
+            settingsGrid.AddComponentChild(MiniMapToggle);
             Slider uiScaleSlider = new Slider(Vector2.Zero, new Vector2(288, 10), "UI Scale:", 50, 200, gameHandle.UserUIScale * 100, "%");
             uiScaleSlider.OnValueChanged += (value) =>
             {
@@ -111,10 +118,7 @@ namespace Vestige.Game.Menus
             settingsGrid.AddComponentChild(fullScreenSelector);
             settingsPanel.AddContainerChild(settingsGrid);
 
-            AddContainerChild(inventoryManager);
-            AddContainerChild(_chatDisplay);
-            AddContainerChild(_miniMapMenu);
-            _activeMenuType = UIMenuType.Inventory;
+            TransitionTo(UIMenuType.Inventory);
         }
         public void AddMessageToChat(string message)
         {
@@ -136,6 +140,7 @@ namespace Vestige.Game.Menus
                     InputManager.MarkInputAsHandled(@event);
                 }
             }
+            //consume all input events if not in the inventory, so input doesn't propogate to the player.
             if (_activeMenu != _inventoryManager)
             {
                 InputManager.MarkInputAsHandled(@event);
@@ -151,7 +156,10 @@ namespace Vestige.Game.Menus
                 case UIMenuType.Inventory:
                     AddContainerChild(_inventoryManager);
                     AddContainerChild(_chatDisplay);
-                    AddContainerChild(_miniMapMenu);
+                    if (_gameManager.ShowMiniMap)
+                    {
+                        AddContainerChild(_miniMapMenu);
+                    }
                     _gameManager.SetGameState(false);
                     _activeMenu = _inventoryManager;
                     break;

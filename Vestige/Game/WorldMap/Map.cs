@@ -20,7 +20,7 @@ namespace Vestige.Game.WorldMap
         }
         public void UpdateMapTile(SpriteBatch spriteBatch, Point position, Color color)
         {
-
+            //TODO: batch updates per frame into an array slice
         }
         public void RevealAllMapTiles()
         {
@@ -29,7 +29,16 @@ namespace Vestige.Game.WorldMap
             {
                 for (int j = 0; j < _world.WorldSize.Y; j++)
                 {
-                    mapTiles[(_world.WorldSize.X * j) + i] = TileDatabase.GetTileData(_world.GetTileID(i, j)).MapColor;
+                    mapTiles[(_world.WorldSize.X * j) + i] = TileDatabase.GetWallData(_world.GetWallID(i, j)).MapColor;
+                    ushort tileID = _world.GetTileID(i, j);
+                    if (tileID != 0)
+                    {
+                        mapTiles[(_world.WorldSize.X * j) + i] = TileDatabase.GetTileData(_world.GetTileID(i, j)).MapColor;
+                    }
+                    if (_world.GetLiquid(i, j) != 0)
+                    {
+                        mapTiles[(_world.WorldSize.X * j) + i] = Color.Blue;
+                    }
                 }
             }
             MapRenderTarget.SetData(mapTiles);

@@ -20,11 +20,11 @@ namespace Vestige.Game.Tiles.TileData
         private readonly ushort[] tileMerges;
 
         //TODO: add WorldGen world to constructor
-        public DefaultTileData(int tileID, string name, TileProperty properties, Color color, int itemID = -1, int wallID = -1, int health = 0, ushort[] tileMerges = null)
+        public DefaultTileData(int tileID, string name, TileProperty properties, Color mapColor, int itemID = -1, int wallID = -1, int health = 0, ushort[] tileMerges = null)
         {
             TileID = tileID;
             Properties = properties;
-            MapColor = color;
+            MapColor = mapColor;
             ItemID = itemID;
             Health = health;
             WallID = wallID;

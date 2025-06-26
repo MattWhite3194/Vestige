@@ -40,6 +40,7 @@ namespace Vestige.Game
         private bool _gamePaused;
         private Map _map;
         public bool SmoothLighting;
+        public bool ShowMiniMap;
 
         public Main(Vestige gameHandle, WorldGen world, WorldFile worldFile, GraphicsDevice graphicsDevice)
         {
@@ -57,6 +58,7 @@ namespace Vestige.Game
             InventoryManager inventory = new InventoryManager(_localPlayer, _worldFile.GetPlayerItems(), 8);
             _localPlayer.Inventory = inventory;
             SmoothLighting = (bool)Vestige.Settings.Get("smooth-lighting");
+            ShowMiniMap = (bool)Vestige.Settings.Get("show-minimap");
 
             //2x supersampling on all render targets
             _wallTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);

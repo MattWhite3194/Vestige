@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using Vestige.Game.Tiles;
 using Vestige.Game.WorldGeneration;
+using Vestige.Game.WorldMap;
 
 namespace Vestige.Game
 {
@@ -68,18 +69,8 @@ namespace Vestige.Game
             WorldGen world = new WorldGen(sizeX, sizeY);
             world.GenerateWorld(seed);
 
-            //Save map of world to png
-            Texture2D Map = new Texture2D(graphicsDevice, sizeX, sizeY);
-            Color[] colorData = new Color[sizeX * sizeY];
-            for (int x = 0; x < sizeX; x++)
-            {
-                for (int y = 0; y < sizeY; y++)
-                {
-                    colorData[x + (y * sizeX)] = TileDatabase.GetTileData(world.GetTileID(x, y)).MapColor;
-                }
-            }
-
-            Map.SetData(colorData);
+            Map map = new Map(world, graphicsDevice);
+            map.RevealAllMapTiles();
             string gamePath = Path.Combine(Vestige.SavePath, "WorldGenerationTests");
             if (!Directory.Exists(gamePath))
             {
@@ -88,7 +79,7 @@ namespace Vestige.Game
             string filePath = Path.Combine(gamePath, "worldGenTest.png");
             using (Stream stream = File.Create(filePath))
             {
-                Map.SaveAsPng(stream, sizeX, sizeY);
+                map.MapRenderTarget.SaveAsPng(stream, sizeX, sizeY);
             }
 
             //open world image
@@ -99,7 +90,7 @@ namespace Vestige.Game
             };
             Process process = Process.Start(psi);
             process.Dispose();
-            Map.Dispose();
+            map.MapRenderTarget.Dispose();
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
             System.GC.WaitForFullGCComplete();

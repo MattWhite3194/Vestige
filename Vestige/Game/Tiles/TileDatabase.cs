@@ -37,13 +37,14 @@ namespace Vestige.Game.Tiles
         ];
 
         //Only add walls here that require special functions, all walls should more or less work the exact same way.
+        //TODO: add 25 to all of these
         private static readonly DefaultWallData[] _wallData = [
-            new DefaultWallData(0, ""),
-            new DefaultWallData(1, "Dirt Wall", 0),
-            new DefaultWallData(2, "Stone Wall", 1),
-            new DefaultWallData(3, "Wood Wall", 8),
-            new DefaultWallData(4, "Cobblestone Wall", 1),
-            new DefaultWallData(5, "Stone Brick Wall", 14)
+            new DefaultWallData(0, "", Color.CornflowerBlue),
+            new DefaultWallData(1, "Dirt Wall", new Color(90, 60, 45), 0),
+            new DefaultWallData(2, "Stone Wall", new Color(78, 78, 78), 1),
+            new DefaultWallData(3, "Wood Wall", new Color(172, 134, 85), 8),
+            new DefaultWallData(4, "Cobblestone Wall", new Color(78, 78, 78), 1),
+            new DefaultWallData(5, "Stone Brick Wall", new Color(78, 78, 78), 14)
         ];
 
         private static Rectangle CreateAtlasRect(int x, int y)

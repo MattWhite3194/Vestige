@@ -47,6 +47,7 @@ namespace Vestige.Game.WorldGeneration
         /// </summary>
         public event Func<bool> OnWorldUpdate;
         private List<Structure> _structures;
+        private string _generationStatus = "";
 
         public WorldGen(int sizeX, int sizeY)
         {
@@ -67,6 +68,8 @@ namespace Vestige.Game.WorldGeneration
             surfaceNoise = Smooth(surfaceNoise, 2);
             int[] surfaceTerrain = new int[WorldSize.X];
             _surfaceHeight = WorldSize.Y;
+
+            _generationStatus = "Generating Terrain";
             //place stone and get surface height
             for (int i = 0; i < WorldSize.X; i++)
             {
@@ -101,9 +104,9 @@ namespace Vestige.Game.WorldGeneration
                     SetTile(i, surfaceTerrain[i] + j, 1);
                 }
             }
-
             SpawnTile = new Point(WorldSize.X / 2, surfaceTerrain[WorldSize.X / 2]);
-            //generate caves
+
+            _generationStatus = "Generating Caves";
             InitializeGradients();
             double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(WorldSize.X, _surfaceHeight, scale: 25, octaves: 4, persistence: 0.5);
             //threshhold cave noise
@@ -144,11 +147,14 @@ namespace Vestige.Game.WorldGeneration
                 }
             }
 
+            _generationStatus = "Generating Rocks";
             //Generate stone chunks in dirt layer
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0002; i++)
             {
                 TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth, SurfaceDepth + _dirtDepth), _random.Next(4, 15), _random.Next(5, 30), 4);
             }
+
+            _generationStatus = "Generating Dirts";
             //Generate dirt chunks in stone layer
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0002; i++)
             {
@@ -159,20 +165,14 @@ namespace Vestige.Game.WorldGeneration
                 TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth + ((_surfaceHeight - _dirtDepth) / 2), WorldSize.Y), _random.Next(4, 10), _random.Next(5, 30), 1);
             }
 
+            _generationStatus = "Generating Ored";
             //Generate Coal
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0005; i++)
             {
                 TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + (_dirtDepth / 2), SurfaceDepth + _dirtDepth + ((_surfaceHeight - _dirtDepth) / 2)), _random.Next(3, 5), _random.Next(5, 8), 12, replaceTiles: new HashSet<int> { 4 });
             }
 
-            //Generate lakes
-            for (int i = 50; i < WorldSize.X - 50; i += _random.Next(50, 300))
-            {
-                if (_random.NextDouble() < 0.25)
-                    continue;
-                GenerateLake(i, surfaceTerrain[i]);
-            }
-
+            _generationStatus = "Adding Buildings";
             //Generate buildings
             for (int i = _random.Next(20, 40); i < WorldSize.X - _random.Next(80, 100); i += (int)Math.Max(200.0f, WorldSize.X * _random.NextDouble() / 5.0f))
             {
@@ -180,6 +180,7 @@ namespace Vestige.Game.WorldGeneration
                     continue;
                 if (Math.Abs((WorldSize.X / 2) - i) < 40)
                     continue;
+                //TODO: move this into building function foor proper door placement and connection
                 Rectangle building = GenerateBuilding(i, surfaceTerrain[i]);
                 for (int j = 0; j < _random.Next(0, 2); j++)
                 {
@@ -190,8 +191,32 @@ namespace Vestige.Game.WorldGeneration
                 _structures.Add(structure);
             }
 
+            _generationStatus = "Adding Lakes";
+            //Generate lakes
+            int numLakes = (int)Math.Ceiling(WorldSize.X / 4200.0f * _random.Next(3, 5));
+            for (int i = 0; i < numLakes; i++)
+            {
+                int x = 0;
+                bool foundSuccessfulPlacement = false;
+                while (!foundSuccessfulPlacement)
+                {
+                    x = _random.Next(50, WorldSize.X - 50);
+                    foundSuccessfulPlacement = true;
+                    if (x >= WorldSize.X / 2 - 50 && x <= WorldSize.X / 2 + 50)
+                        foundSuccessfulPlacement = false;
+                    foreach (Structure structure in _structures)
+                    {
+                        if (new Rectangle(x - 20, surfaceTerrain[x] - 20, 40, 40).Intersects(structure.Bounds))
+                        {
+                            foundSuccessfulPlacement = false;
+                            break;
+                        }
+                    }
+                }
+                GenerateLake(x, surfaceTerrain[x]);
+            }
 
-
+            _generationStatus = "Calculating Tile States";
             //calculate tile states
             for (int i = 1; i < WorldSize.X - 1; i++)
             {
@@ -202,6 +227,7 @@ namespace Vestige.Game.WorldGeneration
                 }
             }
 
+            _generationStatus = "Spreading Grass";
             //spread grass
             for (int i = 0; i < WorldSize.X; i++)
             {
@@ -214,6 +240,7 @@ namespace Vestige.Game.WorldGeneration
                 }
             }
 
+            _generationStatus = "Planting Trees";
             int minTreeDistance = 5;
             int lastTreeX = 10;
             //Plant Trees
@@ -228,8 +255,13 @@ namespace Vestige.Game.WorldGeneration
                 }
             }
 
+            _generationStatus = "Taming The Seas";
             //Settle all liquids
             _liquidUpdater.SettleAll();
+        }
+        public string GetGenerationStatus()
+        {
+            return _generationStatus;
         }
         public void Update(double delta)
         {
@@ -738,9 +770,9 @@ namespace Vestige.Game.WorldGeneration
                 int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + (remainingSize / 2)));
                 int topBound = Math.Max(0, (int)(currentTile.Y - (remainingSize / 2)));
                 int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + (remainingSize / 2)));
-                for (int i = leftBound; i < rightBound; i++)
+                for (int i = leftBound; i <= rightBound; i++)
                 {
-                    for (int j = topBound; j < bottomBound; j++)
+                    for (int j = topBound; j <= bottomBound; j++)
                     {
                         //check distance in a diamond shape + a random offset
                         if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + (_random.Next(-10, 11) * 0.015)))
@@ -757,72 +789,88 @@ namespace Vestige.Game.WorldGeneration
                 tileOffset.X = float.Clamp(tileOffset.X, -1, 1);
             }
         }
+        private void GenerateRoom(int x, int y, int width, int height, ushort tileID, ushort wallID, bool platforms = false, bool chest = false, bool leftDoor = false, bool rightDoor = false, bool windows = false)
+        {
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    if (i == 0 || i == width - 1 || j == 0 || j == height - 1)
+                    {
+                        SetTile(x + i, y - j, tileID);
+                    }
+                    else
+                    {
+                        SetTile(x + i, y - j, 0);
+                        SetWall(x + i, y - j, wallID);
+                    }
+                }
+            }
+            if (platforms)
+            {
+                int platformWidth = _random.Next(2, 5);
+                int platformLocation = _random.Next(1, width - platformWidth);
+                for (int i = platformLocation; i < platformLocation + platformWidth; i++)
+                {
+                    SetTile(x + i, y, 13);
+                    SetWall(x + i, y, wallID);
+                }
+            }
+            if (chest)
+            {
+                int chestLocation = _random.Next(1, width - 2);
+                SetLargeTile(x + chestLocation, y - 1, 8);
+            }
+            if (leftDoor)
+            {
+                SetLargeTile(x, y - 1, 9);
+            }
+            if (rightDoor)
+            {
+                SetLargeTile(x + width - 1, y - 1, 9);
+            }
+            if (windows)
+            {
+                for (int i = -1; i < 1; i++)
+                {
+                    for (int j = -1; j < 1; j++)
+                    {
+                        SetWall(x + width / 2 - width / 4 + i, y - height / 2 + j, 0);
+                        SetWall(x + width / 2 + width / 4 + i, y - height / 2 + j, 0);
+                    }
+                }
+            }
+        }
         private Rectangle GenerateBuilding(int x, int y)
         {
             //TODO: make an entrance to the building before if there is one by adjusting the floor height of one of the layers
             //generate building
             int numFloors = _random.Next(1, 5);
             int width = _random.Next(10, 15);
-            int floorHeight = _random.Next(4, 6);
-            for (int i = 0; i < width; i++)
+            int floorHeight = _random.Next(6, 8);
+            
+            for (int i = 0; i <= floorHeight * (numFloors - 1); i += floorHeight - 1)
             {
-                for (int j = 0; j <= numFloors * floorHeight; j++)
-                {
-                    if (i == 0 || i == width - 1)
-                    {
-                        if (j is 0 or > 3)
-                            SetTile(x + i, y - j, 14);
-                        continue;
-                    }
-                    if (j == 0)
-                    {
-                        SetTile(x + i, y - j, 11);
-                        continue;
-                    }
-                    else if (j % floorHeight == 0 && _random.NextDouble() < 0.75)
-                    {
-                        SetTile(x + i, y - j, 14);
-                    }
-                    if (j != numFloors * floorHeight)
-                    {
-                        SetWall(x + i, y - j, 5);
-                    }
-                }
+                GenerateRoom(x, y - i, width, floorHeight, 14, 5, i != 0, _random.NextSingle() < 0.25f && i != 0, i == 0, windows: i != 0);
             }
             if (_random.Next(0, 2) == 0)
             {
                 int topOffset = _random.Next(-5, 5);
-                Point topMiddle = new Point(x + (width / 2) + topOffset, y - ((numFloors * floorHeight) + 1));
+                Point topMiddle = new Point(x + (width / 2) + topOffset, y - numFloors * (floorHeight - 1));
                 for (int i = topMiddle.X - width; i < topMiddle.X + (width / 2); i++)
                 {
                     for (int j = topMiddle.Y; j < topMiddle.Y + (width / 2); j++)
                     {
-                        if (Math.Sqrt(Math.Pow(i - topMiddle.X, 2) + Math.Pow(j - topMiddle.Y, 2)) < width / 2)
+                        if (Math.Sqrt(Math.Pow(i - topMiddle.X, 2) + Math.Pow(j - topMiddle.Y, 2)) < width / 2 + _random.Next(-2, 3))
                         {
-                            SetTile(i, j, 0);
+                            if (GetTileID(i, j) != 9)
+                            {
+                                SetTile(i, j, 0);
+                            }
                             SetWall(i, j, 0);
                         }
                     }
                 }
-            }
-            for (int j = floorHeight; j < numFloors * floorHeight; j += floorHeight)
-            {
-                //random platform
-                int platformWidth = _random.Next(2, 5);
-                int platformLocation = _random.Next(1, width - platformWidth);
-                for (int k = platformLocation; k < platformLocation + platformWidth; k++)
-                {
-                    SetTile(x + k, y - j, 13);
-                }
-                if (_random.NextDouble() < 0.25)
-                    continue;
-                int chestLocation = _random.Next(1, width - 2);
-                for (int k = chestLocation; k < chestLocation + 2; k++)
-                {
-                    if (GetTileID(x + k, y - j) == 0)
-                        SetTile(x + k, y - j, 14);
-                }
-                SetLargeTile(x + chestLocation, y - j - 1, 8);
             }
             //fill in bottom
             for (int i = 0; i < width; i++)
@@ -838,28 +886,35 @@ namespace Vestige.Game.WorldGeneration
         }
         private void GenerateLake(int x, int y)
         {
-            float size = _random.Next(5, 20);
-            int passes = _random.Next(3, 15);
-            double remainingSize = size;
-            double remainingPasses = passes;
+            //TODO: make this better
+            //-------------------
+            //---             ---
+            //-------------------
+            //long ovals that shrink as they go down, and possibly offset
+            float size = _random.Next(8, 15);
+            int passes = _random.Next(5, 10);
+            float remainingSize = size;
+            float remainingPasses = passes;
             Vector2 currentTile = new Vector2(x, y);
-            Vector2 tileOffset = new Vector2(_random.Next(-10, 11) * 0.1f, 1);
+            Vector2 tileOffset = new Vector2(_random.Next(-10, 11) * 0.01f, 0.5f);
             while (remainingSize > 0.0 && remainingPasses > 0.0)
             {
-                //decrease strength each pass
+                float xRadius = (remainingSize / 2.0f) * MathHelper.Lerp(0.3f, 1.4f, remainingPasses / passes);
+                float yRadius = (remainingSize / 4.0f) * MathHelper.Lerp(5.0f, 1.0f, remainingPasses / passes);
+                int leftBound = Math.Max(0, (int)(currentTile.X - xRadius));
+                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + xRadius));
+                int topBound = Math.Max(0, (int)(currentTile.Y - yRadius));
+                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + yRadius));
+
                 remainingSize = size * (remainingPasses / passes);
-                remainingPasses -= 1.0;
-                //Rectangle around point with width = remainingStrength and height = remainingStrength
-                int leftBound = Math.Max(0, (int)(currentTile.X - (remainingSize / 2)));
-                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + (remainingSize / 2)));
-                int topBound = Math.Max(0, (int)(currentTile.Y - (remainingSize / 2)));
-                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + (remainingSize / 2)));
-                for (int i = leftBound; i < rightBound; i++)
+                remainingPasses -= 1.0f;
+                for (int i = leftBound; i <= rightBound; i++)
                 {
-                    for (int j = topBound; j < bottomBound; j++)
+                    for (int j = topBound; j <= bottomBound; j++)
                     {
-                        //check distance in a diamond shape + a random offset
-                        if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + (_random.Next(-10, 11) * 0.015)))
+                        float dx = (i - currentTile.X) / xRadius;
+                        float dy = (j - currentTile.Y) / yRadius;
+                        if (dx * dx + dy * dy < 1)
                         {
                             SetTile(i, j, 0);
                             if (j >= y)
@@ -870,8 +925,10 @@ namespace Vestige.Game.WorldGeneration
                     }
                 }
                 currentTile += tileOffset;
-                tileOffset.X += _random.Next(-10, 11) * 0.05f;
+                tileOffset.X += _random.Next(-100, 101) * 0.05f;
+                tileOffset.Y += _random.Next(-100, 101) * 0.01f;
                 tileOffset.X = float.Clamp(tileOffset.X, -1, 1);
+                tileOffset.Y = float.Clamp(tileOffset.Y, -1, 1);
             }
         }
     }

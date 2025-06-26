@@ -55,11 +55,10 @@ namespace Vestige.Game.Renderers
                     ushort wallID = Main.World.GetWallID(i, j);
                     if (wallID == 0)
                         continue;
-                    //Lighting is stored on a tile basis, smooth lighting is calculated by corners. In order to get the proper light value for a corner, the top left and bottom right tiles from the corner are averaged.
-                    Color tl = new Color((Main.LightEngine.GetLightAsVector(i, j) + Main.LightEngine.GetLightAsVector(i - 1, j - 1)) / 2.0f);
-                    Color tr = new Color((Main.LightEngine.GetLightAsVector(i + 1, j) + Main.LightEngine.GetLightAsVector(i, j - 1)) / 2.0f);
-                    Color bl = new Color((Main.LightEngine.GetLightAsVector(i, j + 1) + Main.LightEngine.GetLightAsVector(i - 1, j)) / 2.0f);
-                    Color br = new Color((Main.LightEngine.GetLightAsVector(i + 1, j + 1) + Main.LightEngine.GetLightAsVector(i, j)) / 2.0f);
+                    Color tl = Main.LightEngine.GetCornerLight(i, j);
+                    Color tr = Main.LightEngine.GetCornerLight(i + 1, j);
+                    Color bl = Main.LightEngine.GetCornerLight(i, j + 1);
+                    Color br = Main.LightEngine.GetCornerLight(i + 1, j + 1);
                     TileDatabase.GetWallData(wallID).DrawPrimitive(graphicsDevice, _tileDrawEffect, i, j, Main.World.GetWallState(i, j), tl, tr, bl, br);
                 }
             }
@@ -122,11 +121,10 @@ namespace Vestige.Game.Renderers
                         continue;
                     else if (!background && !TileDatabase.TileHasProperties(tileID, TileProperty.Solid))
                         continue;
-                    //Lighting is stored on a tile basis, smooth lighting is calculated by corners. In order to get the proper light value for a corner, the top left and bottom right tiles from the corner are averaged.
-                    Color tl = new Color((Main.LightEngine.GetLightAsVector(i, j) + Main.LightEngine.GetLightAsVector(i - 1, j - 1)) / 2.0f);
-                    Color tr = new Color((Main.LightEngine.GetLightAsVector(i + 1, j) + Main.LightEngine.GetLightAsVector(i, j - 1)) / 2.0f);
-                    Color bl = new Color((Main.LightEngine.GetLightAsVector(i, j + 1) + Main.LightEngine.GetLightAsVector(i - 1, j)) / 2.0f);
-                    Color br = new Color((Main.LightEngine.GetLightAsVector(i + 1, j + 1) + Main.LightEngine.GetLightAsVector(i, j)) / 2.0f);
+                    Color tl = Main.LightEngine.GetCornerLight(i, j);
+                    Color tr = Main.LightEngine.GetCornerLight(i + 1, j);
+                    Color bl = Main.LightEngine.GetCornerLight(i, j + 1);
+                    Color br = Main.LightEngine.GetCornerLight(i + 1, j + 1);
                     TileDatabase.GetTileData(tileID).DrawPrimitive(graphicsDevice, _tileDrawEffect, i, j, Main.World.GetTileState(i, j), tl, tr, bl, br);
                 }
             }
@@ -211,10 +209,10 @@ namespace Vestige.Game.Renderers
                             sourceRect = new Rectangle(0, 0, Vestige.TILESIZE, textureOffset);
                             position = new Vector2(i * Vestige.TILESIZE, (j * Vestige.TILESIZE) + Vestige.TILESIZE - textureOffset);
                         }
-                        Color topLeft = new Color((Main.LightEngine.GetLightAsVector(i, j) + Main.LightEngine.GetLightAsVector(i - 1, j - 1)) / 2.0f);
-                        Color topRight = new Color((Main.LightEngine.GetLightAsVector(i + 1, j) + Main.LightEngine.GetLightAsVector(i, j - 1)) / 2.0f);
-                        Color bottomLeft = new Color((Main.LightEngine.GetLightAsVector(i, j + 1) + Main.LightEngine.GetLightAsVector(i - 1, j)) / 2.0f);
-                        Color bottomRight = new Color((Main.LightEngine.GetLightAsVector(i + 1, j + 1) + Main.LightEngine.GetLightAsVector(i, j)) / 2.0f);
+                        Color tl = Main.LightEngine.GetCornerLight(i, j);
+                        Color tr = Main.LightEngine.GetCornerLight(i + 1, j);
+                        Color bl = Main.LightEngine.GetCornerLight(i, j + 1);
+                        Color br = Main.LightEngine.GetCornerLight(i + 1, j + 1);
                         Texture2D liquidTexture = ContentLoader.LiquidTexture;
                         Vector2 uvTopLeft = new Vector2(
                             sourceRect.X / (float)liquidTexture.Width,
@@ -225,15 +223,15 @@ namespace Vestige.Game.Renderers
                             (sourceRect.X + sourceRect.Width) / (float)liquidTexture.Width,
                             (sourceRect.Y + sourceRect.Height) / (float)liquidTexture.Height
                         );
-                        VertexPositionColorTexture[] vertices = new VertexPositionColorTexture[6]
+                        VertexPositionColorTexture[] vertices =
                         {
-                        new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f),               topLeft,     uvTopLeft),
-                        new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + sourceRect.Height, 0f), bottomRight, uvBottomRight),
-                        new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y, 0f),    topRight,    new Vector2(uvBottomRight.X, uvTopLeft.Y)),
+                            new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f), tl, uvTopLeft),
+                            new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + sourceRect.Height, 0f), br, uvBottomRight),
+                            new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y, 0f), tr, new Vector2(uvBottomRight.X, uvTopLeft.Y)),
 
-                        new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f),               topLeft,     uvTopLeft),
-                        new VertexPositionColorTexture(new Vector3(position.X, position.Y + sourceRect.Height, 0f),    bottomLeft,  new Vector2(uvTopLeft.X, uvBottomRight.Y)),
-                        new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + sourceRect.Height, 0f), bottomRight, uvBottomRight),
+                            new VertexPositionColorTexture(new Vector3(position.X, position.Y, 0f), tl, uvTopLeft),
+                            new VertexPositionColorTexture(new Vector3(position.X, position.Y + sourceRect.Height, 0f), bl, new Vector2(uvTopLeft.X, uvBottomRight.Y)),
+                            new VertexPositionColorTexture(new Vector3(position.X + Vestige.TILESIZE, position.Y + sourceRect.Height, 0f), br, uvBottomRight),
                         };
                         foreach (EffectPass pass in ContentLoader.WaterShader.CurrentTechnique.Passes)
                         {
