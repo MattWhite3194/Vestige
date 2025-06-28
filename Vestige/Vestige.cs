@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -94,7 +95,7 @@ namespace Vestige
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ContentLoader.Load(Content);
-
+            Mouse.SetCursor(MouseCursor.FromTexture2D(ContentLoader.Squircle, 0, 0));
             base.LoadContent();
         }
         protected override void BeginRun()
@@ -126,7 +127,7 @@ namespace Vestige
         }
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.Gray);
+            GraphicsDevice.Clear(Color.Black);
             _gameManager?.Draw(_spriteBatch, gameTime);
 
             UIManager.Draw(_spriteBatch);

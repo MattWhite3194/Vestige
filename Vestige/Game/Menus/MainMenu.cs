@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Vestige.Game.Drawables;
 using Vestige.Game.IO;
+using Vestige.Game.Time;
 using Vestige.Game.UI;
 using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
@@ -34,22 +35,43 @@ namespace Vestige.Game.Menus
         private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _worldSortMethod;
         private EventHandler _updateResolutionText;
         private event Action MenuUpdate;
+        private Texture2D _backgroundGradient;
+        private SunMoon _sunMoon;
+        private GameClock _gameClock;
+
+        private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _sortByDateDescending = (List<(UIContainer worldContainer, Dictionary<string, string> metaData)> worldContainers) =>
+        {
+            return worldContainers.OrderByDescending(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
+        };
+        private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _sortByDateAscending = (List<(UIContainer worldContainer, Dictionary<string, string> metaData)> worldContainers) =>
+        {
+            return worldContainers.OrderBy(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
+        };
+        private Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>> _sortByName = (List<(UIContainer worldContainer, Dictionary<string, string> metaData)> worldContainers) =>
+        {
+            return worldContainers.OrderBy(s => s.metaData["Name"]).Select(s => s.worldContainer).ToList();
+        };
 
         public MainMenu(Vestige gameHandle, GraphicsDevice graphicsDevice) : base(anchor: Anchor.None)
         {
             _parallaxOffset = new Vector2(0, Vestige.NativeResolution.Y);
             parallaxManager = new ParallaxManager();
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(2f, 0), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(30f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(35f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
-            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(40f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
-            _worldSortMethod = SortWorldsByDateDescending;
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.5f, 0), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new Clouds(ContentLoader.Clouds, new Vector2(1f, 0f), _parallaxOffset, 0, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFarthestBackground, new Vector2(5f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesFartherBackground, new Vector2(10f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.TreesBackground, new Vector2(15f, 1), _parallaxOffset, Vestige.NativeResolution.Y + 50, -1));
+            _worldSortMethod = _sortByDateDescending;
             _game = gameHandle;
             _graphicsDevice = graphicsDevice;
             _subMenus = new Stack<UIContainer>();
             _startMenu = new UIContainer(position: new Vector2(0, 40), size: new Vector2(288, 800), anchor: Anchor.TopMiddle);
             _createWorldMenu = new PanelContainer(Vector2.Zero, new Vector2(288, 150), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
             _settingsMenu = new GridContainer(1);
+            _gameClock = new GameClock();
+            _gameClock.SetGameClock(50, 100);
+            _backgroundGradient = Utilities.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], Vestige.NativeResolution.Y);
+            _sunMoon = new SunMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
 
             //start menu
             Label _titleLabel = new Label(new Vector2(0, 0), "Vestige", Vector2.Zero, color: Vestige.HighlightedTextColor, scale: 4.0f, maxWidth: 288);
@@ -135,14 +157,18 @@ namespace Vestige.Game.Menus
         public override void Update(double delta)
         {
             MenuUpdate?.Invoke();
+            _gameClock.Update(delta);
             _parallaxOffset.X += (float)delta;
+            _sunMoon.UpdatePosition(new Vector2(-50, 200), (float)_gameClock.GetCycleTime(), _gameClock.TotalDayCycleTime / 2, Vestige.NativeResolution.X + 50, -100);
             parallaxManager.Update(delta, _parallaxOffset);
             base.Update(delta);
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(Size.X / (float)Vestige.NativeResolution.X));
-            parallaxManager.Draw(spriteBatch, Color.White);
+            spriteBatch.Draw(_backgroundGradient, new Rectangle(Point.Zero, Vestige.NativeResolution), new Color(_gameClock.GlobalLight, _gameClock.GlobalLight, _gameClock.GlobalLight));
+            _sunMoon.Draw(spriteBatch);
+            parallaxManager.Draw(spriteBatch, new Color(_gameClock.GlobalLight, _gameClock.GlobalLight, _gameClock.GlobalLight));
             spriteBatch.End();
             base.Draw(spriteBatch, rasterizerState);
         }
@@ -191,8 +217,6 @@ namespace Vestige.Game.Menus
         {
             _loadGameMenu = new PanelContainer(Vector2.Zero, new Vector2(320, 330), Vestige.UIPanelColor, new Color(0, 0, 0, 255), 20, 1, 10, _graphicsDevice);
             //TODO: Attach sort method function as object to dropdown container, resort the world list on OnSelectionChanged.
-            DropdownContainer sortMethodContainer = new DropdownContainer([(1, "Date Ascending"), (2, "Date Descending"), (3, "Name")], Color.White, Vestige.SelectedTextColor, Vestige.HighlightedTextColor, position: new Vector2(-20, 0), buttonWidth: 150, anchor: Anchor.BottomLeft);
-            _loadGameMenu.AddContainerChild(sortMethodContainer);
             ScrollContainer worldList = new ScrollContainer(Vector2.Zero, size: new Vector2(320, 320), anchor: Anchor.TopMiddle);
             string savePath = Path.Combine(Vestige.SavePath, "Worlds");
             if (!Path.Exists(savePath))
@@ -211,16 +235,17 @@ namespace Vestige.Game.Menus
                 worldList.AddContainerChild(container);
             }
             _loadGameMenu.AddContainerChild(worldList);
-            AddSubMenu(_loadGameMenu);
-        }
 
-        private List<UIContainer> SortWorldsByDateDescending(List<(UIContainer worldContainer, Dictionary<string, string> metaData)> worldContainers)
-        {
-            return worldContainers.OrderByDescending(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
-        }
-        private List<UIContainer> SortWorldsByDateAscending(List<(UIContainer worldContainer, Dictionary<string, string> metaData)> worldContainers)
-        {
-            return worldContainers.OrderBy(s => DateTime.ParseExact(s.metaData["Date"], "MMM dd, yyyy - h:mm tt", CultureInfo.InvariantCulture)).Select(s => s.worldContainer).ToList();
+            DropdownContainer sortMethodContainer = new DropdownContainer([(_sortByDateAscending, "Date Ascending"), (_sortByDateDescending, "Date Descending"), (_sortByName, "Name")], Color.White, Vestige.SelectedTextColor, Vestige.HighlightedTextColor, position: new Vector2(-20, -20), defaultSelected: _worldSortMethod, buttonWidth: 150, anchor: Anchor.TopLeft);
+            sortMethodContainer.OnSelectionChanged += (object selection) =>
+            {
+                _worldSortMethod = (Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>>)selection;
+                RemoveSubMenu();
+                ListWorlds();
+            };
+            _loadGameMenu.AddContainerChild(sortMethodContainer);
+
+            AddSubMenu(_loadGameMenu);
         }
 
         private (UIContainer, Dictionary<string, string>) GetWorldContainer(string path)
@@ -275,8 +300,6 @@ namespace Vestige.Game.Menus
             {
                 File.Delete(path);
                 Directory.Delete(Path.GetDirectoryName(path));
-                RemoveSubMenu();
-                RemoveSubMenu();
                 ListWorlds();
             };
             confirmDeletionMenu.AddComponentChild(deleteButton);

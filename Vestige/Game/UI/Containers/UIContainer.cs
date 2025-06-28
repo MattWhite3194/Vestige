@@ -120,7 +120,7 @@ namespace Vestige.Game.UI.Containers
         {
             spriteBatch.Begin(sortMode: SpriteSortMode.Deferred, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, null, transformMatrix: AnchorMatrix, rasterizerState: rasterizerState);
             DrawComponents(spriteBatch);
-            //DebugHelper.DrawOutlineRectangle(spriteBatch, new Rectangle(Point.Zero, Size.ToPoint()), Color.Red);
+            //Utilities.DrawOutlineRectangle(spriteBatch, new Rectangle(Point.Zero, Size.ToPoint()), Color.Red);
             spriteBatch.End();
             foreach (UIContainer uiComponentContainer in _containerChildren)
             {

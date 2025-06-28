@@ -64,13 +64,19 @@ namespace Vestige.Game.Menus
                 _mapPosition = _mapPositionOnGrab + (_offset / (_userZoom * _defaultZoom));
             }
             float mapWidth = _map.MapRenderTarget.Width * (_userZoom * _defaultZoom) * (parentSize.X / Vestige.NativeResolution.X);
-            _mapPosition = mapWidth > parentSize.X
-                ? Vector2.Clamp(_mapPosition, new Vector2(-(mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y), new Vector2((mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y))
-                : Vector2.Clamp(_mapPosition, new Vector2((-parentSize.X + mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y), new Vector2((parentSize.X - mapWidth) / 2.0f / (_userZoom * _defaultZoom), _mapPosition.Y));
+            Vector2 clampedPosition = _mapPosition;
+            clampedPosition = mapWidth > parentSize.X
+                ? Vector2.Clamp(clampedPosition, new Vector2(-(mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), clampedPosition.Y), new Vector2((mapWidth - parentSize.X) / 2.0f / (_userZoom * _defaultZoom), clampedPosition.Y))
+                : Vector2.Clamp(clampedPosition, new Vector2((-parentSize.X + mapWidth) / 2.0f / (_userZoom * _defaultZoom), clampedPosition.Y), new Vector2((parentSize.X - mapWidth) / 2.0f / (_userZoom * _defaultZoom), clampedPosition.Y));
             float mapHeight = _map.MapRenderTarget.Height * (_userZoom * _defaultZoom) * (parentSize.X / Vestige.NativeResolution.X);
-            _mapPosition = mapHeight > parentSize.Y
-                ? Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, -(mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)))
-                : Vector2.Clamp(_mapPosition, new Vector2(_mapPosition.X, (-parentSize.Y + mapHeight) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(_mapPosition.X, (parentSize.Y - mapHeight) / 2.0f / (_userZoom * _defaultZoom)));
+            clampedPosition = mapHeight > parentSize.Y
+                ? Vector2.Clamp(clampedPosition, new Vector2(clampedPosition.X, -(mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(clampedPosition.X, (mapHeight - parentSize.Y) / 2.0f / (_userZoom * _defaultZoom)))
+                : Vector2.Clamp(clampedPosition, new Vector2(clampedPosition.X, (-parentSize.Y + mapHeight) / 2.0f / (_userZoom * _defaultZoom)), new Vector2(clampedPosition.X, (parentSize.Y - mapHeight) / 2.0f / (_userZoom * _defaultZoom)));
+            if (_mouseDown)
+            {
+                _mapPositionOnGrab -= _mapPosition - clampedPosition;
+            }
+            _mapPosition = clampedPosition;
         }
         public override void Draw(SpriteBatch spriteBatch, RasterizerState rasterizerState = null)
         {

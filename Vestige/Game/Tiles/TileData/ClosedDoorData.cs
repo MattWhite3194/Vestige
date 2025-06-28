@@ -25,7 +25,9 @@ namespace Vestige.Game.Tiles.TileData
         {
             if (entity is not Player) return;
             Vector2 topLeft = GetTopLeft(world, x, y).ToVector2() * Vestige.TILESIZE;
-
+            CollisionRectangle bounds = entity.GetBounds();
+            if (bounds.Top < topLeft.Y || bounds.Bottom > topLeft.Y + Vestige.TILESIZE * TileSize.Y)
+                return;
             int forceDirection = Math.Sign(topLeft.X - entity.Position.X);
             OpenDoor(world, x, y, forceDirection, true);
         }

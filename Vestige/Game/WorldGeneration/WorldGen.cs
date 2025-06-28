@@ -886,11 +886,6 @@ namespace Vestige.Game.WorldGeneration
         }
         private void GenerateLake(int x, int y)
         {
-            //TODO: make this better
-            //-------------------
-            //---             ---
-            //-------------------
-            //long ovals that shrink as they go down, and possibly offset
             float size = _random.Next(8, 15);
             int passes = _random.Next(5, 10);
             float remainingSize = size;

@@ -5,9 +5,9 @@ using System.Collections.Generic;
 
 namespace Vestige.Game.Drawables
 {
-    public class SunAndMoon : Sprite
+    public class SunMoon : Sprite
     {
-        public SunAndMoon(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, Color color = default, List<(int, int)> animationFrames = null) : base(image, position, size, origin, color, animationFrames)
+        public SunMoon(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, Color color = default, List<(int, int)> animationFrames = null) : base(image, position, size, origin, color, animationFrames)
         {
         }
         public override void Update(double delta)

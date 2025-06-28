@@ -16,11 +16,31 @@ namespace Vestige.Game.UI.Containers
         private GridContainer _dropdownMenu;
         private Button _dropdownToggleButton;
         public Action<object> OnSelectionChanged;
-        public DropdownContainer(List<(object selection, string label)> selections, Color buttonColor, Color buttonSelectedColor, Color buttonHoveredColor, int buttonWidth = 50, int margin = 5, Vector2 position = default, Vector2 size = default, int defaultSelected = 0, Anchor anchor = Anchor.MiddleMiddle) : base(position, size, anchor)
+        public DropdownContainer(List<(object selection, string label)> selections, Color buttonColor, Color buttonSelectedColor, Color buttonHoveredColor, int buttonWidth = 50, int margin = 5, Vector2 position = default, Vector2 size = default, object defaultSelected = null, Anchor anchor = Anchor.MiddleMiddle) : base(position, size, anchor)
         {
             _buttonColor = buttonColor;
             _buttonSelectedColor = buttonSelectedColor;
             _selections = selections;
+            if (selections.Count > 0)
+            {
+                if (defaultSelected == null)
+                {
+                    defaultSelected = selections[0].selection;
+                    _selectedIndex = 0;
+                }
+                else
+                {
+                    for (int i = 0; i < _selections.Count; i++)
+                    {
+                        if (selections[i].selection == defaultSelected)
+                        {
+                            _selected = selections[i].selection;
+                            _selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
             _dropdownToggleButton = new Button(new Vector2(0, 0), _selections[_selectedIndex].label, Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: buttonWidth);
             _dropdownToggleButton.OnButtonPress += () =>
             {
@@ -49,14 +69,7 @@ namespace Vestige.Game.UI.Containers
                 };
                 _dropdownMenu.AddComponentChild(label);
             }
-            if (defaultSelected >= selections.Count)
-                defaultSelected = 0;
-            if (selections.Count > 0)
-            {
-                _selected = selections[defaultSelected].selection;
-                _selectedIndex = defaultSelected;
-                _dropdownMenu.GetComponentChild(0).Color = buttonSelectedColor;
-            }
+            _dropdownMenu.GetComponentChild(_selectedIndex).Color = buttonSelectedColor;
             AddComponentChild(_dropdownToggleButton);
         }
         private void OnSelectionLabelInput(MouseInputEvent @mouseEvent, int index)

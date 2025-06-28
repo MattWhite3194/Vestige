@@ -36,7 +36,7 @@ namespace Vestige.Game
         private Texture2D _daytimeSkyGradient;
         private Vestige _gameHandle;
         private Player _localPlayer;
-        private SunAndMoon _sunMoon;
+        private SunMoon _sunMoon;
         private bool _gamePaused;
         private Map _map;
         public bool SmoothLighting;
@@ -65,7 +65,7 @@ namespace Vestige.Game
             _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 2, Vestige.NativeResolution.Y * 2);
             _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.NativeResolution.X * 4, Vestige.NativeResolution.Y * 4);
-            _sunMoon = new SunAndMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
+            _sunMoon = new SunMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
 
             _map = new Map(World, graphicsDevice);
             //TEMPORARY: This reveals all tiles in the world at the start.

@@ -35,11 +35,11 @@ namespace Vestige.Game.Time
             TotalDayCycleTime = totalDayCycleTime;
             _timeToLightGradient = [
                 (0, 40),
-                ((totalDayCycleTime/4) - (totalDayCycleTime/8), 40),
-                ((totalDayCycleTime/4) + (totalDayCycleTime/8), 255),
+                ((totalDayCycleTime/4) - (totalDayCycleTime/16), 40),
+                ((totalDayCycleTime/4) + (totalDayCycleTime/16), 255),
 
-                ((totalDayCycleTime/2) + (totalDayCycleTime/4) - (totalDayCycleTime/8), 255),
-                ((totalDayCycleTime/2) + (totalDayCycleTime/4) + (totalDayCycleTime/8), 40),
+                ((totalDayCycleTime/2) + (totalDayCycleTime/4) - (totalDayCycleTime/16), 255),
+                ((totalDayCycleTime/2) + (totalDayCycleTime/4) + (totalDayCycleTime/16), 40),
                 (totalDayCycleTime, 40)
             ];
         }
