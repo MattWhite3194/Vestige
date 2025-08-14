@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Vestige.Game.Input;
+using Vestige.Game.Time;
 using Vestige.Game.UI.Components;
 using Vestige.Game.UI.Containers;
 using Vestige.Game.WorldMap;
@@ -82,7 +83,8 @@ namespace Vestige.Game.Menus
         {
             //Draw this without an anchor matrix
             spriteBatch.Begin();
-            Utilities.DrawFilledRectangle(spriteBatch, new Rectangle(0, 0, (int)parentSize.X, (int)parentSize.Y), Color.DarkBlue);
+            int globalLight = Main.GameClock.GlobalLight;
+            spriteBatch.Draw(Main.DayTimeSkyGradient, new Rectangle(Point.Zero, new Point((int)parentSize.X, (int)parentSize.Y)), new Color(globalLight, globalLight, globalLight));
             spriteBatch.End();
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(parentSize.X / Vestige.NativeResolution.X) * Matrix.CreateTranslation(new Vector3((parentSize / 2.0f) + (_mapPosition * (_userZoom * _defaultZoom)), 0)));
             spriteBatch.Draw(_map.MapRenderTarget, Vector2.Zero, null, Color.White, 0.0f, _mapOrigin, _userZoom * _defaultZoom, SpriteEffects.None, 0.0f);

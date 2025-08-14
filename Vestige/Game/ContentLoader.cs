@@ -28,6 +28,7 @@ namespace Vestige.Game
         public static Texture2D SunMoonTexture;
         public static Texture2D Squircle;
         public static Texture2D Clouds;
+        public static Texture2D SkyGradientTexture;
         //Shaders
         public static Effect WaterShader;
 

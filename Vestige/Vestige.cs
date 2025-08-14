@@ -56,8 +56,8 @@ namespace Vestige
         /*
          Charcoal Gray - Color(42, 45, 48, 196)
          Steel Blue - Color(58, 74, 89, 196)
-         Mist Gray - Color(94, 108, 116, 196)
          Icy Blue - Color(163, 213, 255, 255)
+         Mist Gray - Color(94, 108, 116, 196)
          Pine Green - Color(58, 90, 64, 255)
          Desaturated Gold - Color(191, 167, 111, 255)
          */
@@ -95,7 +95,6 @@ namespace Vestige
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             ContentLoader.Load(Content);
-            Mouse.SetCursor(MouseCursor.FromTexture2D(ContentLoader.Squircle, 0, 0));
             base.LoadContent();
         }
         protected override void BeginRun()
@@ -114,16 +113,11 @@ namespace Vestige
                 base.Update(gameTime);
                 return;
             }
-            //get input
             InputManager.Update();
-
-            //update ui
             UIManager.Update(gameTime.ElapsedGameTime.TotalSeconds);
-            //update game
             _gameManager?.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
             base.Update(gameTime);
-
         }
         protected override void Draw(GameTime gameTime)
         {

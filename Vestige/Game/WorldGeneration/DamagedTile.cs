@@ -13,17 +13,17 @@
         /// <summary>
         /// The time left before the tile is removed from the dictionary and any damage done is reset
         /// </summary>
-        public double Time;
+        public double TimeLeft;
         public int X, Y;
         public ushort TileID;
 
         //TODO: use this for drawing order of these
         public int Layer;
-        public DamagedTile(int X, int Y, ushort tileID, int health, int totalTileHealth, int time)
+        public DamagedTile(int X, int Y, ushort tileID, int health, int timeLeft)
         {
-            TotalTileHealth = totalTileHealth;
+            TotalTileHealth = health;
             Health = health;
-            Time = time;
+            TimeLeft = timeLeft;
             this.X = X;
             this.Y = Y;
         }

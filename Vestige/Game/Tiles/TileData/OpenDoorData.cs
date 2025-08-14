@@ -16,6 +16,7 @@ namespace Vestige.Game.Tiles.TileData
         public override int VerifyTile(WorldGen world, int x, int y)
         {
             Point topLeft = GetTopLeft(world, x, y);
+            //What is this doing? I forgor
             if (world.GetTileID(topLeft.X, topLeft.Y) != TileID)
                 return 1;
             int closeDirection = world.GetTileState(topLeft.X, topLeft.Y) % 10 >= TileSize.X ? 1 : 0;

@@ -7,6 +7,7 @@ namespace Vestige.Game.Drawables
 {
     public class SunMoon : Sprite
     {
+        private float _piOver8 = 0.392699f;
         public SunMoon(Texture2D image, Vector2 position, Vector2 size = default, Vector2 origin = default, Color color = default, List<(int, int)> animationFrames = null) : base(image, position, size, origin, color, animationFrames)
         {
         }
@@ -18,6 +19,7 @@ namespace Vestige.Game.Drawables
         {
             float normalizedTime = time / maxTime;
             float xTravel = maxPosition - startPosition.X;
+            Rotation = normalizedTime * MathHelper.PiOver4 - _piOver8;
             Position = startPosition + new Vector2(normalizedTime * xTravel, (float)Math.Sin(MathHelper.Pi * normalizedTime) * maxYOffset);
         }
     }

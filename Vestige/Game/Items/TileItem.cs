@@ -8,7 +8,7 @@ namespace Vestige.Game.Items
     public class TileItem : Item
     {
         public readonly ushort TileID;
-        public TileItem(int id, string name, string description, Texture2D image, ushort tileID, int maxStack = 999) : base(id, name, description, image, default, true, true, 0.15f, true, maxStack, UseStyle.Swing)
+        public TileItem(int id, string name, string description, Texture2D image, ushort tileID, int maxStack = 999) : base(id, name, description, image, default, true, true, 0.2f, true, maxStack, UseStyle.Swing)
         {
             TileID = tileID;
         }
@@ -21,11 +21,9 @@ namespace Vestige.Game.Items
             if (altUse)
             {
                 int wallID = TileDatabase.GetTileData(TileID).WallID;
-                return wallID != -1
-&& Main.World.GetWallID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceWall(mouseTilePosition.X, mouseTilePosition.Y, (byte)wallID);
+                return wallID != -1 && Main.World.GetWallID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceWall(mouseTilePosition.X, mouseTilePosition.Y, (byte)wallID);
             }
-            return (!Main.EntityManager.TileOccupied(mouseTilePosition.X, mouseTilePosition.Y) || !TileDatabase.TileHasProperties(TileID, TileProperty.Solid))
-&& Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID);
+            return (!Main.EntityManager.TileOccupied(mouseTilePosition.X, mouseTilePosition.Y) || !TileDatabase.TileHasProperties(TileID, TileProperty.Solid)) && Main.World.GetTileID(mouseTilePosition.X, mouseTilePosition.Y) == 0 && Main.World.PlaceTile(mouseTilePosition.X, mouseTilePosition.Y, TileID);
         }
         protected override Item CloneItem()
         {

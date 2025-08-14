@@ -300,6 +300,8 @@ namespace Vestige.Game.Menus
             {
                 File.Delete(path);
                 Directory.Delete(Path.GetDirectoryName(path));
+                RemoveSubMenu();
+                RemoveSubMenu();
                 ListWorlds();
             };
             confirmDeletionMenu.AddComponentChild(deleteButton);

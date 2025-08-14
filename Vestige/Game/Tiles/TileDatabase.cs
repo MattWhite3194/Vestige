@@ -34,6 +34,7 @@ namespace Vestige.Game.Tiles
             new DefaultTileData(12, "Coal Ore", TileProperty.Solid | TileProperty.PickaxeMineable, Color.Black, itemID: 13, health: 110, tileMerges: [1, 4]),
             new PlatformData(13, "Wood Platform", TileProperty.PickaxeMineable, Color.BurlyWood, itemID: 12, health: 0),
             new DefaultTileData(14, "Stone Bricks", TileProperty.Solid | TileProperty.PickaxeMineable, Color.Gray, itemID: 14, wallID: 5, health: 100, tileMerges: [1]),
+            new LargeTileData(15, "Grass Plant", TileProperty.PickaxeMineable, Color.Green, new Point(1, 1))
         ];
         private static readonly DefaultWallData[] _wallData = [
             new DefaultWallData(0, "",                  Color.CornflowerBlue),

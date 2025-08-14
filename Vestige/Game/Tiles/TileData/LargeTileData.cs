@@ -27,8 +27,10 @@ namespace Vestige.Game.Tiles.TileData
             int verification = 1;
             for (int i = 0; i < TileSize.X; i++)
             {
+                //Ensure all tiles underneath are solid
                 if (!TileDatabase.TileHasProperties(world.GetTileID(bottomLeft.X + i, bottomLeft.Y + 1), TileProperty.Solid))
                     return -1;
+                //Ensure all tiles the large tile is being placed in are empty
                 for (int j = 0; j < TileSize.Y; j++)
                 {
                     //TODO: change to check if it's a replaceable tile like grass or something

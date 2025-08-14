@@ -493,5 +493,9 @@ namespace Vestige.Game.Entities
                 _projectiles[i]?.Draw(spriteBatch);
             }
         }
+        private void TrySpawnEnemy()
+        {
+
+        }
     }
 }

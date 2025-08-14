@@ -33,7 +33,7 @@ namespace Vestige.Game
         private RenderTarget2D _wallTarget;
         private RenderTarget2D _gameTarget;
         private RenderTarget2D _liquidRenderTarget;
-        private Texture2D _daytimeSkyGradient;
+        public static Texture2D DayTimeSkyGradient;
         private Vestige _gameHandle;
         private Player _localPlayer;
         private SunMoon _sunMoon;
@@ -48,7 +48,7 @@ namespace Vestige.Game
             World = world;
             _graphicsDevice = graphicsDevice;
             _tileRenderer = new TileRenderer(graphicsDevice);
-            _daytimeSkyGradient = Utilities.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], Vestige.NativeResolution.Y);
+            DayTimeSkyGradient = Utilities.GenerateVerticalGradient(graphicsDevice, [Color.Blue, Color.LightBlue], Vestige.NativeResolution.Y);
             LightEngine = new LightEngine(_graphicsDevice);
             EntityManager = new EntityManager();
             _parallaxManager = new ParallaxManager();
@@ -119,7 +119,7 @@ namespace Vestige.Game
             _graphicsDevice.SetRenderTarget(_bgTarget);
             _graphicsDevice.Clear(new Color((int)(50 * normalizedGlobalLight), (int)(109 * normalizedGlobalLight), (int)(255 * normalizedGlobalLight)));
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, samplerState: SamplerState.LinearClamp, transformMatrix: Matrix.CreateScale(4.0f));
-            spriteBatch.Draw(_daytimeSkyGradient, new Rectangle(Point.Zero, Vestige.NativeResolution), new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
+            spriteBatch.Draw(DayTimeSkyGradient, new Rectangle(Point.Zero, Vestige.NativeResolution), new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             _sunMoon.Draw(spriteBatch);
             _parallaxManager.Draw(spriteBatch, new Color(GameClock.GlobalLight, GameClock.GlobalLight, GameClock.GlobalLight));
             spriteBatch.End();

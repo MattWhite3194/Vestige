@@ -8,7 +8,6 @@ namespace Vestige.Game.Menus
 {
     public class MiniMapMenu : UIContainer
     {
-        //TODO: I really don't want to code this but I feel like I have to
         private Map _map;
         private Rectangle _mapSourceRect;
         private Vector2 _worldSize;

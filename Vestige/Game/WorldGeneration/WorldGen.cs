@@ -165,7 +165,7 @@ namespace Vestige.Game.WorldGeneration
                 TileBlobber(_random.Next(0, WorldSize.X), _random.Next(SurfaceDepth + _dirtDepth + ((_surfaceHeight - _dirtDepth) / 2), WorldSize.Y), _random.Next(4, 10), _random.Next(5, 30), 1);
             }
 
-            _generationStatus = "Generating Ored";
+            _generationStatus = "Generating Ores";
             //Generate Coal
             for (int i = 0; i < WorldSize.X * WorldSize.Y * 0.0005; i++)
             {
@@ -255,6 +255,19 @@ namespace Vestige.Game.WorldGeneration
                 }
             }
 
+            _generationStatus = "Growing Grass";
+            byte[] randomGrassStates = [0, 10, 20, 30];
+            for (int i = 0; i < WorldSize.X; i++)
+            {
+                if (_random.NextDouble() < 0.2)
+                {
+                    if (GetTileID(i, surfaceTerrain[i]) != 2 || GetTileID(i, surfaceTerrain[i] - 1) != 0)
+                        continue;
+                    SetTile(i, surfaceTerrain[i] - 1, 15);
+                    SetTileState(i, surfaceTerrain[i] - 1, randomGrassStates[_random.Next(0, 4)]);
+                }
+            }
+
             _generationStatus = "Taming The Seas";
             //Settle all liquids
             _liquidUpdater.SettleAll();
@@ -272,8 +285,8 @@ namespace Vestige.Game.WorldGeneration
             foreach (Point point in _minedTiles.Keys)
             {
                 DamagedTile damagedTileData = _minedTiles[point];
-                damagedTileData.Time += delta;
-                if (damagedTileData.Time > 5 || GetTileID(point.X, point.Y) == 0)
+                damagedTileData.TimeLeft += delta;
+                if (damagedTileData.TimeLeft > 5 || GetTileID(point.X, point.Y) == 0)
                 {
                     _minedTiles.Remove(point);
                 }
@@ -283,8 +296,8 @@ namespace Vestige.Game.WorldGeneration
             foreach (Point point in _minedWalls.Keys)
             {
                 DamagedTile damagedWallData = _minedWalls[point];
-                damagedWallData.Time += delta;
-                if (damagedWallData.Time > 5 || GetWallID(point.X, point.Y) == 0)
+                damagedWallData.TimeLeft += delta;
+                if (damagedWallData.TimeLeft > 5 || GetWallID(point.X, point.Y) == 0)
                 {
                     _minedWalls.Remove(point);
                 }
@@ -318,9 +331,9 @@ namespace Vestige.Game.WorldGeneration
             DefaultTileData tileData = TileDatabase.GetTileData(tileID);
             if (!tileData.CanTileBeDamaged(this, coordinates.X, coordinates.Y))
                 return;
-            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates) ? _minedTiles[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, tileID, tileData.Health, tileData.Health, 0);
+            DamagedTile damagedTileData = _minedTiles.ContainsKey(coordinates) ? _minedTiles[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, tileID, tileData.Health, 0);
             damagedTileData.Health = damagedTileData.Health - damage;
-            damagedTileData.Time = 0;
+            damagedTileData.TimeLeft = 0;
             if (damagedTileData.Health <= 0)
             {
                 RemoveTile(coordinates.X, coordinates.Y);
@@ -341,17 +354,17 @@ namespace Vestige.Game.WorldGeneration
                 return;
             //Reusing DamagedTile since it would be redundant to add another
             DefaultWallData wallData = TileDatabase.GetWallData(wallID);
-            DamagedTile DamagedWallData = _minedWalls.ContainsKey(coordinates) ? _minedWalls[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, wallID, wallData.Health, wallData.Health, 0);
-            DamagedWallData.Health = DamagedWallData.Health - damage;
-            DamagedWallData.Time = 0;
-            if (DamagedWallData.Health <= 0)
+            DamagedTile damagedWallData = _minedWalls.ContainsKey(coordinates) ? _minedWalls[coordinates] : new DamagedTile(coordinates.X, coordinates.Y, wallID, wallData.Health, 0);
+            damagedWallData.Health = damagedWallData.Health - damage;
+            damagedWallData.TimeLeft = 0;
+            if (damagedWallData.Health <= 0)
             {
                 RemoveWall(coordinates.X, coordinates.Y);
                 _minedWalls.Remove(coordinates);
             }
             else
             {
-                _minedWalls[coordinates] = DamagedWallData;
+                _minedWalls[coordinates] = damagedWallData;
             }
             //TODO: play tile specific damage sound here, so it only plays if the tile was actually damaged. any mining sounds or item use sounds will be playes by the item collider or the inventory useItem
         }
@@ -541,20 +554,20 @@ namespace Vestige.Game.WorldGeneration
         {
             return _tiles[(y * WorldSize.X) + x].WallID;
         }
-        public bool PlaceTile(int x, int y, ushort ID)
+        public bool PlaceTile(int x, int y, ushort tileID)
         {
-            if (ID != 0 && TileDatabase.GetTileData(ID).VerifyTile(this, x, y) != 1)
+            if (tileID != 0 && TileDatabase.GetTileData(tileID).VerifyTile(this, x, y) != 1)
                 return false;
-            if (TileDatabase.TileHasProperties(ID, TileProperty.LargeTile))
+            if (TileDatabase.TileHasProperties(tileID, TileProperty.LargeTile))
             {
-                SetLargeTile(x, y, ID);
+                SetLargeTile(x, y, tileID);
                 //TEMPORARY
                 //TODO: add tiles updated to a list, and then update the tiles in the list and around the tiles in the list
                 return true;
             }
             else
             {
-                SetTile(x, y, ID);
+                SetTile(x, y, tileID);
             }
             //tile states need to be updated first before calling any other checks
             for (int i = -1; i <= 1; i++)
@@ -631,27 +644,27 @@ namespace Vestige.Game.WorldGeneration
                 Main.EntityManager.CreateItemDrop(item, (new Vector2(x, y) * Vestige.TILESIZE) + new Vector2(Vestige.TILESIZE / 2), new Vector2(((float)Main.Random.NextDouble() - 0.5f) * 2.0f * 20, 0));
             }
         }
-        private void SetLargeTile(int x, int y, ushort ID)
+        private void SetLargeTile(int x, int y, ushort tileID)
         {
-            if (TileDatabase.GetTileData(ID) is not LargeTileData largeTileData)
+            if (TileDatabase.GetTileData(tileID) is not LargeTileData largeTileData)
                 return;
             Point topLeft = largeTileData.GetTopLeft(this, x, y);
             for (int i = 0; i < largeTileData.TileSize.X; i++)
             {
                 for (int j = 0; j < largeTileData.TileSize.Y; j++)
                 {
-                    _tiles[((topLeft.Y + j) * WorldSize.X) + topLeft.X + i].ID = ID;
+                    SetTile(topLeft.X + i, topLeft.Y + j, tileID);
                     SetTileState(topLeft.X + i, topLeft.Y + j, (byte)((j * 10) + i));
-                    if (TileDatabase.TileHasProperties(ID, TileProperty.Solid))
+                    if (TileDatabase.TileHasProperties(tileID, TileProperty.Solid))
                     {
                         SetLiquid(topLeft.X + i, topLeft.Y + j, 0);
                     }
                 }
             }
         }
-        private void RemoveLargeTile(int x, int y, ushort ID)
+        private void RemoveLargeTile(int x, int y, ushort tileID)
         {
-            if (TileDatabase.GetTileData(ID) is not LargeTileData largeTileData)
+            if (TileDatabase.GetTileData(tileID) is not LargeTileData largeTileData)
                 return;
             Point topLeft = largeTileData.GetTopLeft(this, x, y);
             for (int i = 0; i < largeTileData.TileSize.X; i++)
@@ -663,16 +676,16 @@ namespace Vestige.Game.WorldGeneration
                 }
             }
         }
-        public bool PlaceWall(int x, int y, ushort WallID)
+        public bool PlaceWall(int x, int y, ushort wallID)
         {
-            if (WallID != 0 && TileDatabase.GetWallData(WallID).VerifyWall(this, x, y) != 1)
+            if (wallID != 0 && TileDatabase.GetWallData(wallID).VerifyWall(this, x, y) != 1)
                 return false;
-            SetWall(x, y, WallID);
+            SetWall(x, y, wallID);
             for (int i = -1; i <= 1; i++)
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    SetWallState(x + i, y + j, TileDatabase.GetWallData(WallID).GetUpdatedWallState(this, x + i, y + j));
+                    SetWallState(x + i, y + j, TileDatabase.GetWallData(wallID).GetUpdatedWallState(this, x + i, y + j));
                     UpdateTile(x + i, y + j);
                 }
             }
@@ -699,15 +712,15 @@ namespace Vestige.Game.WorldGeneration
         {
             _tiles[(y * WorldSize.X) + x].WallState = state;
         }
-        public void SetTile(int x, int y, ushort ID)
+        public void SetTile(int x, int y, ushort tileID)
         {
-            _tiles[(y * WorldSize.X) + x].ID = ID;
-            if (TileDatabase.TileHasProperties(ID, TileProperty.Solid))
+            _tiles[(y * WorldSize.X) + x].ID = tileID;
+            if (TileDatabase.TileHasProperties(tileID, TileProperty.Solid))
                 SetLiquid(x, y, 0);
         }
-        public void SetWall(int x, int y, ushort WallID)
+        public void SetWall(int x, int y, ushort wallID)
         {
-            _tiles[(y * WorldSize.X) + x].WallID = WallID;
+            _tiles[(y * WorldSize.X) + x].WallID = wallID;
         }
         public Dictionary<Point, DamagedTile> GetDamagedTiles()
         {
