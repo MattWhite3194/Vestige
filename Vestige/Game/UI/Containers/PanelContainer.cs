@@ -11,7 +11,6 @@ namespace Vestige.Game.UI.Containers
         public PanelContainer(Vector2 position, Vector2 size, Color color, Color borderColor, int padding, int borderWidth, int borderRadius, GraphicsDevice graphicsDevice, Anchor anchor = Anchor.MiddleMiddle) : base(position, size, anchor)
         {
             _panel = new Texture2D(graphicsDevice, (int)size.X + (padding * 2), (int)size.Y + (padding * 2));
-            //TODO: need to add border radius somehow
             Color[] colorData = Enumerable.Repeat(color, _panel.Width * _panel.Height).ToArray();
 
             //Set borders

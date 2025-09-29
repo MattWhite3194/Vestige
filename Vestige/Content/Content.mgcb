@@ -267,6 +267,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Items/Item2.png
 
+#begin Assets/Textures/Items/Item20.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Items/Item20.png
+
 #begin Assets/Textures/Items/Item3.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -435,6 +447,18 @@
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Projectiles/Projectile1.png
 
+#begin Assets/Textures/Projectiles/Projectile2.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Projectiles/Projectile2.png
+
 #begin Assets/Textures/Tiles/Extras/Cracks.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -542,6 +566,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Assets/Textures/Tiles/Tile15.png
+
+#begin Assets/Textures/Tiles/Tile16.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Assets/Textures/Tiles/Tile16.png
 
 #begin Assets/Textures/Tiles/Tile2.png
 /importer:TextureImporter

@@ -588,15 +588,17 @@ namespace Vestige.Game.WorldGeneration
         }
         private void UpdateTile(int x, int y)
         {
-            if (TileDatabase.GetTileData(GetTileID(x, y)).VerifyTile(this, x, y) == -1)
+            DefaultTileData tileData = TileDatabase.GetTileData(GetTileID(x, y));
+            if (tileData.VerifyTile(this, x, y) == -1)
             {
-                RemoveTile(x, y);
+                //Don't drop an item if the tile is a falling tile, it will create it's own projectile when it's removed
+                RemoveTile(x, y, tileData is not FallingTileData);
             }
             if (GetLiquid(x, y) != 0)
             {
                 _liquidUpdater.QueueLiquidUpdate(x, y);
             }
-            if (TileDatabase.GetTileData(GetTileID(x, y)) is OverlayTileData overlayTile)
+            if (tileData is OverlayTileData overlayTile)
             {
                 if (GetTileState(x, y) == 255)
                     _tiles[(y * WorldSize.X) + x].ID = overlayTile.BaseTileID;
@@ -610,7 +612,7 @@ namespace Vestige.Game.WorldGeneration
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void RemoveTile(int x, int y)
+        public void RemoveTile(int x, int y, bool dropItem = true)
         {
             ushort tileID = GetTileID(x, y);
             if (TileDatabase.TileHasProperties(tileID, TileProperty.LargeTile))
@@ -635,6 +637,8 @@ namespace Vestige.Game.WorldGeneration
                     }
                 }
             }
+            if (!dropItem)
+                return;
             int itemID = TileDatabase.GetTileData(tileID).ItemID;
             if (itemID == -1)
                 return;

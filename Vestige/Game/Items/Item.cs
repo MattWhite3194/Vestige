@@ -67,10 +67,10 @@ namespace Vestige.Game.Items
             new TileItem(14, "Stone Bricks", "", ContentLoader.ItemTextures[14], 14),
             new TileItem(15, "Stone", "", ContentLoader.ItemTextures[15], 4),
             new WeaponItem(16, "Steel Pickaxe", "Upgraded breaking thinks.", ContentLoader.ItemTextures[16], default, false, 0.35f, true, true, 5, 2, UseStyle.Swing, new Pickaxe(55)), //0.2f
-            new WeaponItem(17, "Stone Axe", "Go and break something.", ContentLoader.ItemTextures[17], default, false, 0.4f, true, true, 4, 2, UseStyle.Swing, new Axe(6)), //0.2f
+            new WeaponItem(17, "Stone Axe", "Go and chop something.", ContentLoader.ItemTextures[17], default, false, 0.4f, true, true, 4, 2, UseStyle.Swing, new Axe(6)), //0.2f
             new WeaponItem(18, "Steel Sword", "Time for dicing.", ContentLoader.ItemTextures[18], default, false, 0.35f, true, true, 11, 3, UseStyle.Swing), //0.2f
             new WeaponItem(19, "Stone Sword", "Time for slicing.", ContentLoader.ItemTextures[19], default, false, 0.4f, true, true, 7, 2, UseStyle.Swing), //0.2f
-
+            new TileItem(20, "Sand", "It's coarse and it gets everywhere.", ContentLoader.ItemTextures[20], 16),
         };
         public static Item InstantiateItemByID(int id, int quantity = 1)
         {

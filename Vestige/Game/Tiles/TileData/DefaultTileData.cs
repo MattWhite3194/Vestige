@@ -32,7 +32,7 @@ namespace Vestige.Game.Tiles.TileData
             this.tileMerges = tileMerges ?? [];
         }
         /// <summary>
-        /// Runs whenever the tile state is updated, used to determine if the tile is valid in the world relative to its surrounding tiles
+        /// Called when a tile is placed or when a tile is updated, used to determine if the tile is valid in the world relative to its surrounding tiles
         /// </summary>
         /// <param name="tileID"></param>
         /// <param name="x"></param>

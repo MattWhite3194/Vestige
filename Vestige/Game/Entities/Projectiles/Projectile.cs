@@ -18,13 +18,12 @@ namespace Vestige.Game.Entities.Projectiles
         private List<(int, int)> _animationFrames;
         private int _tilePenetration;
         private int _entityPenetration;
-        private HashSet<(int, int)> _tileCollisions;
+        private Point _previousTileCollision;
         public Projectile(int id, Texture2D image, Vector2 size, Vector2 origin, int damage, int knockback, float timeLeft, bool friendly, bool collidesWithTiles, int tilePenetration = -1, int entityPenetration = -1, IProjectileBehavior behavior = null, List<(int, int)> animationFrames = null) : base(image, default, size, origin, animationFrames: animationFrames)
         {
             ID = id;
             CollidesWithTiles = collidesWithTiles;
-            if (tilePenetration != -1)
-                _tileCollisions = new HashSet<(int, int)>();
+            _previousTileCollision = new Point(-1, 1);
             Damage = damage;
             Knockback = knockback;
             _timeLeft = timeLeft;
@@ -58,7 +57,7 @@ namespace Vestige.Game.Entities.Projectiles
         }
         public override void Update(double delta)
         {
-            //TODO: get collisions here for tile penetration if collidesWithTiles is false
+            //If CollidesWithTiles is false, meaning it won't bounce when it hits tiles, scan here to check for tile penetration.
             if (!CollidesWithTiles && _tilePenetration != -1)
             {
                 CollisionRectangle bounds = GetBounds();
@@ -72,9 +71,10 @@ namespace Vestige.Game.Entities.Projectiles
                     {
                         if (!GetBounds().Intersects(new CollisionRectangle(x * Vestige.TILESIZE, y * Vestige.TILESIZE, Vestige.TILESIZE, Vestige.TILESIZE)))
                             continue;
-                        if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid) && !_tileCollisions.Contains((x, y)))
+                        Point nextTileCollision = new Point(x, y);
+                        if (TileDatabase.TileHasProperties(Main.World.GetTileID(x, y), TileProperty.Solid) && _previousTileCollision != nextTileCollision)
                         {
-                            _tileCollisions.Add((x, y));
+                            _previousTileCollision = nextTileCollision;
                             OnTileCollision(x, y, Main.World.GetTileID(x, y));
                         }
                     }
@@ -104,7 +104,8 @@ namespace Vestige.Game.Entities.Projectiles
         private static Dictionary<int, Projectile> _projectiles = new Dictionary<int, Projectile>
         {
             {0, new Projectile(0, ContentLoader.ProjectileTextures[0], new Vector2(4, 4), new Vector2(2.5f, 9), 10, 2, 3.0f, true, false, 1, 1, new Arrow()) },
-            {1, new Projectile(0, ContentLoader.ProjectileTextures[1], new Vector2(13, 13), new Vector2(6.5f, 11), 0, 0, 5, true, true, behavior: new Bomb(5)) }
+            {1, new Projectile(1, ContentLoader.ProjectileTextures[1], new Vector2(13, 13), new Vector2(6.5f, 11), 0, 0, 5, true, true, behavior: new Bomb(5)) },
+            {2, new Projectile(2, ContentLoader.ProjectileTextures[2], new Vector2(10, 10), new Vector2(5, 5), 3, 4, 10, false, false, 0, behavior: new FallingSand()) }
         };
     }
 }

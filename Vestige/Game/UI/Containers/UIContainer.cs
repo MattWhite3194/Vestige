@@ -127,6 +127,10 @@ namespace Vestige.Game.UI.Containers
                 uiComponentContainer.Draw(spriteBatch, rasterizerState);
             }
         }
+        /// <summary>
+        /// Anything drawn in this function will use the containers anchor matrix.
+        /// </summary>
+        /// <param name="spriteBatch"></param>
         protected virtual void DrawComponents(SpriteBatch spriteBatch)
         {
             foreach (UIComponent component in _componentChildren)

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Vestige.Game.Input;
 using Vestige.Game.UI.Components;
 
@@ -15,8 +17,9 @@ namespace Vestige.Game.UI.Containers
         private List<(object selection, string label)> _selections;
         private GridContainer _dropdownMenu;
         private Button _dropdownToggleButton;
+        private PanelContainer _dropdownBackground;
         public Action<object> OnSelectionChanged;
-        public DropdownContainer(List<(object selection, string label)> selections, Color buttonColor, Color buttonSelectedColor, Color buttonHoveredColor, int buttonWidth = 50, int margin = 5, Vector2 position = default, Vector2 size = default, object defaultSelected = null, Anchor anchor = Anchor.MiddleMiddle) : base(position, size, anchor)
+        public DropdownContainer(List<(object selection, string label)> selections, Color buttonColor, Color buttonSelectedColor, Color buttonHoveredColor, int buttonWidth = 50, int margin = 5, Vector2 position = default, Vector2 size = default, object defaultSelected = null, bool drawPanel = false, GraphicsDevice graphicsDevice = null, Anchor anchor = Anchor.MiddleMiddle) : base(position, size, anchor)
         {
             _buttonColor = buttonColor;
             _buttonSelectedColor = buttonSelectedColor;
@@ -42,17 +45,6 @@ namespace Vestige.Game.UI.Containers
                 }
             }
             _dropdownToggleButton = new Button(new Vector2(0, 0), _selections[_selectedIndex].label, Vector2.Zero, color: Color.White, clickedColor: Vestige.SelectedTextColor, hoveredColor: Vestige.HighlightedTextColor, maxWidth: buttonWidth);
-            _dropdownToggleButton.OnButtonPress += () =>
-            {
-                if (ContainerCount > 0)
-                {
-                    RemoveContainerChild(_dropdownMenu);
-                }
-                else
-                {
-                    AddContainerChild(_dropdownMenu);
-                }
-            };
             _dropdownMenu = new GridContainer(1, margin: margin, position: new Vector2(0, _dropdownToggleButton.Size.Y + margin), anchor: Anchor.TopLeft);
             for (int i = 0; i < selections.Count; i++)
             {
@@ -69,6 +61,23 @@ namespace Vestige.Game.UI.Containers
                 };
                 _dropdownMenu.AddComponentChild(label);
             }
+            if (drawPanel)
+            {
+                _dropdownBackground = new PanelContainer(new Vector2(0, _dropdownToggleButton.Size.Y + margin), _dropdownMenu.Size, Vestige.UIPanelColor, new Color(0, 0, 0, 255), 5, 1, 10, graphicsDevice, anchor: Anchor.TopLeft);
+            }
+            _dropdownToggleButton.OnButtonPress += () =>
+            {
+                if (ContainerCount > 0)
+                {
+                    RemoveContainerChild(_dropdownBackground);
+                    RemoveContainerChild(_dropdownMenu);
+                }
+                else
+                {
+                    AddContainerChild(_dropdownBackground);
+                    AddContainerChild(_dropdownMenu);
+                }
+            };
             _dropdownMenu.GetComponentChild(_selectedIndex).Color = buttonSelectedColor;
             AddComponentChild(_dropdownToggleButton);
         }

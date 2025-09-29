@@ -236,7 +236,7 @@ namespace Vestige.Game.Menus
             }
             _loadGameMenu.AddContainerChild(worldList);
 
-            DropdownContainer sortMethodContainer = new DropdownContainer([(_sortByDateAscending, "Date Ascending"), (_sortByDateDescending, "Date Descending"), (_sortByName, "Name")], Color.White, Vestige.SelectedTextColor, Vestige.HighlightedTextColor, position: new Vector2(-20, -20), defaultSelected: _worldSortMethod, buttonWidth: 150, anchor: Anchor.TopLeft);
+            DropdownContainer sortMethodContainer = new DropdownContainer([(_sortByDateAscending, "Date Ascending"), (_sortByDateDescending, "Date Descending"), (_sortByName, "Name")], Color.White, Vestige.SelectedTextColor, Vestige.HighlightedTextColor, position: new Vector2(-20, -20), defaultSelected: _worldSortMethod, buttonWidth: 150, drawPanel: true, graphicsDevice: _graphicsDevice, anchor: Anchor.TopLeft);
             sortMethodContainer.OnSelectionChanged += (object selection) =>
             {
                 _worldSortMethod = (Func<List<(UIContainer, Dictionary<string, string>)>, List<UIContainer>>)selection;
