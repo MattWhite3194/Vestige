@@ -20,7 +20,8 @@ namespace Vestige.Game.Renderers
             {
                 TextureEnabled = true,
                 VertexColorEnabled = true,
-                Projection = Matrix.CreateOrthographicOffCenter(0, 1920, 1280, 0, 0, 1),
+                //Must be the size of the selected resolution
+                Projection = Matrix.CreateOrthographicOffCenter(0, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height, 0, 0, 1),
                 View = Matrix.Identity,
                 World = Matrix.Identity
             };
@@ -246,6 +247,14 @@ namespace Vestige.Game.Renderers
         {
             _translation = translation;
             _tileDrawEffect.View = translation;
+        }
+        /// <summary>
+        /// Sets the bounds of the tile shader, should always be equal to current resolution of the game
+        /// </summary>
+        /// <param name="Resolution"></param>
+        public void ResetProjectionBounds()
+        {
+            _tileDrawEffect.Projection = Matrix.CreateOrthographicOffCenter(0, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height, 0, 0, 1);
         }
         public void SetDrawBox(Point drawBoxMin, Point drawBoxMax)
         {

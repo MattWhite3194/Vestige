@@ -53,6 +53,7 @@ namespace Vestige
         private List<Point> _supportedResolutions;
         private Point _maxScreenResolution;
         public bool IsFullScreen = false;
+        public event Action OnRenderDestinationUpdated;
         /*
          Charcoal Gray - Color(42, 45, 48, 196)
          Steel Blue - Color(58, 74, 89, 196)
@@ -189,6 +190,7 @@ namespace Vestige
                 (int)(NativeResolution.X * scale),
                 (int)(NativeResolution.Y * scale)
                 );
+            OnRenderDestinationUpdated?.Invoke();
         }
         private void GetSupportedDisplayModes()
         {
