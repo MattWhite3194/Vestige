@@ -62,12 +62,9 @@ namespace Vestige.Game
             SmoothLighting = (bool)Vestige.Settings.Get("smooth-lighting");
             ShowMiniMap = (bool)Vestige.Settings.Get("show-minimap");
 
-            _wallTarget = new RenderTarget2D(graphicsDevice, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height);
-            _gameTarget = new RenderTarget2D(graphicsDevice, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height);
-            _liquidRenderTarget = new RenderTarget2D(graphicsDevice, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height);
-            _bgTarget = new RenderTarget2D(graphicsDevice, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height);
             _sunMoon = new SunMoon(ContentLoader.SunMoonTexture, Vector2.Zero);
             gameHandle.OnRenderDestinationUpdated += UpdateRenderTargets;
+            UpdateRenderTargets();
 
             _map = new Map(World, graphicsDevice);
             //TEMPORARY: This reveals all tiles in the world at the start.
@@ -88,7 +85,6 @@ namespace Vestige.Game
 
             //For the water shader
             _graphicsDevice.SamplerStates[1] = SamplerState.PointClamp;
-            ContentLoader.WaterShader.Parameters["Projection"].SetValue(Matrix.CreateOrthographicOffCenter(0, 1920, 1280, 0, 0, 1));
 
             _parallaxManager.AddParallaxBackground(new Clouds(ContentLoader.Clouds, new Vector2(0.02f, 0.002f), _localPlayer.Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 100) * Vestige.TILESIZE));
             _parallaxManager.AddParallaxBackground(new ParallaxBackground(ContentLoader.MountainsBackground, new Vector2(0.01f, 0.001f), _localPlayer.Position, (World.SurfaceDepth + 20) * Vestige.TILESIZE, (World.SurfaceDepth - 80) * Vestige.TILESIZE));
@@ -223,6 +219,10 @@ namespace Vestige.Game
             _gameTarget = new RenderTarget2D(_graphicsDevice, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height);
             _liquidRenderTarget = new RenderTarget2D(_graphicsDevice, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height);
             _bgTarget = new RenderTarget2D(_graphicsDevice, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height);
+
+            //Update Water shader bounds
+            ContentLoader.WaterShader.Parameters["Projection"].SetValue(Matrix.CreateOrthographicOffCenter(0, Vestige.RenderDestination.Width, Vestige.RenderDestination.Height, 0, 0, 1));
+            ContentLoader.WaterShader.Parameters["screen_size"].SetValue(new Vector2(Vestige.RenderDestination.Width, Vestige.RenderDestination.Height));
             _tileRenderer.ResetProjectionBounds();
         }
         private void SaveAndQuit()

@@ -12,6 +12,7 @@ float Time;
 matrix ModelMatrix;
 matrix View;
 matrix Projection;
+float2 screen_size;
 
 static const float speed = 2.0;
 static const float waves = 1000.0;
@@ -19,7 +20,7 @@ static const float horizontal_waves = 1000.0;
 static const float amplitude = 0.69;
 static const float horizontal_amplitude = 0.91;
 static const float wave_offset = -0.04;
-static const float2 screen_size = float2(1920.0, 1280.0);
+//TODO: need to set this in UpdateRenderTargets
 static const float wave_amplitude = 0.03;
 static const float wave_period = 0.005;
 
@@ -53,7 +54,7 @@ float whiteNoise(float2 uv)
 float4 MainPS(VertexShaderOutput input) : COLOR
 {
     float2 uv = input.TextureCoordinates;
-    float2 screenUV = input.Position.xy / float2(1920.0, 1280.0);
+    float2 screenUV = input.Position.xy / screen_size;
     float4 fgColor = tex2D(SpriteTextureSampler, uv);
     float2 WorldSpace = mul(float4(input.Position.xy, 0.0, 1.0), ModelMatrix).xy;
     float2 transform = WorldSpace / screen_size;
