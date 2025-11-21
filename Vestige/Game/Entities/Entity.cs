@@ -24,14 +24,11 @@ namespace Vestige.Game.Entities
         /// <summary>
         /// If true, the entity will not stop when colliding with a single-tile tall barrier. Instead it will move over it.
         /// </summary>
-        public bool HopTiles;
+        public bool HopTiles = true;
         /// <summary>
         /// When set to false, the entity will be removed in the next update
         /// </summary>
         public bool Active = true;
-        /// <summary>
-        /// The layer other entities receive when they collide with this entity
-        /// </summary>
         public readonly string Name;
         /// <summary>
         /// the size of the entities hit box, will be calculated relative to the entities origin

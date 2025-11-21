@@ -21,6 +21,7 @@ namespace Vestige.Game.Entities
             CollidesWithTiles = true;
             CanBePickedUp = canBePickedUp;
             _pickupTimer = canBePickedUp ? 0.0f : 1.0f;
+            this.HopTiles = false;
         }
         public Item GetItem() { return _item; }
         public override void Update(double delta)

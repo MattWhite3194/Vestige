@@ -13,6 +13,8 @@ namespace Vestige.Game.Entities
     /// <summary>
     /// Handles collision detection between entities
     /// </summary>
+    /// 
+    //FIX: if entity penetration distance on a tile is greater than a threshold, consider it stuck and don't move it, will prevent jitter when itemdrop is stuck in a block
     public class EntityManager
     {
         //TODO: possibly split screen, leaving this here
@@ -25,9 +27,11 @@ namespace Vestige.Game.Entities
         private ItemDrop[] _itemDrops = new ItemDrop[500];
         private NPC[] _npcs = new NPC[500];
         private Projectile[] _projectiles = new Projectile[1000];
+        private EntitySpawner _entitySpawner = new EntitySpawner();
 
         public void Update(double delta)
         {
+            _entitySpawner.Update(delta);
             MouseEntity = null;
             for (int i = _respawnList.Count - 1; i >= 0; i--)
             {
@@ -162,11 +166,12 @@ namespace Vestige.Game.Entities
                 entity.Position = Vector2.Clamp(entity.Position, minPos, maxPos);
                 return;
             }
+            
+            int tileWidth = entity.GetBounds().Width / Vestige.TILESIZE;
+            int tileHeight = entity.GetBounds().Height / Vestige.TILESIZE;
 
             //horizontal tile collisions
             int distanceFactor = (int)Math.Min(entity.Size.X, Vestige.TILESIZE);
-            int tileWidth = (int)entity.Size.X / Vestige.TILESIZE;
-            int tileHeight = (int)entity.Size.Y / Vestige.TILESIZE;
             float distanceX = entity.Velocity.X * (float)delta;
             int horizontalCollisionDirection = 0;
             List<float> horizontalDistances = new List<float>();
@@ -185,6 +190,8 @@ namespace Vestige.Game.Entities
             }
 
             //vertical tile collisions
+            //An entity can move at max 16 pixels at a time, to ensure a tile collision isn't skipped if the entity was moving to fast
+            //TODO: remove the list, make this more efficient
             distanceFactor = (int)Math.Min(entity.Size.Y, Vestige.TILESIZE);
             float distanceY = entity.Velocity.Y * (float)delta;
             List<float> verticalDistances = new List<float>();
@@ -204,7 +211,7 @@ namespace Vestige.Game.Entities
             //Determine if an entity who has horizontally collided with a tile can hop up
             if (horizontalCollisionDirection != 0)
             {
-                if (Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.GetBounds().Position / Vestige.TILESIZE).ToPoint(), entity.GetBounds().Width / Vestige.TILESIZE, entity.GetBounds().Height / Vestige.TILESIZE, horizontalCollisionDirection))
+                if (entity.HopTiles && Math.Sign(entity.Velocity.X) == horizontalCollisionDirection && CanEntityHop(entity, (entity.GetBounds().Position / Vestige.TILESIZE).ToPoint(), tileWidth, tileHeight, horizontalCollisionDirection))
                 {
                     entity.Position.Y -= Vestige.TILESIZE;
                     entity.Position.X += 2 * Math.Sign(entity.Velocity.X);
@@ -492,10 +499,6 @@ namespace Vestige.Game.Entities
             {
                 _projectiles[i]?.Draw(spriteBatch);
             }
-        }
-        private void TrySpawnEnemy()
-        {
-
         }
     }
 }

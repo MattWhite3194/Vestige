@@ -24,6 +24,7 @@ namespace Vestige.Game.WorldGeneration
         /// The Lowest point of the surface in the world. Relative to the top of the world
         /// </summary>
         public int SurfaceDepth;
+        public int CaveDepth;
         public Point WorldSize;
         public int SpaceHeight;
         public static readonly byte MaxLiquid = 127;
@@ -64,20 +65,22 @@ namespace Vestige.Game.WorldGeneration
         {
             _random = seed != 0 ? new Random(seed) : new Random();
             _structures = new List<Structure>();
-            int[] surfaceNoise = Generate1DNoise(WorldSize.X, 50, 300, 4, 0.5f);
-            surfaceNoise = Smooth(surfaceNoise, 2);
             int[] surfaceTerrain = new int[WorldSize.X];
             _surfaceHeight = WorldSize.Y;
+            InitializeGradients();
 
             _generationStatus = "Generating Terrain";
             //place stone and get surface height
             for (int i = 0; i < WorldSize.X; i++)
             {
-                for (int j = (WorldSize.Y / 2) - (WorldSize.Y / 4) + surfaceNoise[i]; j < WorldSize.Y; j++)
+                //The gradient that scaled noise values based on their position in the world
+                float surfaceGradient = 1.0f;
+                int surfaceNoise = (int)(PerlinNoiseAt(i, 300.0, 4, 0.5) * 50.0 * surfaceGradient);
+                for (int j = (WorldSize.Y / 2) - (WorldSize.Y / 4) + surfaceNoise; j < WorldSize.Y; j++)
                 {
                     SetTile(i, j, 4);
                     SetWall(i, j, 2);
-                    surfaceTerrain[i] = (WorldSize.Y / 2) - (WorldSize.Y / 4) + surfaceNoise[i];
+                    surfaceTerrain[i] = (WorldSize.Y / 2) - (WorldSize.Y / 4) + surfaceNoise;
 
                     if (WorldSize.Y - surfaceTerrain[i] < _surfaceHeight)
                         _surfaceHeight = WorldSize.Y - surfaceTerrain[i];
@@ -107,44 +110,41 @@ namespace Vestige.Game.WorldGeneration
             SpawnTile = new Point(WorldSize.X / 2, surfaceTerrain[WorldSize.X / 2]);
 
             _generationStatus = "Generating Caves";
-            InitializeGradients();
-            double[,] perlinNoise = GeneratePerlinNoiseWithOctaves(WorldSize.X, _surfaceHeight, scale: 25, octaves: 4, persistence: 0.5);
-            //threshhold cave noise
-            int[] cornersX = [0, 0, 1, -1];
-            int[] cornersY = [1, -1, 0, 0];
-            //flood fill top edge so there are no sharp cutoffs on caves.
-            Queue<Point> fillPoints = new Queue<Point>();
-            for (int x = 0; x < WorldSize.X; x++)
-            {
-                if (perlinNoise[0, x] < -0.1)
-                {
-                    perlinNoise[0, x] = 1;
-                    fillPoints.Enqueue(new Point(x, 0));
-                }
-            }
-            while (fillPoints.Count > 0)
-            {
-                Point fillPoint = fillPoints.Dequeue();
-                for (int i = 0; i < 4; i++)
-                {
-                    int x = fillPoint.X + cornersX[i];
-                    int y = fillPoint.Y + cornersY[i];
-                    if (x < 0 || y < 0 || x >= perlinNoise.GetLength(1) || y >= perlinNoise.GetLength(0))
-                        continue;
-                    if (perlinNoise[y, x] < -0.1)
-                    {
-                        perlinNoise[y, x] = 1;
-                        fillPoints.Enqueue(new Point(x, y));
-                    }
-                }
-            }
+            //Perlin noise caves
             for (int x = 0; x < WorldSize.X; x++)
             {
                 for (int y = 0; y < _surfaceHeight; y++)
                 {
-                    if (perlinNoise[y, x] < -0.1)
+                    //cave gradient, caves will progressively get larger from 0 to surfaceHeight / 4.0
+                    float gradient = Math.Max(_surfaceHeight / 4.0f - y, 0.0f) / (_surfaceHeight / 4.0f) / 3.0f;
+                    if (PerlinNoiseAt(x, y, 25.0, 4, 0.5) + gradient < -0.1)
                         SetTile(x, WorldSize.Y - _surfaceHeight + y, 0);
                 }
+            }
+            CaveDepth = WorldSize.Y - _surfaceHeight + (int)(_surfaceHeight / 4.0f);
+            //TODO: worm caves from surface
+            int numCaves = (int)(WorldSize.X * 0.002f);
+            while (numCaves > 0)
+            {
+                int caveX = _random.Next(40, WorldSize.X - 40);
+                if (Math.Abs((WorldSize.X / 2) - caveX) < 40)
+                    continue;
+                Rectangle cave = new Rectangle(caveX, surfaceTerrain[WorldSize.X / 2] - 5, 10, 20);
+                bool caveIsClear = true;
+                foreach (Structure structure in _structures)
+                {
+                    if (cave.Intersects(structure.Bounds))
+                    {
+                        caveIsClear = false;
+                        break;
+                    }
+                }
+                if (!caveIsClear)
+                    continue;
+                Structure newCave = new Structure(cave, 0);
+                _structures.Add(newCave);
+                WormCave(caveX, surfaceTerrain[caveX], 10, (CaveDepth - SurfaceDepth + _random.Next(-10, 30)), 0.01f, 0.8f);
+                numCaves--;
             }
 
             _generationStatus = "Generating Rocks";
@@ -180,7 +180,7 @@ namespace Vestige.Game.WorldGeneration
                     continue;
                 if (Math.Abs((WorldSize.X / 2) - i) < 40)
                     continue;
-                //TODO: move this into building function foor proper door placement and connection
+                //TODO: move this into building function for proper door placement and connection
                 Rectangle building = GenerateBuilding(i, surfaceTerrain[i]);
                 for (int j = 0; j < _random.Next(0, 2); j++)
                 {
@@ -415,62 +415,6 @@ namespace Vestige.Game.WorldGeneration
             SetTileState(x, y - height, 0);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="size">The size of the 1D array</param>
-        /// <param name="height">The amplitude of the first octave</param>
-        /// <param name="scale"></param>
-        /// <param name="octaves">Number of passes. Will make the noise more detailed</param>
-        /// <param name="persistance">Value less than 1. Reduces height of next octave.</param>
-        /// <returns></returns>
-        private int[] Generate1DNoise(int size, float height, int scale, int octaves, float persistance)
-        {
-            float[] values = new float[256];
-            for (int i = 0; i < values.Length; i++)
-            {
-                values[i] = (float)_random.NextDouble();
-            }
-            int[] noise = new int[size];
-            for (int octave = 0; octave < octaves; octave++)
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    int x0 = i / scale % 256;
-                    int x1 = (x0 + 1) % 256;
-                    int xMinus = (x0 - 1 + 256) % 256;
-                    int xPlus = (x1 + 1) % 256;
-
-                    float t = (float)Fade(i % scale / (float)scale);
-
-                    float y = MathHelper.CatmullRom(
-                        values[xMinus] * height,
-                        values[x0] * height,
-                        values[x1] * height,
-                        values[xPlus] * height,
-                        t
-                    );
-
-                    noise[i] += (int)y;
-                }
-                scale /= 2;
-                height *= persistance;
-            }
-            return noise;
-        }
-        private int[] Smooth(int[] noise, int passes)
-        {
-            int[] smoothed = new int[noise.Length];
-            for (int pass = 0; pass < passes; pass++)
-            {
-                for (int i = 0; i < noise.Length; i++)
-                {
-                    smoothed[i] = (noise[Math.Max(0, i - 1)] + noise[i] + noise[Math.Min(i + 1, noise.Length - 1)]) / 3;
-                }
-                noise = smoothed;
-            }
-            return smoothed;
-        }
         private void InitializeGradients()
         {
             for (int x = 0; x < 256; x++)
@@ -482,19 +426,23 @@ namespace Vestige.Game.WorldGeneration
                 }
             }
         }
+
         private double GetInfluenceValue(double x, double y, int Xgrad, int Ygrad)
         {
             return (gradients[Xgrad % 256, Ygrad % 256, 0] * (x - Xgrad)) +
                    (gradients[Xgrad % 256, Ygrad % 256, 1] * (y - Ygrad));
         }
+
         private double Lerp(double v0, double v1, double t)
         {
             return ((1 - t) * v0) + (t * v1);
         }
+
         private double Fade(double t)
         {
             return (3 * Math.Pow(t, 2)) - (2 * Math.Pow(t, 3));
         }
+
         private double Perlin(double x, double y)
         {
             int X0 = (int)x;
@@ -511,49 +459,59 @@ namespace Vestige.Game.WorldGeneration
             double bottomRightDot = GetInfluenceValue(x, y, X1, Y0);
             return Lerp(Lerp(bottomLeftDot, bottomRightDot, sx), Lerp(topLeftDot, topRightDot, sx), sy);
         }
-        //I'm not gonna lie, I copied this function because I didn't feel like learning the perlin noise algorithm
-        private double[,] GeneratePerlinNoiseWithOctaves(int width, int height, double scale = 100.0, int octaves = 4, double persistence = 0.5)
+
+        private double PerlinNoiseAt(int x, double scale = 100.0, int octaves = 4, double persistence = 0.5)
         {
-            double[,] noise = new double[height, width];
             double amplitude = 1.0;
             double frequency = 1.0;
-            double maxValue = 0;  // To normalize the result
-
+            double maxValue = 0;
+            double noise = 0.0;
             for (int octave = 0; octave < octaves; octave++)
             {
-                for (int x = 0; x < width; x++)
-                {
-                    for (int y = 0; y < height; y++)
-                    {
-                        // Apply frequency and scale to the coordinates for each octave
-                        noise[y, x] += Perlin(x / scale * frequency, y / scale * frequency) * amplitude;
-                    }
-                }
+                // Apply frequency and scale to the coordinates for each octave
+                noise += Perlin(x / scale * frequency, 0) * amplitude;
 
                 maxValue += amplitude;
                 amplitude *= persistence;  // Amplitude decreases with each octave
                 frequency *= 2;  // Frequency doubles for each octave
             }
 
-            // Normalize the noise to be between -1 and 1
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    noise[y, x] /= maxValue;
-                }
-            }
+            noise /= maxValue;
 
             return noise;
         }
+
+        private double PerlinNoiseAt(int x, int y, double scale = 100.0, int octaves = 4, double persistence = 0.5)
+        {
+            double amplitude = 1.0;
+            double frequency = 1.0;
+            double maxValue = 0;
+            double noise = 0.0;
+            for (int octave = 0; octave < octaves; octave++)
+            {
+                // Apply frequency and scale to the coordinates for each octave
+                noise += Perlin(x / scale * frequency, y / scale * frequency) * amplitude;
+
+                maxValue += amplitude;
+                amplitude *= persistence;  // Amplitude decreases with each octave
+                frequency *= 2;  // Frequency doubles for each octave
+            }
+
+            noise /= maxValue;
+
+            return noise;
+        }
+
         public ushort GetTileID(int x, int y)
         {
             return _tiles[(y * WorldSize.X) + x].ID;
         }
+
         public ushort GetWallID(int x, int y)
         {
             return _tiles[(y * WorldSize.X) + x].WallID;
         }
+
         public bool PlaceTile(int x, int y, ushort tileID)
         {
             if (tileID != 0 && TileDatabase.GetTileData(tileID).VerifyTile(this, x, y) != 1)
@@ -798,6 +756,41 @@ namespace Vestige.Game.WorldGeneration
                                 SetTile(i, j, tileID);
                             else if (replaceTiles?.Contains(GetTileID(i, j)) ?? TileDatabase.TileHasProperties(GetTileID(i, j), TileProperty.Solid))
                                 SetTile(i, j, tileID);
+                        }
+                    }
+                }
+                currentTile += tileOffset;
+                tileOffset.X += _random.Next(-10, 11) * 0.05f;
+                tileOffset.X = float.Clamp(tileOffset.X, -1, 1);
+            }
+        }
+        private void WormCave(int x, int y, double size, int passes, float influenceX, float influenceY)
+        {
+            double remainingSize = size;
+            double remainingPasses = passes;
+            Vector2 currentTile = new Vector2(x, y);
+            Vector2 tileOffset = new Vector2(influenceX, influenceY);
+            while (remainingSize > 0.0 && remainingPasses > 0.0)
+            {
+                
+                //Rectangle around point with width = remainingStrength and height = remainingStrength
+                int leftBound = Math.Max(0, (int)(currentTile.X - (remainingSize / 2)));
+                int rightBound = Math.Min(WorldSize.X - 1, (int)(currentTile.X + (remainingSize / 2)));
+                int topBound = Math.Max(0, (int)(currentTile.Y - (remainingSize / 2)));
+                int bottomBound = Math.Min(WorldSize.Y - 1, (int)(currentTile.Y + (remainingSize / 2)));
+
+                //decrease strength each pass
+                remainingSize = size * (remainingPasses / passes);
+                remainingPasses -= 1.0;
+
+                for (int i = leftBound; i <= rightBound; i++)
+                {
+                    for (int j = topBound; j <= bottomBound; j++)
+                    {
+                        //check distance in a diamond shape + a random offset
+                        if (Math.Abs((double)i - currentTile.X) + Math.Abs((double)j - currentTile.Y) < size / 2 * (1.0 + (_random.Next(-10, 11) * 0.015)))
+                        {
+                            SetTile(i, j, 0);
                         }
                     }
                 }

@@ -1,5 +1,9 @@
 ﻿TODO:
 
+Add a TileScanner object that will scan all the tiles in view and pass scanned data to each object that needs it, reduces number of times tiles need to be sanned per frame to one. LightManager, TileDrawing, WallDrawing, etc...
+This might not work for drawing...
+Use for detecting active biome
+
 Finish as a tech demo:
 add flowers, add iron and furnace to craft weapons, add entity spawning system
 

@@ -17,7 +17,6 @@ using Vestige.Game.WorldGeneration;
 
 namespace Vestige.Game.Menus
 {
-    //TODO: clear the delegate on the resolution selector when this Menu is removed, or keep a single main menu open
     public class MainMenu : UIContainer
     {
         private ParallaxManager parallaxManager;
