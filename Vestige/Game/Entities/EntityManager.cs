@@ -500,5 +500,9 @@ namespace Vestige.Game.Entities
                 _projectiles[i]?.Draw(spriteBatch);
             }
         }
+        public Player[] GetPlayers()
+        {
+            return _players;
+        }
     }
 }

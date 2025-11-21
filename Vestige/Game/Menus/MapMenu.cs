@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using Vestige.Game.Entities;
 using Vestige.Game.Input;
 using Vestige.Game.Time;
 using Vestige.Game.UI.Components;
@@ -88,6 +89,13 @@ namespace Vestige.Game.Menus
             spriteBatch.End();
             spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: Matrix.CreateScale(parentSize.X / Vestige.NativeResolution.X) * Matrix.CreateTranslation(new Vector3((parentSize / 2.0f) + (_mapPosition * (_userZoom * _defaultZoom)), 0)));
             spriteBatch.Draw(_map.MapRenderTarget, Vector2.Zero, null, Color.White, 0.0f, _mapOrigin, _userZoom * _defaultZoom, SpriteEffects.None, 0.0f);
+            foreach (Player player in Main.EntityManager.GetPlayers())
+            {
+                if (player == null || player.Dead) continue;
+                Vector2 stringSize = ContentLoader.GameFont.MeasureString(player.Name);
+                Vector2 centeredPlayerPosition = player.Position / Vestige.TILESIZE - Main.World.WorldSize.ToVector2() / 2;
+                spriteBatch.DrawString(ContentLoader.GameFont, player.Name, centeredPlayerPosition * (_userZoom * _defaultZoom) - stringSize / 2, Color.White);
+            }
             spriteBatch.End();
         }
     }
